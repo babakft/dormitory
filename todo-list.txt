@@ -1,0 +1,370 @@
+My project structure
+
+apps/
+├── student/           # Student registration, fix requests, reviews
+├── service/          # Service staff completing fixes
+├── maintenance/       # Fix request system (shared)
+└── donations/         # Donation system
+
+    #abstraction
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=50, unique=True)
+    phone = models.CharField(max_length=20, blank=True)
+    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
+
+
+
+#######################################
+class ServiceExpert(models.Model):
+    """Expert/technician who handles maintenance requests"""
+
+    SPECIALIZATION_CHOICES = [
+        ('electrical', 'Electrical'),
+        ('plumbing', 'Plumbing'),
+        ('hvac', 'HVAC/Air Conditioning'),
+        ('carpentry', 'Carpentry'),
+        ('general', 'General Maintenance'),
+        ('cleaning', 'Cleaning'),
+        ('security', 'Security Systems'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='expert_profile')
+    employee_id = models.CharField(max_length=50, unique=True)
+    specialization = models.CharField(max_length=20, choices=SPECIALIZATION_CHOICES)
+
+    # Convenience properties for easier access to user fields
+    @property
+    def email(self):
+        return self.user.email
+
+    @property
+    def username(self):
+        return self.user.username
+
+    @property
+    def phone(self):
+        return self.user.phone
+
+    @property
+    def display_name(self):
+        return self.user.display_name
+
+    # Status
+    is_active = models.BooleanField(default=True)
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.get_specialization_display()}"
+
+    class Meta:
+        verbose_name = 'Service Expert'
+        verbose_name_plural = 'Service Experts'
+
+
+class MaintenanceRequest(models.Model):
+    """Maintenance request from students"""
+
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+    ]
+
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('urgent', 'Urgent'),
+    ]
+
+    # Service type choices matching expert specializations
+    SERVICE_TYPE_CHOICES = [
+        ('electrical', 'Electrical'),
+        ('plumbing', 'Plumbing'),
+        ('hvac', 'HVAC/Air Conditioning'),
+        ('carpentry', 'Carpentry'),
+        ('general', 'General Maintenance'),
+        ('cleaning', 'Cleaning'),
+        ('security', 'Security Systems'),
+    ]
+
+    # Student who made the request
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='maintenance_requests')
+
+    # Request details
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    service_type = models.CharField(
+        max_length=20,
+        choices=SERVICE_TYPE_CHOICES,
+        default='general',
+        help_text='Type of service required'
+    )
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
+
+    # Image upload
+    issue_image = models.ImageField(upload_to='maintenance_requests/', null=True, blank=True)
+
+    # Location details - Now using FK to Room
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='maintenance_requests')
+
+    # Status tracking
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
+
+    # Admin approval
+    approved_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='approved_maintenance_requests',
+        limit_choices_to={'user_type': 'admin'}
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True)
+
+    # Assignment to expert
+    assigned_expert = models.ForeignKey(
+        ServiceExpert,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_requests'
+    )
+    assigned_at = models.DateTimeField(null=True, blank=True)
+
+    # Work progress
+    work_started_at = models.DateTimeField(null=True, blank=True)
+    expert_notes = models.TextField(blank=True)
+    work_in_progress_image = models.ImageField(
+        upload_to='maintenance_progress/',
+        null=True,
+        blank=True
+    )
+
+    # Completion details
+    completion_image = models.ImageField(upload_to='maintenance_completed/', null=True, blank=True)
+    completion_notes = models.TextField(blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    # Student feedback
+    student_rating = models.IntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text='Rating from 1 to 5'
+    )
+    student_feedback = models.TextField(blank=True)
+    feedback_at = models.DateTimeField(null=True, blank=True)
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} - {self.student.user.username} ({self.get_status_display()})"
+
+    @property
+    def full_location(self):
+        return str(self.room)
+
+    @property
+    def days_since_created(self):
+        return (timezone.now() - self.created_at).days
+
+
+class EmailNotification(models.Model):
+    """Track email notifications sent to users"""
+
+    NOTIFICATION_TYPES = [
+        ('registration_approved', 'Registration Approved'),
+        ('registration_rejected', 'Registration Rejected'),
+        ('maintenance_approved', 'Maintenance Request Approved'),
+        ('maintenance_rejected', 'Maintenance Request Rejected'),
+        ('maintenance_assigned', 'Maintenance Request Assigned'),
+        ('maintenance_in_progress', 'Maintenance Work Started'),
+        ('maintenance_completed', 'Maintenance Request Completed'),
+        ('donation_received', 'Donation Received'),
+        ('donation_confirmation', 'Donation Confirmation'),
+    ]
+
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_notifications')
+    notification_type = models.CharField(max_length=30, choices=NOTIFICATION_TYPES)
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+
+    # Related objects
+    related_student = models.ForeignKey(Student, on_delete=models.CASCADE, null=True, blank=True)
+    related_maintenance = models.ForeignKey(MaintenanceRequest, on_delete=models.CASCADE, null=True, blank=True)
+    related_donation = models.ForeignKey('Donation', on_delete=models.CASCADE, null=True, blank=True)
+
+    # Email status
+    is_sent = models.BooleanField(default=False)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    error_message = models.TextField(blank=True)
+    attempts = models.IntegerField(default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.get_notification_type_display()} to {self.recipient.email}"
+
+
+class NotificationPreference(models.Model):
+    """User notification preferences"""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='notification_preferences')
+
+    # Email preferences
+    email_on_approval = models.BooleanField(default=True)
+    email_on_rejection = models.BooleanField(default=True)
+    email_on_assignment = models.BooleanField(default=True)
+    email_on_completion = models.BooleanField(default=True)
+    email_on_donation = models.BooleanField(default=True)
+
+    # SMS preferences (if you plan to add SMS later)
+    sms_notifications = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Notification preferences for {self.user.email}"
+
+
+class DonationCategory(models.Model):
+    """Categories for donations"""
+
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField()
+    target_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text='Target amount for this category (optional)'
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Donation Categories'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def total_donations(self):
+        return self.donations.filter(payment_status='completed').aggregate(
+            total=models.Sum('amount')
+        )['total'] or 0
+
+    @property
+    def progress_percentage(self):
+        if self.target_amount and self.target_amount > 0:
+            return min(100, (self.total_donations / self.target_amount) * 100)
+        return 0
+
+
+class Donation(models.Model):
+    """Individual donations"""
+
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+    ]
+
+    # Donor information
+    donor_name = models.CharField(max_length=100)
+    donor_email = models.EmailField()
+    donor_phone = models.CharField(max_length=20, blank=True)
+
+    # Donation details
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    category = models.ForeignKey(DonationCategory, on_delete=models.CASCADE, related_name='donations')
+    message = models.TextField(blank=True, help_text='Optional message from donor')
+    is_anonymous = models.BooleanField(default=False)
+
+    # Payment information
+    payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=50, blank=True)  # e.g., 'credit_card', 'paypal', etc.
+    payment_reference = models.CharField(max_length=100, blank=True)
+    transaction_id = models.CharField(max_length=100, blank=True)
+
+    # Optional: Link to student if donor is a student
+    student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # Timestamps
+    donated_at = models.DateTimeField(auto_now_add=True)
+    payment_completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-donated_at']
+
+    def __str__(self):
+        donor_display = "Anonymous" if self.is_anonymous else self.donor_name
+        return f"{donor_display} - ${self.amount} to {self.category.name}"
+
+
+# Additional utility model for system configuration
+class SystemConfiguration(models.Model):
+    """System-wide configuration settings"""
+
+    key = models.CharField(max_length=100, unique=True)
+    value = models.TextField()
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.key}: {self.value[:50]}..."
+
+
+# Custom Authentication Backend for Email OR Username login
+from django.contrib.auth.backends import BaseBackend
+from django.contrib.auth import get_user_model
+
+class EmailOrUsernameBackend(BaseBackend):
+    """
+    Authentication backend that allows login with either email or username
+    """
+
+    def authenticate(self, request, username=None, password=None, **kwargs):
+        UserModel = get_user_model()
+
+        if username is None:
+            return None
+
+        try:
+            # Try to find user by email first
+            if '@' in username:
+                user = UserModel.objects.get(email=username)
+            else:
+                # If no @ symbol, treat as username
+                user = UserModel.objects.get(username=username)
+
+        except UserModel.DoesNotExist:
+            return None
+
+        # Check password
+        if user.check_password(password) and user.is_active:
+            return user
+
+        return None
+
+    def get_user(self, user_id):
+        UserModel = get_user_model()
+        try:
+            return UserModel.objects.get(pk=user_id)
+        except UserModel.DoesNotExist:
+            return None
