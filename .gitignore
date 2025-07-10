@@ -1,5 +1,5 @@
 local_*.py
-
+.idea/
 ### Django(gitignore.io) ###
 *.log
 *.pot
