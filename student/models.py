@@ -94,8 +94,7 @@ class Room(models.Model):
     number = models.IntegerField()
     building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='rooms')
     floor = models.IntegerField()
-    capacity = models.IntegerField(default=1)
-    is_occupied = models.BooleanField(default=False)
+    capacity = models.IntegerField(default=6)
 
     class Meta:
         unique_together = ['number', 'building', 'floor']
