@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.db import models
 from django.utils import timezone
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class UserManager(BaseUserManager):
@@ -22,7 +20,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, username, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('user_type', 'admin')
+        # Superusers don't need user_type - they are identified by is_superuser=True
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
@@ -37,14 +35,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USER_TYPE_CHOICES = [
         ('student', 'Student'),
-        ('admin', 'Admin'),
         ('expert', 'Service Expert'),
     ]
 
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=50, unique=True)
     phone = models.CharField(max_length=11, blank=True)
-    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
+    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, null=True, blank=True)
 
     # Django required fields
     is_active = models.BooleanField(default=True)
@@ -71,10 +68,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'  # Primary login field
-    REQUIRED_FIELDS = ['username', 'user_type']  # Required when creating superuser
+    REQUIRED_FIELDS = ['username']  # Required when creating superuser
 
     def __str__(self):
-        return f"{self.username} ({self.email}) - {self.get_user_type_display()}"
+        user_type_display = self.get_user_type_display() if self.user_type else 'Superuser'
+        return f"{self.username} ({self.email}) - {user_type_display}"
 
     @property
     def display_name(self):
@@ -114,7 +112,7 @@ class Student(models.Model):
         ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
-    ]  # Convenience properties for easier access to user fields
+    ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile')
     student_number = models.CharField(max_length=50, unique=True)
@@ -133,15 +131,8 @@ class Student(models.Model):
         default='pending'
     )
 
-    # Admin who approved/rejected
-    processed_by = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='processed_students',
-        limit_choices_to={'user_type': 'admin'}
-    )
+    # Admin approval tracking - CharField approach
+    processed_by_name = models.CharField(max_length=100, blank=True, null=True)
     processed_at = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True)
 
@@ -158,4 +149,6 @@ class Student(models.Model):
 
     @property
     def full_room_address(self):
-        return f"Room {self.room_number}, Floor {self.floor_number}, {self.building_name}"
+        if self.room:
+            return str(self.room)
+        return "No room assigned"

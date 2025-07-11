@@ -1,5 +1,7 @@
 from django.db import models
 from student.models import User
+
+
 class ServiceExpert(models.Model):
     """Expert/technician who handles maintenance requests"""
 

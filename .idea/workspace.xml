@@ -4,11 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="882083fa-e96f-420e-a923-11742aa99288" name="Changes" comment="add the initial gitignore, which are taken from gitignore.io" />
+    <list default="true" id="882083fa-e96f-420e-a923-11742aa99288" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/dormitory.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dormitory.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dormitory/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/dormitory/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dormitory/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/dormitory/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/maintenance/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/service/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/service/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/student/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/student/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/todo-list.txt" beforeDir="false" afterPath="$PROJECT_DIR$/todo-list.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -17,6 +33,7 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -69,7 +86,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "Develop",
-    "last_opened_file_path": "/home/babak/PycharmProjects/DataBase-Project-main-",
+    "last_opened_file_path": "/home/babak/PycharmProjects/dormitory",
     "settings.editor.selected.configurable": "preferences.pluginManager"
   }
 }]]></component>
@@ -97,7 +114,23 @@
       <option name="project" value="LOCAL" />
       <updated>1752096180464</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="-add AUTH_MODULE to setting&#10;-correct the database connection detail &#10;- add .idea to .gitignore">
+      <option name="closed" value="true" />
+      <created>1752140195436</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1752140195436</updated>
+    </task>
+    <task id="LOCAL-00003" summary="add maintenance and service to the settings.py">
+      <option name="closed" value="true" />
+      <created>1752140368720</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1752140368720</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -113,6 +146,10 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="add the initial gitignore, which are taken from gitignore.io" />
-    <option name="LAST_COMMIT_MESSAGE" value="add the initial gitignore, which are taken from gitignore.io" />
+    <MESSAGE value="-add AUTH_MODULE to setting&#10;-correct the database connection detail &#10;- add .idea to .gitignore" />
+    <MESSAGE value="add maintenance and service to the settings.py" />
+    <MESSAGE value="{&#10;    &quot;error&quot;: {&#10;        &quot;message&quot;: &quot;You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.&quot;,&#10;        &quot;type&quot;: &quot;invalid_request_error&quot;,&#10;        &quot;param&quot;: null,&#10;        &quot;code&quot;: null&#10;    }&#10;}" />
+    <MESSAGE value="{&#10;    &quot;error&quot;: {&#10;        &quot;message&quot;: &quot;You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.&quot;,&#10;        &quot;type&quot;: &quot;insufficient_quota&quot;,&#10;        &quot;param&quot;: null,&#10;        &quot;code&quot;: &quot;insufficient_quota&quot;&#10;    }&#10;}" />
+    <option name="LAST_COMMIT_MESSAGE" value="{&#10;    &quot;error&quot;: {&#10;        &quot;message&quot;: &quot;You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.&quot;,&#10;        &quot;type&quot;: &quot;insufficient_quota&quot;,&#10;        &quot;param&quot;: null,&#10;        &quot;code&quot;: &quot;insufficient_quota&quot;&#10;    }&#10;}" />
   </component>
 </project>
