@@ -41,6 +41,11 @@ INSTALLED_APPS = [
     'maintenance.apps.MaintenanceConfig',
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'student.backends.StudentNumberBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
