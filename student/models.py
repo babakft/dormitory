@@ -130,7 +130,7 @@ class Student(models.Model):
         default='pending'
     )
 
-    # Admin approval tracking - CharField approach
+    # Admin approval
     processed_by_name = models.CharField(max_length=100, blank=True, null=True)
     processed_at = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True)

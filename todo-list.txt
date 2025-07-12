@@ -13,9 +13,15 @@ apps/
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
 
     # priority must be handled with the admin
-    # 404.html must be use in the end of the project
-
+    # 404.html must be used in the end of the project
+    # 4 building 2 floor 3 room  4*2*3 = 24 room in totall
 
 #######################
 delete the main page
 show the services
+fix the login active student in register
+########################
+superuser
+    - email: Babakfathi082@gmail.com
+    - username: Babak
+    -password: Babakft82#

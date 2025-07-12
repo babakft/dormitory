@@ -4,9 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="882083fa-e96f-420e-a923-11742aa99288" name="Changes" comment="- correct the problem with admin in user and totally remove it&#10;- define the maintenance module&#10;- create a separate class for images &#10;- create and define the media root">
+    <list default="true" id="882083fa-e96f-420e-a923-11742aa99288" name="Changes" comment="_ add building and room &#10;_ create data for these fields">
+      <change afterPath="$PROJECT_DIR$/student/forms.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/student/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/student/register.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/student/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dormitory/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/dormitory/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dormitory/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/dormitory/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/student/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/student/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/student/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/student/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/todo-list.txt" beforeDir="false" afterPath="$PROJECT_DIR$/todo-list.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -133,7 +139,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752236010869</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="_ add building and room &#10;_ create data for these fields">
+      <option name="closed" value="true" />
+      <created>1752322557945</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1752322557945</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -154,6 +168,7 @@
     <MESSAGE value="{&#10;    &quot;error&quot;: {&#10;        &quot;message&quot;: &quot;You didn't provide an API key. You need to provide your API key in an Authorization header using Bearer auth (i.e. Authorization: Bearer YOUR_KEY), or as the password field (with blank username) if you're accessing the API from your browser and are prompted for a username and password. You can obtain an API key from https://platform.openai.com/account/api-keys.&quot;,&#10;        &quot;type&quot;: &quot;invalid_request_error&quot;,&#10;        &quot;param&quot;: null,&#10;        &quot;code&quot;: null&#10;    }&#10;}" />
     <MESSAGE value="{&#10;    &quot;error&quot;: {&#10;        &quot;message&quot;: &quot;You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.&quot;,&#10;        &quot;type&quot;: &quot;insufficient_quota&quot;,&#10;        &quot;param&quot;: null,&#10;        &quot;code&quot;: &quot;insufficient_quota&quot;&#10;    }&#10;}" />
     <MESSAGE value="- correct the problem with admin in user and totally remove it&#10;- define the maintenance module&#10;- create a separate class for images &#10;- create and define the media root" />
-    <option name="LAST_COMMIT_MESSAGE" value="- correct the problem with admin in user and totally remove it&#10;- define the maintenance module&#10;- create a separate class for images &#10;- create and define the media root" />
+    <MESSAGE value="_ add building and room &#10;_ create data for these fields" />
+    <option name="LAST_COMMIT_MESSAGE" value="_ add building and room &#10;_ create data for these fields" />
   </component>
 </project>
