@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="882083fa-e96f-420e-a923-11742aa99288" name="Changes" comment="- correct the problem with admin in user and totally remove it&#10;- define the maintenance module&#10;- create a separate class for images &#10;- create and define the media root">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/student/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/student/admin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/todo-list.txt" beforeDir="false" afterPath="$PROJECT_DIR$/todo-list.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
