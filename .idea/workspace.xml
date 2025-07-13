@@ -4,16 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="882083fa-e96f-420e-a923-11742aa99288" name="Changes" comment="- create view for student registration and RegistrationSuccessView">
-      <change afterPath="$PROJECT_DIR$/student/forms.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/student/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/student/register.html" afterDir="false" />
+    <list default="true" id="882083fa-e96f-420e-a923-11742aa99288" name="Changes" comment="- create template for registration_success&#10;- there is rule that we must have big module but smaller view..... i aplly this to my code for student">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dormitory/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/dormitory/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dormitory/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/dormitory/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/student/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/student/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/student/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo-list.txt" beforeDir="false" afterPath="$PROJECT_DIR$/todo-list.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/student/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/student/admin.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +17,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -82,15 +76,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Develop&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/babak/PycharmProjects/dormitory&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Develop",
+    "last_opened_file_path": "/home/babak/PycharmProjects/dormitory",
+    "settings.editor.selected.configurable": "preferences.pluginManager"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -155,7 +150,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752346358535</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="- create template for registration_success&#10;- there is rule that we must have big module but smaller view..... i aplly this to my code for student">
+      <option name="closed" value="true" />
+      <created>1752413207181</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1752413207181</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -178,6 +181,7 @@
     <MESSAGE value="- correct the problem with admin in user and totally remove it&#10;- define the maintenance module&#10;- create a separate class for images &#10;- create and define the media root" />
     <MESSAGE value="_ add building and room &#10;_ create data for these fields" />
     <MESSAGE value="- create view for student registration and RegistrationSuccessView" />
-    <option name="LAST_COMMIT_MESSAGE" value="- create view for student registration and RegistrationSuccessView" />
+    <MESSAGE value="- create template for registration_success&#10;- there is rule that we must have big module but smaller view..... i aplly this to my code for student" />
+    <option name="LAST_COMMIT_MESSAGE" value="- create template for registration_success&#10;- there is rule that we must have big module but smaller view..... i aplly this to my code for student" />
   </component>
 </project>

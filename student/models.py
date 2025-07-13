@@ -78,6 +78,22 @@ class User(AbstractBaseUser, PermissionsMixin):
     def display_name(self):
         return self.username
 
+    def is_approved_student(self):
+        """Check if user is an approved student"""
+        return (hasattr(self, 'student_profile') and
+                self.student_profile.registration_status == 'approved')
+
+    @staticmethod
+    def authenticate_as_student(student_number, password):
+        """Authenticate user as student using student number"""
+        try:
+            student = Student.objects.select_related('user').get(student_number=student_number)
+            if student.user.check_password(password) and student.can_login():
+                return student.user
+        except Student.DoesNotExist:
+            pass
+        return None
+
 
 class Building(models.Model):
     """Building information"""
@@ -151,3 +167,56 @@ class Student(models.Model):
         if self.room:
             return str(self.room)
         return "No room assigned"
+
+    def can_login(self):
+        """Check if student can login"""
+        return (self.registration_status == 'approved' and
+                self.user.is_active and
+                self.user.user_type == 'student')
+
+    def get_login_error_message(self):
+        """Get appropriate error message for login failure"""
+        if self.registration_status == 'pending':
+            return 'Your registration is still pending approval. Please wait for admin approval.'
+        elif self.registration_status == 'rejected':
+            return 'Your registration has been rejected. Please contact administration.'
+        elif not self.user.is_active:
+            return 'Your account has been disabled.'
+        return 'Access denied.'
+
+    def get_dashboard_data(self):
+        """Get all dashboard data for student"""
+        maintenance_requests = self.maintenance_requests.all()[:5]
+        return {
+            'student': self,
+            'maintenance_requests': maintenance_requests,
+            'total_requests': self.maintenance_requests.count(),
+            'pending_requests': self.maintenance_requests.filter(status='pending').count(),
+            'completed_requests': self.maintenance_requests.filter(status='completed').count(),
+        }
+
+    def create_from_registration(self, validated_data):
+        """Create student from registration form data"""
+        user_data = {
+            'email': validated_data['email'],
+            'username': validated_data['username'],
+            'phone': validated_data.get('phone', ''),
+            'user_type': 'student'
+        }
+
+        # Create user
+        user = User.objects.create_user(
+            email=user_data['email'],
+            username=user_data['username'],
+            password=validated_data['password1'],
+            phone=user_data['phone'],
+            user_type=user_data['user_type']
+        )
+
+        # Create student profile
+        return self.__class__.objects.create(
+            user=user,
+            student_number=validated_data['student_number'],
+            room=validated_data.get('room'),
+            registration_status='pending'
+        )

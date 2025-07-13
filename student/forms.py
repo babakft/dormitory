@@ -5,7 +5,7 @@ from student.models import User, Student, Room
 
 
 class StudentRegistrationForm(UserCreationForm):
-    """Form for student registration"""
+    """Simplified form focusing on field definition and basic validation"""
 
     student_number = forms.CharField(
         max_length=50,
@@ -47,7 +47,6 @@ class StudentRegistrationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Add Bootstrap classes to password fields
         self.fields['password1'].widget.attrs.update({
             'class': 'form-control',
             'placeholder': 'Enter password'
@@ -63,90 +62,68 @@ class StudentRegistrationForm(UserCreationForm):
             raise ValidationError("A student with this student number already exists.")
         return student_number
 
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+        if phone:  # Only validate if phone is provided (since it's optional)
+            # Remove any spaces or dashes
+            phone = phone.replace(' ', '').replace('-', '')
+
+            # Check if it's exactly 11 digits
+            if not phone.isdigit():
+                raise ValidationError("Phone number must contain only digits.")
+
+            if len(phone) != 11:
+                raise ValidationError("Phone number must be exactly 11 digits.")
+
+            return phone
+        return phone
+
     def save(self, commit=True):
-        # Save the User instance
-        user = super().save(commit=False)
-        user.user_type = 'student'  # Set user type to student
-
         if commit:
-            user.save()
-            # Create Student profile
-            Student.objects.create(
-                user=user,
-                student_number=self.cleaned_data['student_number'],
-                room=self.cleaned_data.get('room'),
-                registration_status='pending'  # Default status
-            )
-        return user
-
-
-# Simpler form version
-from django.contrib.auth.forms import AuthenticationForm
-from django.core.exceptions import ValidationError
-from django.contrib.auth import authenticate
-from student.models import Student
+            student = Student()
+            return student.create_from_registration(self.cleaned_data)
+        return super().save(commit=False)
 
 
 class StudentLoginForm(AuthenticationForm):
+    """Simplified login form"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({
             'class': 'form-control',
-            'placeholder': 'Enter your student number'  # Updated placeholder
+            'placeholder': 'Enter your student number'
         })
         self.fields['password'].widget.attrs.update({
             'class': 'form-control',
             'placeholder': 'Enter your password'
         })
-
-        # Update label
         self.fields['username'].label = 'Student Number'
 
     def clean_username(self):
-        """Validate student number format"""
         student_number = self.cleaned_data.get('username')
-
         if not student_number:
             raise ValidationError("Student number is required.")
-
-        # Add any student number format validation here
         if len(student_number) != 9:  # Example validation
             raise ValidationError("Please enter a valid student number.")
-
         return student_number
 
     def clean(self):
-        """Custom validation for student login"""
         cleaned_data = super().clean()
         student_number = cleaned_data.get('username')
         password = cleaned_data.get('password')
 
         if student_number and password:
-            # Check if student exists
             try:
                 student = Student.objects.select_related('user').get(student_number=student_number)
+                if not student.can_login():
+                    raise ValidationError(student.get_login_error_message())
+
+                user = authenticate(self.request, username=student_number, password=password)
+                if user is None:
+                    raise ValidationError("Invalid student number or password.")
+
             except Student.DoesNotExist:
-                raise ValidationError("Invalid student number or password.")
-
-            # Check registration status
-            if student.registration_status != 'approved':
-                if student.registration_status == 'pending':
-                    raise ValidationError("Your registration is pending approval.")
-                elif student.registration_status == 'rejected':
-                    raise ValidationError("Your registration has been rejected.")
-
-            # Check if user account is active
-            if not student.user.is_active:
-                raise ValidationError("Your account has been disabled.")
-
-            # Authenticate using custom backend
-            user = authenticate(
-                self.request,
-                username=student_number,
-                password=password
-            )
-
-            if user is None:
                 raise ValidationError("Invalid student number or password.")
 
         return cleaned_data
