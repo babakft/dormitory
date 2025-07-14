@@ -107,6 +107,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# EMAIL CONNECTION
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = EMAIL_HOST_USER  # From local_setting.py
+EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD  # From local_setting.py
+DEFAULT_FROM_EMAIL = f'Dormitory Management <{EMAIL_HOST_USER}>'
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 

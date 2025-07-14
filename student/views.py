@@ -14,23 +14,41 @@ from django.utils.decorators import method_decorator
 class StudentRegisterView(FormView):
     form_class = StudentRegistrationForm
     template_name = 'student/register.html'
-    success_url = reverse_lazy('registration_success')
+    success_url = reverse_lazy('email_verification_sent')  # Changed URL
 
     def form_valid(self, form):
-        form.save()
+        student = form.save()
+        student.send_verification_email(self.request)  # ADD THIS LINE
         messages.success(
             self.request,
-            'Registration successful! Your account is pending admin approval.'
+            'Registration successful! Please check your email to verify your account.'
         )
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        messages.error(self.request, 'Please correct the errors below.')
-        return super().form_invalid(form)
+
+class EmailVerificationSentView(TemplateView):
+    template_name = 'emails/email_verification_sent.html'
 
 
 class RegistrationSuccessView(TemplateView):
     template_name = 'student/registration_success.html'
+
+    def get(self, request, token=None):
+        # If token is provided, handle email verification
+        if token:
+            try:
+                student = Student.objects.select_related('user').get(
+                    verification_token=token,
+                    user__is_active=False
+                )
+                student.verify_email()
+                messages.success(request, 'Email verified successfully! Your account is pending admin approval.')
+
+            except Student.DoesNotExist:
+                messages.error(request, 'Invalid or already used verification link.')
+                return redirect('student_register')
+
+        return super().get(request)
 
 
 class StudentLoginView(LoginView):

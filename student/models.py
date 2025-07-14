@@ -1,6 +1,11 @@
+import uuid
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
+from django.core.mail import send_mail
+from django.urls import reverse
+from django.template.loader import render_to_string
 
 
 class UserManager(BaseUserManager):
@@ -76,7 +81,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def display_name(self):
-        return self.username
+        return self.usernameid
 
     def is_approved_student(self):
         """Check if user is an approved student"""
@@ -151,6 +156,9 @@ class Student(models.Model):
     processed_at = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True)
 
+    # email verification
+    verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
+
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -210,7 +218,8 @@ class Student(models.Model):
             username=user_data['username'],
             password=validated_data['password1'],
             phone=user_data['phone'],
-            user_type=user_data['user_type']
+            user_type=user_data['user_type'],
+            is_active=False
         )
 
         # Create student profile
@@ -218,5 +227,33 @@ class Student(models.Model):
             user=user,
             student_number=validated_data['student_number'],
             room=validated_data.get('room'),
-            registration_status='pending'
+            registration_status='pending',
+
         )
+
+    def send_verification_email(self, request):
+        """Send email verification to student"""
+        verification_url = request.build_absolute_uri(
+            reverse('verify_email', kwargs={'token': self.verification_token})
+        )
+
+        context = {
+            'student': self,
+            'verification_url': verification_url,
+        }
+
+        message = render_to_string('emails/verification_email.txt', context)
+
+        send_mail(
+            subject='Verify Your Email - Dormitory Registration',
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[self.user.email],
+            fail_silently=False,
+        )
+
+    def verify_email(self):
+        """Mark email as verified by activating user"""
+        self.user.is_active = True
+        self.user.save()
+        return True

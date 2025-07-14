@@ -67,14 +67,16 @@ class StudentAdmin(admin.ModelAdmin):
     room_info.admin_order_field = 'room__number'
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related(
-            'user', 'room', 'room__building'
-        ).prefetch_related('maintenance_requests')
+        qs = super().get_queryset(request)
+        # if not request.GET.get('user__is_active__exact'):
+        #     # Default: show only email-verified students
+        #     return qs.filter(user__is_active=True)
+        return qs
 
     # Admin Actions
     def approve_students(self, request, queryset):
         """Approve selected student registrations"""
-        for student in queryset.filter(registration_status='pending'):
+        for student in queryset.filter(registration_status__in=['pending','rejected']):
             student.registration_status = 'approved'
             student.processed_by_name = request.user.username
             student.processed_at = now()

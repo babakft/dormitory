@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-envelope text-primary" style="font-size: 3rem;"></i>
+                    </div>
+                    <h3>Check Your Email</h3>
+                    <p>We've sent a verification link to your email address.</p>
+                    <p>Please click the link in the email to verify your account.</p>
+
+                    <div class="alert alert-info">
+                        <strong>Next Steps:</strong><br>
+                        1. Check your inbox (and spam folder)<br>
+                        2. Click the verification link<br>
+                        3. Wait for admin approval
+                    </div>
+
+                    <a href="{% url 'student_login' %}" class="btn btn-primary">Go to Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

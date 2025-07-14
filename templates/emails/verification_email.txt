@@ -1,0 +1,32 @@
+Dear {{ student.user.username }},
+
+Welcome to the Dormitory Management System!
+
+Thank you for registering your dormitory account. To complete your registration, please verify your email address by clicking the link below:
+
+{{ verification_url }}
+
+IMPORTANT INFORMATION:
+- This verification link will expire in 24 hours
+- You must verify your email before your account can be reviewed
+- After email verification, your registration will be sent to our admin team for approval
+- You will receive another email once your account has been approved
+
+WHAT HAPPENS NEXT:
+1. Click the verification link above
+2. Your email will be confirmed
+3. Our admin team will review your registration
+4. You'll receive approval notification via email
+5. You can then log in and start using the system
+
+If you did not create this account, please ignore this email.
+
+If you're having trouble clicking the link, copy and paste the following URL into your browser:
+{{ verification_url }}
+
+Best regards,
+Dormitory Management Team
+Shahid Bahonar University Services
+
+---
+This is an automated message. Please do not reply to this email.
