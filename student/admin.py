@@ -67,10 +67,10 @@ class StudentAdmin(admin.ModelAdmin):
     room_info.admin_order_field = 'room__number'
 
     def get_queryset(self, request):
+        # show only email-verified students
         qs = super().get_queryset(request)
-        # if not request.GET.get('user__is_active__exact'):
-        #     # Default: show only email-verified students
-        #     return qs.filter(user__is_active=True)
+        if not request.GET.get('user__is_active__exact'):
+            return qs.filter(user__is_active=True)
         return qs
 
     # Admin Actions
