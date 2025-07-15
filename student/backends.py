@@ -14,17 +14,29 @@ class StudentNumberBackend(ModelBackend):
         if username is None or password is None:
             return None
 
+        # Check if username is a 9-digit student number
         try:
-            # Try to find student by student_number
-            student = Student.objects.select_related('user').get(student_number=username)
-            user = student.user
+            # Clean the username (remove spaces, etc.)
+            clean_username = str(username).replace(' ', '').replace('-', '')
 
-            # Check password
-            if user.check_password(password):
-                # Additional validations
-                if user.user_type == 'student' and student.registration_status == 'approved':
-                    return user
-        except Student.DoesNotExist:
+            # Check if it's exactly 9 digits
+            if len(clean_username) == 9 and clean_username.isdigit():
+                student_number = int(clean_username)
+
+                try:
+                    # Try to find student by student_number
+                    student = Student.objects.select_related('user').get(student_number=student_number)
+                    user = student.user
+
+                    # Check password
+                    if user.check_password(password):
+                        # Additional validations
+                        if user.user_type == 'student' and student.registration_status == 'approved':
+                            return user
+                except Student.DoesNotExist:
+                    pass
+        except (ValueError, TypeError):
+            # If conversion fails, it's not a valid student number
             pass
 
         return None

@@ -1,8 +1,8 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 from student.models import User, Student, Room
-
+from django.contrib.auth import authenticate
 
 class StudentRegistrationForm(UserCreationForm):
     """Simplified form focusing on field definition and basic validation"""
@@ -58,10 +58,22 @@ class StudentRegistrationForm(UserCreationForm):
 
     def clean_student_number(self):
         student_number = self.cleaned_data.get('student_number')
+        if not student_number:
+            raise ValidationError("Student number is required.")
+
         if Student.objects.filter(student_number=student_number).exists():
             raise ValidationError("A student with this student number already exists.")
-        if not student_number or not str(student_number).isdigit() and len(student_number) != 9:
-            raise ValidationError("Student number must be a valid.")
+
+            # Remove any spaces or non-digit characters
+        student_number = str(student_number).replace(' ', '').replace('-', '')
+        if not student_number.isdigit():
+            raise ValidationError("Student number must contain only digits.")
+
+        if len(student_number) != 9:
+            raise ValidationError("Student number must be exactly 9 digits.")
+
+        # Convert to integer
+        student_number = int(student_number)
 
         student_number = int(student_number)
         return student_number
@@ -108,8 +120,12 @@ class StudentLoginForm(AuthenticationForm):
         student_number = self.cleaned_data.get('username')
         if not student_number:
             raise ValidationError("Student number is required.")
-        if len(student_number) != 9:  # Example validation
-            raise ValidationError("Please enter a valid student number.")
+        student_number = str(student_number).replace(' ', '').replace('-', '')
+        if not student_number.isdigit():
+            raise ValidationError("Student number must contain only digits.")
+        if len(student_number) != 9:
+            raise ValidationError("Student number must be exactly 9 digits.")
+
         return student_number
 
     def clean(self):

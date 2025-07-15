@@ -1,0 +1,240 @@
+{% extends 'student/base.html' %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>Welcome, {{ student.user.username }}!</h2>
+                    <p class="text-muted mb-0">Student ID: {{ student.student_number }}</p>
+                </div>
+                <div class="text-end">
+                    <p class="mb-0"><strong>Room:</strong> {{ student.full_room_address }}</p>
+                    <small class="text-muted">{{ student.user.email }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Total Requests</h5>
+                            <h3>{{ total_requests }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-tools fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Pending</h5>
+                            <h3>{{ pending_requests }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Completed</h5>
+                            <h3>{{ completed_requests }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Quick Actions</h5>
+                            <a href="#" class="btn btn-light btn-sm">New Request</a>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-plus fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Maintenance Requests -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Maintenance Requests</h5>
+                    <a href="#" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> New Request
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if maintenance_requests %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Service Type</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for request in maintenance_requests %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ request.title }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ request.description|truncatechars:50 }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ request.get_service_type_display }}</span>
+                                        </td>
+                                        <td>
+                                            {% if request.priority == 'high' %}
+                                                <span class="badge bg-danger">High</span>
+                                            {% elif request.priority == 'medium' %}
+                                                <span class="badge bg-warning">Medium</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Low</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if request.status == 'pending' %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% elif request.status == 'approved' %}
+                                                <span class="badge bg-info">Approved</span>
+                                            {% elif request.status == 'in_progress' %}
+                                                <span class="badge bg-primary">In Progress</span>
+                                            {% elif request.status == 'completed' %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% elif request.status == 'rejected' %}
+                                                <span class="badge bg-danger">Rejected</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small>
+                                                {{ request.created_at|date:"M d, Y" }}<br>
+                                                <span class="text-muted">{{ request.days_since_created }} days ago</span>
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No maintenance requests yet</h5>
+                            <p class="text-muted">Submit your first maintenance request to get started.</p>
+                            <a href="#" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create Request
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Navigation</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="#" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-plus"></i><br>New Request
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="#" class="btn btn-outline-info w-100">
+                                <i class="fas fa-list"></i><br>All Requests
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="#" class="btn btn-outline-success w-100">
+                                <i class="fas fa-user"></i><br>Profile
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'student_logout' %}" class="btn btn-outline-danger w-100">
+                                <i class="fas fa-sign-out-alt"></i><br>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-info:hover,
+.btn-outline-success:hover,
+.btn-outline-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.fas {
+    margin-bottom: 5px;
+}
+</style>
+{% endblock %}
