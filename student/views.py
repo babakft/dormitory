@@ -9,21 +9,27 @@ from student.forms import StudentRegistrationForm, StudentLoginForm
 from django.contrib.auth.views import LoginView, LogoutView
 from student.models import Student
 from django.utils.decorators import method_decorator
-
+from django.db import transaction
 
 class StudentRegisterView(FormView):
     form_class = StudentRegistrationForm
     template_name = 'student/register.html'
-    success_url = reverse_lazy('email_verification_sent')  # Changed URL
+    success_url = reverse_lazy('email_verification_sent')
 
     def form_valid(self, form):
-        student = form.save()
-        student.send_verification_email(self.request)  # ADD THIS LINE
-        messages.success(
-            self.request,
-            'Registration successful! Please check your email to verify your account.'
-        )
-        return super().form_valid(form)
+        try:
+            with transaction.atomic():
+                student = form.save()
+                student.send_verification_email(self.request)
+
+            messages.success(
+                self.request,
+                'Registration successful! Please check your email to verify your account.'
+            )
+            return super().form_valid(form)
+        except Exception as e:
+            messages.error(self.request, 'Registration failed. Please try again.')
+            return self.form_invalid(form)
 
 
 class EmailVerificationSentView(TemplateView):
