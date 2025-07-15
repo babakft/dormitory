@@ -1,0 +1,32 @@
+Dear {{ student.user.username }},
+
+We are writing to inform you that your dormitory account has been deactivated.
+
+ACCOUNT DETAILS:
+- Student Number: {{ student.student_number }}
+- Username: {{ student.user.username }}
+- Email: {{ student.user.email }}
+{% if student.room %}
+- Room: {{ student.room }}
+{% endif %}
+- Date: {{ "now"|date:"F d, Y at H:i" }}
+
+WHAT THIS MEANS:
+- You can no longer log in to the dormitory management system
+- Your maintenance requests will be archived
+- You will not receive system notifications
+- Your account data is preserved but inaccessible
+
+IMPORTANT INFORMATION:
+If you believe this deactivation was made in error, or if you have questions about this action, please contact the dormitory administration immediately.
+
+If you need to reactivate your account in the future, you will need to contact the administration and may need to go through the registration process again.
+
+We appreciate your time as part of our dormitory community.
+
+Best regards,
+Dormitory Management Team
+Shahid Bahonar University
+
+---
+This is an automated message. Please do not reply to this email.

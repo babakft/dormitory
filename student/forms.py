@@ -60,6 +60,10 @@ class StudentRegistrationForm(UserCreationForm):
         student_number = self.cleaned_data.get('student_number')
         if Student.objects.filter(student_number=student_number).exists():
             raise ValidationError("A student with this student number already exists.")
+        if not student_number or not str(student_number).isdigit() and len(student_number) != 9:
+            raise ValidationError("Student number must be a valid.")
+
+        student_number = int(student_number)
         return student_number
 
     def clean_phone(self):

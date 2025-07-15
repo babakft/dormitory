@@ -1,0 +1,38 @@
+Dear {{ student.user.username }},
+
+Congratulations! Your dormitory registration has been approved.
+
+ACCOUNT DETAILS:
+- Student Number: {{ student.student_number }}
+- Username: {{ student.user.username }}
+- Email: {{ student.user.email }}
+{% if student.room %}
+- Assigned Room: {{ student.room }}
+{% else %}
+- Room: Not assigned yet
+{% endif %}
+- Approved by: {{ processed_by }}
+- Approval Date: {{ processed_at|date:"F d, Y at H:i" }}
+
+You can now log in to the Dormitory Management System using your student number and password.
+
+WHAT YOU CAN DO NOW:
+- Submit maintenance requests
+- Track request status
+- Communicate with service experts
+- Update your profile information
+
+LOGIN INFORMATION:
+- Student Number: {{ student.student_number }}
+- Use the password you created during registration
+
+If you have any questions or need assistance, please contact the dormitory administration.
+
+Welcome to our dormitory community!
+
+Best regards,
+Dormitory Management Team
+Shahid Bahonar University
+
+---
+This is an automated message. Please do not reply to this email.

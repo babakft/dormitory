@@ -1,0 +1,28 @@
+Dear {{ student.user.username }},
+
+We regret to inform you that your dormitory registration has been declined.
+
+REGISTRATION DETAILS:
+- Student Number: {{ student.student_number }}
+- Username: {{ student.user.username }}
+- Email: {{ student.user.email }}
+- Processed by: {{ processed_by }}
+- Date: {{ processed_at|date:"F d, Y at H:i" }}
+
+REASON:
+{{ rejection_reason }}
+
+NEXT STEPS:
+If you believe this decision was made in error or if you have additional information to support your application, please contact the dormitory administration at {{ contact_email }}.
+
+You may also be eligible to reapply in the future. Please check with the administration office for reapplication procedures and requirements.
+
+We appreciate your interest in our dormitory facilities.
+
+Best regards,
+Dormitory Management Team
+Shahid Bahonar University
+
+---
+This is an automated message. Please do not reply to this email.
+For inquiries, please contact: {{ contact_email }}
