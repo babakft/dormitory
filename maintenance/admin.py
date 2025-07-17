@@ -175,22 +175,22 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
     # Admin Actions
     def approve_requests(self, request, queryset):
         """Approve selected maintenance requests"""
-        queryset.filter(status='pending').update(
-            status='approved',
-            approved_by_name=request.user.username,
-            approved_at=timezone.now()
-        )
+        for maintenance_request in queryset.filter(status='pending'):
+            maintenance_request.status = 'approved'
+            maintenance_request.approved_by_name = request.user.username
+            maintenance_request.approved_at = timezone.now()
+            maintenance_request.save()  # Triggers signals
 
     approve_requests.short_description = "✅ Approve selected requests"
 
     def reject_requests(self, request, queryset):
         """Reject selected maintenance requests"""
-        queryset.filter(status='pending').update(
-            status='rejected',
-            approved_by_name=request.user.username,
-            approved_at=timezone.now(),
-            rejection_reason="Rejected by admin - contact administration for details"
-        )
+        for maintenance_request in queryset.filter(status='pending'):
+            maintenance_request.status = 'rejected'
+            maintenance_request.approved_by_name = request.user.username
+            maintenance_request.approved_at = timezone.now()
+            maintenance_request.rejection_reason = "Rejected by admin - contact administration for details"
+            maintenance_request.save()  # Triggers signals
 
     reject_requests.short_description = "❌ Reject selected requests"
 
