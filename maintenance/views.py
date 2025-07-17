@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.db import transaction
-from maintenance.models import MaintenanceRequest
+from maintenance.models import MaintenanceRequest, MaintenanceImage
 from maintenance.forms import MaintenanceRequestForm
 
 
@@ -27,9 +27,8 @@ class MaintenanceRequestCreateView(LoginRequiredMixin, CreateView):
         try:
             with transaction.atomic():
                 form.instance.student = self.request.user.student_profile
-                # Don't set room here - let the form handle it
-
                 response = super().form_valid(form)
+
                 messages.success(
                     self.request,
                     f'Maintenance request "{self.object.title}" has been submitted successfully for {self.object.room} and is pending approval.'
@@ -57,8 +56,14 @@ def maintenance_request_detail(request, pk):
         student=request.user.student_profile
     )
 
+    # Get issue and completion images separately
+    issue_images = maintenance_request.images.filter(image_type='issue')
+    completion_images = maintenance_request.images.filter(image_type='completion')
+
     context = {
         'request': maintenance_request,
+        'issue_images': issue_images,
+        'completion_images': completion_images,
         'can_provide_feedback': (
                 maintenance_request.status == 'completed'
                 and not maintenance_request.student_rating

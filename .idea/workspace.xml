@@ -4,14 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="882083fa-e96f-420e-a923-11742aa99288" name="Changes" comment="- only show the student which has verified their email in student tab">
-      <change afterPath="$PROJECT_DIR$/maintenance/forms.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/maintenance/urls.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/maintenance/request_detail.html" afterDir="false" />
+    <list default="true" id="882083fa-e96f-420e-a923-11742aa99288" name="Changes" comment=" 1.showing the request in dashboard.html(review will be enabled if there is no review and the work is done)&#10; 2.adding forms to get the request from the student &#10; 3. add not_decided priority as default&#10; 4.create template for request creation message and showing a message&#10; 5. add maintenance urls.py&#10; 6. create MaintenanceRequestCreateView and maintenance_request_detail in views.py">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dormitory/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/dormitory/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/maintenance/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/maintenance/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/maintenance/forms.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/maintenance/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/maintenance/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/maintenance/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/maintenance/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/maintenance/request_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/maintenance/request_detail.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/student/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/student/dashboard.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/todo-list.txt" beforeDir="false" afterPath="$PROJECT_DIR$/todo-list.txt" afterDir="false" />
     </list>
@@ -202,7 +201,15 @@
       <option name="project" value="LOCAL" />
       <updated>1752612247981</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary=" 1.showing the request in dashboard.html(review will be enabled if there is no review and the work is done)&#10; 2.adding forms to get the request from the student &#10; 3. add not_decided priority as default&#10; 4.create template for request creation message and showing a message&#10; 5. add maintenance urls.py&#10; 6. create MaintenanceRequestCreateView and maintenance_request_detail in views.py">
+      <option name="closed" value="true" />
+      <created>1752749037327</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1752749037327</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -231,6 +238,7 @@
     <MESSAGE value="create signals to send email when a user is (approved, reject,deactivate) with their related text &#10;turn the student_number in Student module to integer" />
     <MESSAGE value="- add dashboard.html&#10;- fix the problem with login page &#10;- fix student number to have the length of 9" />
     <MESSAGE value="- only show the student which has verified their email in student tab" />
-    <option name="LAST_COMMIT_MESSAGE" value="- only show the student which has verified their email in student tab" />
+    <MESSAGE value=" 1.showing the request in dashboard.html(review will be enabled if there is no review and the work is done)&#10; 2.adding forms to get the request from the student &#10; 3. add not_decided priority as default&#10; 4.create template for request creation message and showing a message&#10; 5. add maintenance urls.py&#10; 6. create MaintenanceRequestCreateView and maintenance_request_detail in views.py" />
+    <option name="LAST_COMMIT_MESSAGE" value=" 1.showing the request in dashboard.html(review will be enabled if there is no review and the work is done)&#10; 2.adding forms to get the request from the student &#10; 3. add not_decided priority as default&#10; 4.create template for request creation message and showing a message&#10; 5. add maintenance urls.py&#10; 6. create MaintenanceRequestCreateView and maintenance_request_detail in views.py" />
   </component>
 </project>

@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from maintenance.models import MaintenanceRequest
+from maintenance.models import MaintenanceRequest, MaintenanceImage
 from student.models import Room
 
 
@@ -17,9 +17,19 @@ class MaintenanceRequestForm(forms.ModelForm):
         help_text='Select where the maintenance issue is located (can be different from your assigned room)'
     )
 
+    # Add image field that's not part of the model
+    issue_image = forms.ImageField(
+        required=True,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        }),
+        help_text='Please upload an image showing the maintenance issue (required)'
+    )
+
     class Meta:
         model = MaintenanceRequest
-        fields = ['title', 'description', 'service_type', 'room', 'issue_image']
+        fields = ['title', 'description', 'service_type', 'room']
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -33,10 +43,6 @@ class MaintenanceRequestForm(forms.ModelForm):
             }),
             'service_type': forms.Select(attrs={
                 'class': 'form-control'
-            }),
-            'issue_image': forms.FileInput(attrs={
-                'class': 'form-control',
-                'accept': 'image/*'
             })
         }
 
@@ -45,11 +51,7 @@ class MaintenanceRequestForm(forms.ModelForm):
         self.student = kwargs.pop('student', None)
         super().__init__(*args, **kwargs)
 
-        # Make issue_image required
-        self.fields['issue_image'].required = True
-        self.fields['issue_image'].help_text = 'Please upload an image showing the maintenance issue (required)'
-
-        # Add help text for other fields
+        # Add help text for fields
         self.fields['title'].help_text = 'Enter a brief, clear title for your maintenance request'
         self.fields[
             'description'].help_text = 'Provide detailed information about the problem, including specific location within the room/area'
@@ -103,3 +105,17 @@ class MaintenanceRequestForm(forms.ModelForm):
             raise ValidationError('Only image files are allowed.')
 
         return image
+
+    def save(self, commit=True):
+        """Save the maintenance request and create associated image"""
+        instance = super().save(commit=commit)
+
+        if commit and self.cleaned_data.get('issue_image'):
+            # Create the MaintenanceImage for the issue
+            MaintenanceImage.objects.create(
+                maintenance_request=instance,
+                image=self.cleaned_data['issue_image'],
+                image_type='issue'
+            )
+
+        return instance

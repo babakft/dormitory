@@ -47,9 +47,6 @@ class MaintenanceRequest(models.Model):
     )
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='not_decided')
 
-    # Image upload
-    issue_image = models.ImageField(upload_to='maintenance_issues/', null=True, blank=True)
-
     # Location details - Using FK to Room
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='maintenance_requests')
 
@@ -76,7 +73,6 @@ class MaintenanceRequest(models.Model):
     expert_notes = models.TextField(blank=True)
 
     # Completion details
-    completion_image = models.ImageField(upload_to='maintenance_completed/', null=True, blank=True)
     completion_notes = models.TextField(blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 

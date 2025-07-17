@@ -24,6 +24,7 @@ fix the login active student in register
 #change the way that email are sent
 #remove command the query for admin in student
 which filed is needed to be field
+add how much it take
 ########################
 superuser
     - email: Babakfathi082@gmail.com

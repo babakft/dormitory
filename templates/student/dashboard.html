@@ -99,88 +99,89 @@
                 </div>
                 <div class="card-body">
                     {% if maintenance_requests %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Service Type</th>
-                                        <th>Priority</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for request in maintenance_requests %}
-                                    <tr>
-                                        <td>
-                                            <strong>{{ request.title }}</strong>
-                                            <br>
-                                            <small class="text-muted">{{ request.description|truncatechars:50 }}</small>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-secondary">{{ request.get_service_type_display }}</span>
-                                        </td>
-                                        <td>
-                                            {% if request.priority == 'high' %}
-                                                <span class="badge bg-danger">High</span>
-                                            {% elif request.priority == 'medium' %}
-                                                <span class="badge bg-warning">Medium</span>
-                                            {% elif request.priority == 'low' %}
-                                                <span class="badge bg-success">Low</span>
-                                            {% elif request.priority == 'not_decided' %}
-                                                <span class="badge bg-secondary">Not Decided</span>
-                                            {% else %}
-                                                <span class="badge bg-light text-dark">{{ request.get_priority_display }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if request.status == 'pending' %}
-                                                <span class="badge bg-warning">Pending</span>
-                                            {% elif request.status == 'approved' %}
-                                                <span class="badge bg-info">Approved</span>
-                                            {% elif request.status == 'in_progress' %}
-                                                <span class="badge bg-primary">In Progress</span>
-                                            {% elif request.status == 'completed' %}
-                                                <span class="badge bg-success">Completed</span>
-                                            {% elif request.status == 'rejected' %}
-                                                <span class="badge bg-danger">Rejected</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <small>
-                                                {{ request.created_at|date:"M d, Y" }}<br>
-                                                <span class="text-muted">{{ request.days_since_created }} days ago</span>
-                                            </small>
-                                        </td>
-                                        <td>
-                                            <a href="{% url 'maintenance:detail' request.pk %}" class="btn btn-sm btn-outline-primary">View</a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Service Type</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for request in maintenance_requests %}
+                            <tr>
+                                <td>
+                                    <strong>{{ request.title }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ request.description|truncatechars:50 }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ request.get_service_type_display }}</span>
+                                </td>
+                                <td>
+                                    {% if request.priority == 'high' %}
+                                    <span class="badge bg-danger">High</span>
+                                    {% elif request.priority == 'medium' %}
+                                    <span class="badge bg-warning">Medium</span>
+                                    {% elif request.priority == 'low' %}
+                                    <span class="badge bg-success">Low</span>
+                                    {% elif request.priority == 'not_decided' %}
+                                    <span class="badge bg-secondary">Not Decided</span>
+                                    {% else %}
+                                    <span class="badge bg-light text-dark">{{ request.get_priority_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if request.status == 'pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                    {% elif request.status == 'approved' %}
+                                    <span class="badge bg-info">Approved</span>
+                                    {% elif request.status == 'in_progress' %}
+                                    <span class="badge bg-primary">In Progress</span>
+                                    {% elif request.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                    {% elif request.status == 'rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small>
+                                        {{ request.created_at|date:"M d, Y" }}<br>
+                                        <span class="text-muted">{{ request.days_since_created }} days ago</span>
+                                    </small>
+                                </td>
+                                <td>
+                                    <a href="{% url 'maintenance:detail' request.pk %}"
+                                       class="btn btn-sm btn-outline-primary">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
 
-                        <!-- Show more link if there are more than 5 requests -->
-                        {% if total_requests > 5 %}
-                            <div class="text-center mt-3">
-                                <small class="text-muted">
-                                    Showing 5 most recent requests.
-                                    Total requests: {{ total_requests }}
-                                </small>
-                            </div>
-                        {% endif %}
+                    <!-- Show more link if there are more than 5 requests -->
+                    {% if total_requests > 5 %}
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            Showing 5 most recent requests.
+                            Total requests: {{ total_requests }}
+                        </small>
+                    </div>
+                    {% endif %}
                     {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-tools fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">No maintenance requests yet</h5>
-                            <p class="text-muted">Submit your first maintenance request to get started.</p>
-                            <a href="{% url 'maintenance:create' %}" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Create Request
-                            </a>
-                        </div>
+                    <div class="text-center py-5">
+                        <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No maintenance requests yet</h5>
+                        <p class="text-muted">Submit your first maintenance request to get started.</p>
+                        <a href="{% url 'maintenance:create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create Request
+                        </a>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -207,9 +208,12 @@
                             </a>
                         </div>
                         <div class="col-md-4 mb-2">
-                            <a href="{% url 'student_logout' %}" class="btn btn-outline-danger w-100">
-                                <i class="fas fa-sign-out-alt"></i><br>Logout
-                            </a>
+                            <form method="post" action="{% url 'student_logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger w-100">
+                                    <i class="fas fa-sign-out-alt"></i><br>Logout
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -219,57 +223,57 @@
 </div>
 
 <style>
-.card {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    border: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.table th {
-    border-top: none;
-    font-weight: 600;
-}
-
-.btn-outline-primary:hover,
-.btn-outline-info:hover,
-.btn-outline-success:hover,
-.btn-outline-danger:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.fas {
-    margin-bottom: 5px;
-}
-
-.badge {
-    font-size: 0.75em;
-}
-
-/* Stats card hover effects */
-.card:hover {
-    transform: translateY(-2px);
-    transition: transform 0.2s ease-in-out;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .container-fluid {
-        padding: 0 15px;
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: 1px solid rgba(0, 0, 0, 0.125);
     }
 
-    .table-responsive {
-        font-size: 0.9em;
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
     }
 
-    .btn {
-        font-size: 0.85em;
+    .table th {
+        border-top: none;
+        font-weight: 600;
     }
-}
+
+    .btn-outline-primary:hover,
+    .btn-outline-info:hover,
+    .btn-outline-success:hover,
+    .btn-outline-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .fas {
+        margin-bottom: 5px;
+    }
+
+    .badge {
+        font-size: 0.75em;
+    }
+
+    /* Stats card hover effects */
+    .card:hover {
+        transform: translateY(-2px);
+        transition: transform 0.2s ease-in-out;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding: 0 15px;
+        }
+
+        .table-responsive {
+            font-size: 0.9em;
+        }
+
+        .btn {
+            font-size: 0.85em;
+        }
+    }
 </style>
 {% endblock %}
