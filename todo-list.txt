@@ -21,10 +21,12 @@ delete the main page
 show the services
 fix the login active student in register
 # flush not verified email student , student admin is not completed
-#atomic
 #change the way that email are sent
+#remove command the query for admin in student
+which filed is needed to be field
 ########################
 superuser
     - email: Babakfathi082@gmail.com
     - username: Babak
     -password: Babakft82#
+

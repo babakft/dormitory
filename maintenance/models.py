@@ -17,6 +17,7 @@ class MaintenanceRequest(models.Model):
     ]
 
     PRIORITY_CHOICES = [
+        ('not_decided', 'Not Decided'),
         ('low', 'Low'),
         ('medium', 'Medium'),
         ('high', 'High'),
@@ -44,7 +45,7 @@ class MaintenanceRequest(models.Model):
         choices=SERVICE_TYPE_CHOICES,
         help_text='Type of service required'
     )
-    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='not_decided')
 
     # Image upload
     issue_image = models.ImageField(upload_to='maintenance_issues/', null=True, blank=True)

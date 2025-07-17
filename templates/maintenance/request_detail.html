@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+
+{% block title %}Maintenance Request Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>{{ request.title }}</h2>
+            <p class="text-muted mb-0">Request #{{ request.id }} - {{ request.get_service_type_display }}</p>
+        </div>
+        <div>
+            {% if request.status == 'pending' %}
+                <span class="badge bg-warning fs-6">Pending</span>
+            {% elif request.status == 'approved' %}
+                <span class="badge bg-info fs-6">Approved</span>
+            {% elif request.status == 'in_progress' %}
+                <span class="badge bg-primary fs-6">In Progress</span>
+            {% elif request.status == 'completed' %}
+                <span class="badge bg-success fs-6">Completed</span>
+            {% elif request.status == 'rejected' %}
+                <span class="badge bg-danger fs-6">Rejected</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-md-8">
+            <!-- Request Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Request Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Description:</strong></div>
+                        <div class="col-sm-9">{{ request.description }}</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Location:</strong></div>
+                        <div class="col-sm-9">{{ request.full_location }}</div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Priority:</strong></div>
+                        <div class="col-sm-9">
+                            {% if request.priority == 'high' %}
+                                <span class="badge bg-danger">High Priority</span>
+                            {% elif request.priority == 'medium' %}
+                                <span class="badge bg-warning">Medium Priority</span>
+                            {% elif request.priority == 'low' %}
+                                <span class="badge bg-success">Low Priority</span>
+                            {% elif request.priority == 'not_decided' %}
+                                <span class="badge bg-secondary">Priority Not Decided</span>
+                            {% else %}
+                                <span class="badge bg-light text-dark">{{ request.get_priority_display }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong>Created:</strong></div>
+                        <div class="col-sm-9">{{ request.created_at|date:"F d, Y at H:i" }} ({{ request.days_since_created }} days ago)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Issue Image -->
+            {% if request.issue_image %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Issue Image</h5>
+                </div>
+                <div class="card-body">
+                    <img src="{{ request.issue_image.url }}" class="img-fluid rounded" alt="Issue Image" style="max-height: 400px;">
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Expert Notes -->
+            {% if request.expert_notes %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Expert Notes</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ request.expert_notes }}</p>
+                    {% if request.work_started_at %}
+                        <small class="text-muted">Work started: {{ request.work_started_at|date:"F d, Y at H:i" }}</small>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Completion Details -->
+            {% if request.status == 'completed' %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Completion Details</h5>
+                </div>
+                <div class="card-body">
+                    {% if request.completion_notes %}
+                        <p><strong>Completion Notes:</strong></p>
+                        <p>{{ request.completion_notes }}</p>
+                    {% endif %}
+                    
+                    {% if request.completion_image %}
+                        <p><strong>Completion Image:</strong></p>
+                        <img src="{{ request.completion_image.url }}" class="img-fluid rounded mb-3" alt="Completion Image" style="max-height: 400px;">
+                    {% endif %}
+                    
+                    <small class="text-muted">Completed: {{ request.completed_at|date:"F d, Y at H:i" }}</small>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Student Feedback -->
+            {% if request.student_rating or request.student_feedback %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Feedback</h5>
+                </div>
+                <div class="card-body">
+                    {% if request.student_rating %}
+                        <p><strong>Rating:</strong> 
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= request.student_rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                            ({{ request.student_rating }}/5)
+                        </p>
+                    {% endif %}
+                    
+                    {% if request.student_feedback %}
+                        <p><strong>Comment:</strong></p>
+                        <p>{{ request.student_feedback }}</p>
+                    {% endif %}
+                    
+                    {% if request.feedback_at %}
+                        <small class="text-muted">Feedback given: {{ request.feedback_at|date:"F d, Y at H:i" }}</small>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Rejection Reason -->
+            {% if request.status == 'rejected' and request.rejection_reason %}
+            <div class="card mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Rejection Reason</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ request.rejection_reason }}</p>
+                    {% if request.approved_at %}
+                        <small class="text-muted">Processed: {{ request.approved_at|date:"F d, Y at H:i" }}</small>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Status Timeline -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Status Timeline</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <strong>Submitted</strong><br>
+                            <small class="text-muted">{{ request.created_at|date:"M d, Y H:i" }}</small>
+                        </li>
+                        
+                        {% if request.approved_at %}
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle {% if request.status == 'rejected' %}text-danger{% else %}text-success{% endif %}"></i>
+                            <strong>{% if request.status == 'rejected' %}Rejected{% else %}Approved{% endif %}</strong><br>
+                            <small class="text-muted">{{ request.approved_at|date:"M d, Y H:i" }}</small>
+                            {% if request.approved_by_name %}
+                                <br><small class="text-muted">by {{ request.approved_by_name }}</small>
+                            {% endif %}
+                        </li>
+                        {% endif %}
+                        
+                        {% if request.assigned_at %}
+                        <li class="mb-2">
+                            <i class="fas fa-user-cog text-success"></i>
+                            <strong>Assigned to Expert</strong><br>
+                            <small class="text-muted">{{ request.assigned_at|date:"M d, Y H:i" }}</small>
+                        </li>
+                        {% endif %}
+                        
+                        {% if request.work_started_at %}
+                        <li class="mb-2">
+                            <i class="fas fa-play-circle text-success"></i>
+                            <strong>Work Started</strong><br>
+                            <small class="text-muted">{{ request.work_started_at|date:"M d, Y H:i" }}</small>
+                        </li>
+                        {% endif %}
+                        
+                        {% if request.completed_at %}
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <strong>Completed</strong><br>
+                            <small class="text-muted">{{ request.completed_at|date:"M d, Y H:i" }}</small>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Assigned Expert -->
+            {% if request.assigned_expert %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Assigned Expert</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>{{ request.assigned_expert.user.username }}</strong></p>
+                    <p><small class="text-muted">{{ request.assigned_expert.get_specialization_display }}</small></p>
+                    {% if request.assigned_at %}
+                        <small class="text-muted">Assigned: {{ request.assigned_at|date:"M d, Y H:i" }}</small>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'student_dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                        
+                        {% if can_provide_feedback %}
+                        <a href="#" class="btn btn-success">
+                            <i class="fas fa-star"></i> Rate Service
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

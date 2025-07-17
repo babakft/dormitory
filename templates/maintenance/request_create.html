@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Maintenance Request{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Submit Maintenance Request</h4>
+                    <p class="mb-0 text-muted">Report an issue anywhere in the dormitory</p>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Display non-field errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Title Field -->
+                        <div class="mb-3">
+                            {{ form.title.label_tag }}
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small">{{ form.title.errors }}</div>
+                            {% endif %}
+                            {% if form.title.help_text %}
+                                <small class="form-text text-muted">{{ form.title.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <!-- Service Type Field -->
+                        <div class="mb-3">
+                            {{ form.service_type.label_tag }}
+                            {{ form.service_type }}
+                            {% if form.service_type.errors %}
+                                <div class="text-danger small">{{ form.service_type.errors }}</div>
+                            {% endif %}
+                            {% if form.service_type.help_text %}
+                                <small class="form-text text-muted">{{ form.service_type.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <!-- Room/Location Field -->
+                        <div class="mb-3">
+                            {{ form.room.label_tag }}
+                            {{ form.room }}
+                            {% if form.room.errors %}
+                                <div class="text-danger small">{{ form.room.errors }}</div>
+                            {% endif %}
+                            {% if form.room.help_text %}
+                                <small class="form-text text-muted">{{ form.room.help_text }}</small>
+                            {% endif %}
+                            {% if student.room %}
+                                <div class="mt-2">
+                                    <small class="text-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        Your assigned room: {{ student.full_room_address }}
+                                    </small>
+                                    <button type="button" class="btn btn-sm btn-outline-info ms-2" id="useMyRoom">
+                                        Use My Room
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description Field -->
+                        <div class="mb-3">
+                            {{ form.description.label_tag }}
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors }}</div>
+                            {% endif %}
+                            {% if form.description.help_text %}
+                                <small class="form-text text-muted">{{ form.description.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <!-- Image Field -->
+                        <div class="mb-3">
+                            {{ form.issue_image.label_tag }}
+                            {{ form.issue_image }}
+                            {% if form.issue_image.errors %}
+                                <div class="text-danger small">{{ form.issue_image.errors }}</div>
+                            {% endif %}
+                            {% if form.issue_image.help_text %}
+                                <small class="form-text text-muted">{{ form.issue_image.help_text }}</small>
+                            {% endif %}
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-camera"></i>
+                                    Accepted formats: JPG, PNG, GIF (Max size: 5MB)
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Location Preview -->
+                        <div class="mb-3" id="locationPreview" style="display: none;">
+                            <div class="alert alert-success">
+                                <strong><i class="fas fa-map-marker-alt"></i> Selected Location:</strong>
+                                <span id="selectedLocation"></span>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane"></i> Submit Request
+                            </button>
+                            <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const roomSelect = document.getElementById('id_room');
+    const useMyRoomBtn = document.getElementById('useMyRoom');
+    const locationPreview = document.getElementById('locationPreview');
+    const selectedLocation = document.getElementById('selectedLocation');
+
+    // Show location preview when room is selected
+    if (roomSelect) {
+        roomSelect.addEventListener('change', function() {
+            if (this.value) {
+                const selectedText = this.options[this.selectedIndex].text;
+                selectedLocation.textContent = selectedText;
+                locationPreview.style.display = 'block';
+            } else {
+                locationPreview.style.display = 'none';
+            }
+        });
+
+        // Trigger on initial load if there's a selected value
+        if (roomSelect.value) {
+            roomSelect.dispatchEvent(new Event('change'));
+        }
+    }
+
+    // Use My Room button functionality
+    if (useMyRoomBtn && roomSelect) {
+        useMyRoomBtn.addEventListener('click', function() {
+            // Find the option that contains the student's room
+            {% if student.room %}
+            const studentRoomValue = '{{ student.room.pk }}';
+            roomSelect.value = studentRoomValue;
+            roomSelect.dispatchEvent(new Event('change'));
+
+            // Visual feedback
+            this.innerHTML = '<i class="fas fa-check"></i> Selected';
+            this.classList.remove('btn-outline-info');
+            this.classList.add('btn-success');
+
+            setTimeout(() => {
+                this.innerHTML = 'Use My Room';
+                this.classList.remove('btn-success');
+                this.classList.add('btn-outline-info');
+            }, 2000);
+            {% endif %}
+        });
+    }
+
+    // Image preview functionality
+    const imageInput = document.getElementById('id_issue_image');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Remove any existing preview
+                const existingPreview = document.getElementById('imagePreview');
+                if (existingPreview) {
+                    existingPreview.remove();
+                }
+
+                // Create image preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.createElement('div');
+                    preview.id = 'imagePreview';
+                    preview.className = 'mt-2';
+                    preview.innerHTML = `
+                        <small class="text-muted d-block mb-2">Preview:</small>
+                        <img src="${e.target.result}" class="img-thumbnail" style="max-height: 200px; max-width: 100%;">
+                    `;
+                    imageInput.parentNode.appendChild(preview);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+
+<style>
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.text-danger.small {
+    margin-top: 0.25rem;
+}
+
+.alert-success {
+    border-left: 4px solid #198754;
+}
+
+.alert-info {
+    border-left: 4px solid #0dcaf0;
+}
+
+#useMyRoom {
+    transition: all 0.3s ease;
+}
+
+#locationPreview {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+{% endblock %}
