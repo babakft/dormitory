@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Complete Work{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Complete Work</h4>
+                    <p class="mb-0 text-muted">{{ maintenance_request.title }}</p>
+                </div>
+                <div class="card-body">
+                    <!-- Request Details -->
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <h6>Request Details:</h6>
+                        <p><strong>Student:</strong> {{ maintenance_request.student.user.username }}</p>
+                        <p><strong>Location:</strong> {{ maintenance_request.full_location }}</p>
+                        <p><strong>Work Started:</strong> {{ maintenance_request.work_started_at|date:"M d, Y H:i" }}</p>
+                        {% if maintenance_request.expert_notes %}
+                        <p><strong>Your Notes:</strong> {{ maintenance_request.expert_notes }}</p>
+                        {% endif %}
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.errors }}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            {{ form.completion_notes.label_tag }}
+                            {{ form.completion_notes }}
+                            {% if form.completion_notes.help_text %}
+                                <small class="form-text text-muted">{{ form.completion_notes.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.completion_image.label_tag }}
+                            {{ form.completion_image }}
+                            {% if form.completion_image.help_text %}
+                                <small class="form-text text-muted">{{ form.completion_image.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check"></i> Complete Work
+                            </button>
+                            <a href="{% url 'service_dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

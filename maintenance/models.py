@@ -104,6 +104,39 @@ class MaintenanceRequest(models.Model):
     def days_since_created(self):
         return (timezone.now() - self.created_at).days
 
+    # Add these methods to your existing MaintenanceRequest class
+
+    def assign_to_expert(self, expert):
+        if self.assigned_expert:
+            raise ValueError("Request already assigned to an expert")
+
+        if not expert.can_claim_request(self):
+            raise ValueError("Expert cannot claim this request")
+
+        self.assigned_expert = expert
+        self.assigned_at = timezone.now()
+        self.save()
+
+    def start_work(self, expert_notes=""):
+        self.status = 'in_progress'
+        self.work_started_at = timezone.now()
+        if expert_notes:
+            self.expert_notes = expert_notes
+        self.save()
+
+    def complete_work(self, completion_notes, completion_image=None):
+        self.status = 'completed'
+        self.completion_notes = completion_notes
+        self.completed_at = timezone.now()
+        self.save()
+
+        if completion_image:
+            MaintenanceImage.objects.create(
+                maintenance_request=self,
+                image=completion_image,
+                image_type='completion'
+            )
+
 
 class MaintenanceImage(models.Model):
     """Images for maintenance requests"""

@@ -25,6 +25,7 @@ fix the login active student in register
 #remove command the query for admin in student
 which filed is needed to be field
 add how much it take
+reset password
 ########################
 superuser
     - email: Babakfathi082@gmail.com

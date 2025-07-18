@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+
+{% block title %}Service Expert Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>
+                        <i class="fas fa-tools text-success"></i> 
+                        Welcome, {{ expert.user.username }}!
+                    </h2>
+                    <p class="text-muted mb-0">
+                        <strong>Specialization:</strong> {{ expert.get_specialization_display }}
+                        <span class="mx-2">|</span>
+                        <strong>Employee ID:</strong> {{ expert.employee_id }}
+                    </p>
+                </div>
+                <div class="text-end">
+                    <p class="mb-0"><strong>Email:</strong> {{ expert.user.email }}</p>
+                    <small class="text-muted">Service Expert Portal</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Available</h5>
+                            <h3>{{ total_available }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clipboard-list fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Assigned to Me</h5>
+                            <h3>{{ total_assigned }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-cog fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Completed</h5>
+                            <h3>{{ total_completed }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Quick Actions</h5>
+                            <small>Dashboard Menu</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-cogs fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Assigned Requests -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-cog"></i> My Assigned Requests
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if assigned_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Location</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Student</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for request in assigned_requests %}
+                            <tr>
+                                <td>
+                                    <strong>{{ request.title }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ request.description|truncatechars:50 }}</small>
+                                </td>
+                                <td>{{ request.full_location }}</td>
+                                <td>
+                                    {% if request.priority == 'high' %}
+                                    <span class="badge bg-danger">High</span>
+                                    {% elif request.priority == 'medium' %}
+                                    <span class="badge bg-warning">Medium</span>
+                                    {% elif request.priority == 'low' %}
+                                    <span class="badge bg-success">Low</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ request.get_priority_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if request.status == 'approved' %}
+                                    <span class="badge bg-info">Ready to Start</span>
+                                    {% elif request.status == 'in_progress' %}
+                                    <span class="badge bg-primary">In Progress</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ request.student.user.username }}</strong><br>
+                                    <small class="text-muted">#{{ request.student.student_number }}</small>
+                                </td>
+                                <td>
+                                    {% if request.status == 'approved' %}
+                                    <a href="{% url 'start_work' request.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-play"></i> Start Work
+                                    </a>
+                                    {% elif request.status == 'in_progress' %}
+                                    <a href="{% url 'complete_work' request.id %}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-check"></i> Complete
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-user-cog fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No assigned requests</h5>
+                        <p class="text-muted">Check available requests below to claim new work.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Requests -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clipboard-list"></i> Available Requests ({{ expert.get_specialization_display }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if available_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Location</th>
+                                <th>Priority</th>
+                                <th>Student</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for request in available_requests %}
+                            <tr>
+                                <td>
+                                    <strong>{{ request.title }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ request.description|truncatechars:50 }}</small>
+                                </td>
+                                <td>{{ request.full_location }}</td>
+                                <td>
+                                    {% if request.priority == 'high' %}
+                                    <span class="badge bg-danger">High</span>
+                                    {% elif request.priority == 'medium' %}
+                                    <span class="badge bg-warning">Medium</span>
+                                    {% elif request.priority == 'low' %}
+                                    <span class="badge bg-success">Low</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ request.get_priority_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ request.student.user.username }}</strong><br>
+                                    <small class="text-muted">#{{ request.student.student_number }}</small>
+                                </td>
+                                <td>
+                                    <small>
+                                        {{ request.created_at|date:"M d, Y" }}<br>
+                                        <span class="text-muted">{{ request.days_since_created }} days ago</span>
+                                    </small>
+                                </td>
+                                <td>
+                                    <form method="post" action="{% url 'claim_request' request.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-hand-paper"></i> Claim
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if total_available > 5 %}
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            Showing 5 most recent requests. Total available: {{ total_available }}
+                        </small>
+                    </div>
+                    {% endif %}
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No available requests</h5>
+                        <p class="text-muted">No {{ expert.get_specialization_display|lower }} requests available at the moment.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <button onclick="location.reload()" class="btn btn-outline-info w-100">
+                                <i class="fas fa-sync-alt"></i><br>Refresh Dashboard
+                            </button>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <form method="post" action="{% url 'service_logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger w-100">
+                                    <i class="fas fa-sign-out-alt"></i><br>Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    .table th {
+        border-top: none;
+        font-weight: 600;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .fas {
+        margin-bottom: 5px;
+    }
+
+    .badge {
+        font-size: 0.75em;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        transition: transform 0.2s ease-in-out;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding: 0 15px;
+        }
+
+        .table-responsive {
+            font-size: 0.9em;
+        }
+
+        .btn {
+            font-size: 0.85em;
+        }
+    }
+</style>
+{% endblock %}

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 
 AUTHENTICATION_BACKENDS = [
     'student.backends.StudentNumberBackend',
+    'service.backends.ServiceExpertEmployeeIdBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 

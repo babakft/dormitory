@@ -1,0 +1,27 @@
+Dear {{ student.user.username }},
+
+Work has started on your maintenance request!
+
+REQUEST DETAILS:
+- Title: {{ request.title }}
+- Location: {{ request.full_location }}
+- Service Type: {{ request.get_service_type_display }}
+- Request ID: #{{ request.id }}
+
+WORK INFORMATION:
+- Assigned Expert: {{ assigned_expert.user.username }}
+- Specialization: {{ assigned_expert.get_specialization_display }}
+- Work Started: {{ work_started_at|date:"F d, Y at H:i" }}
+
+The assigned expert is now working on resolving your maintenance issue. You may be contacted if additional information or access is needed.
+
+You can track the progress of your request through your student dashboard.
+
+If you have any questions about the work being performed, please contact the dormitory administration.
+
+Best regards,
+Dormitory Management Team
+Shahid Bahonar University
+
+---
+This is an automated message. Please do not reply to this email.

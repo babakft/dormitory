@@ -1,0 +1,32 @@
+Dear {{ student.user.username }},
+
+Great news! Your maintenance request has been approved.
+
+REQUEST DETAILS:
+- Title: {{ request.title }}
+- Description: {{ request.description }}
+- Location: {{ request.full_location }}
+- Service Type: {{ request.get_service_type_display }}
+- Priority: {{ priority }}
+- Request ID: #{{ request.id }}
+
+APPROVAL INFORMATION:
+- Approved by: {{ approved_by }}
+- Approved on: {{ approved_at|date:"F d, Y at H:i" }}
+
+WHAT HAPPENS NEXT:
+1. Your request will be assigned to a qualified expert
+2. The expert will contact you or begin work
+3. You'll receive updates as work progresses
+4. You can track progress on your dashboard
+
+You can view your request details at any time through your student dashboard.
+
+If you have any questions, please contact the dormitory administration.
+
+Best regards,
+Dormitory Management Team
+Shahid Bahonar University
+
+---
+This is an automated message. Please do not reply to this email.

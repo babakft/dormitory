@@ -1,0 +1,27 @@
+Dear {{ student.user.username }},
+
+We regret to inform you that your maintenance request has been declined.
+
+REQUEST DETAILS:
+- Title: {{ request.title }}
+- Description: {{ request.description }}
+- Location: {{ request.full_location }}
+- Service Type: {{ request.get_service_type_display }}
+- Request ID: #{{ request.id }}
+
+REJECTION INFORMATION:
+- Processed by: {{ rejected_by }}
+- Date: {{ rejected_at|date:"F d, Y at H:i" }}
+- Reason: {{ rejection_reason }}
+
+NEXT STEPS:
+If you believe this decision was made in error or if you have additional information to support your request, please contact the dormitory administration.
+
+You may also submit a new request with updated information if appropriate.
+
+Best regards,
+Dormitory Management Team
+Shahid Bahonar University
+
+---
+This is an automated message. Please do not reply to this email.

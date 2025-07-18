@@ -35,3 +35,56 @@ class ServiceExpert(models.Model):
     class Meta:
         verbose_name = 'Service Expert'
         verbose_name_plural = 'Service Experts'
+
+    def get_available_requests(self):
+        from maintenance.models import MaintenanceRequest
+
+        return MaintenanceRequest.objects.filter(
+            service_type=self.specialization,
+            status='approved',
+            assigned_expert__isnull=True
+        ).select_related('student__user', 'room__building').order_by('-priority', 'created_at')
+
+    def get_my_assigned_requests(self):
+        from maintenance.models import MaintenanceRequest
+        return MaintenanceRequest.objects.filter(
+            assigned_expert=self,
+            status__in=['approved', 'in_progress']
+        ).select_related('student__user', 'room__building').order_by('-priority', 'created_at')
+
+    def get_my_completed_requests(self):
+        from maintenance.models import MaintenanceRequest
+        return MaintenanceRequest.objects.filter(
+            assigned_expert=self,
+            status='completed'
+        ).select_related('student__user', 'room__building').order_by('-completed_at')
+
+    def can_claim_request(self, maintenance_request):
+        return (
+                maintenance_request.service_type == self.specialization and
+                maintenance_request.status == 'approved' and
+                maintenance_request.assigned_expert is None and
+                self.is_active
+        )
+
+    def claim_request(self, maintenance_request):
+        """Claim a maintenance request"""
+        if not self.can_claim_request(maintenance_request):
+            raise ValueError("Cannot claim this request")
+
+        maintenance_request.assign_to_expert(self)
+        return maintenance_request
+
+    def get_dashboard_data(self):
+        """Get dashboard data for service expert"""
+        available_requests = self.get_available_requests()
+        assigned_requests = self.get_my_assigned_requests()
+
+        return {
+            'expert': self,
+            'available_requests': available_requests[:5],
+            'assigned_requests': assigned_requests,
+            'total_available': available_requests.count(),
+            'total_assigned': assigned_requests.count(),
+            'total_completed': self.get_my_completed_requests().count(),
+        }
