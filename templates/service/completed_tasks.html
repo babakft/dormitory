@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}Completed Tasks{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2>
+                        <i class="fas fa-check-circle text-success"></i> 
+                        Completed Tasks
+                    </h2>
+                    <p class="text-muted mb-0">
+                        <strong>Expert:</strong> {{ expert.user.username }} 
+                        <span class="mx-2">|</span>
+                        <strong>Total Completed:</strong> {{ total_completed }}
+                    </p>
+                </div>
+                <div>
+                    <a href="{% url 'service_dashboard' %}" class="btn btn-primary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completed Tasks Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tasks"></i> My Completed Work
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if completed_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Student</th>
+                                <th>Location</th>
+                                <th>Priority</th>
+                                <th>Completed Date</th>
+                                <th>Student Rating</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for request in completed_requests %}
+                            <tr>
+                                <td>
+                                    <strong>{{ request.title }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ request.description|truncatechars:50 }}</small>
+                                </td>
+                                <td>
+                                    <strong>{{ request.student.user.username }}</strong><br>
+                                    <small class="text-muted">#{{ request.student.student_number }}</small>
+                                </td>
+                                <td>{{ request.full_location }}</td>
+                                <td>
+                                    {% if request.priority == 'high' %}
+                                    <span class="badge bg-danger">High</span>
+                                    {% elif request.priority == 'medium' %}
+                                    <span class="badge bg-warning">Medium</span>
+                                    {% elif request.priority == 'low' %}
+                                    <span class="badge bg-success">Low</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ request.get_priority_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <small>
+                                        {{ request.completed_at|date:"M d, Y H:i" }}
+                                        <br>
+                                        <span class="text-muted">
+                                            {% with days_ago=request.completed_at|timesince %}
+                                                {{ days_ago }} ago
+                                            {% endwith %}
+                                        </span>
+                                    </small>
+                                </td>
+                                <td>
+                                    {% if request.student_rating %}
+                                        <div class="text-warning">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= request.student_rating %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <small class="text-muted">{{ request.student_rating }}/5</small>
+                                    {% else %}
+                                        <span class="badge bg-secondary">No Rating</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-info" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#detailModal{{ request.id }}">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No completed tasks yet</h5>
+                        <p class="text-muted">Complete some maintenance requests to see them here.</p>
+                        <a href="{% url 'service_dashboard' %}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Modals -->
+{% for request in completed_requests %}
+<div class="modal fade" id="detailModal{{ request.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ request.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Student:</strong> {{ request.student.user.username }}</p>
+                        <p><strong>Location:</strong> {{ request.full_location }}</p>
+                        <p><strong>Service Type:</strong> {{ request.get_service_type_display }}</p>
+                        <p><strong>Completed:</strong> {{ request.completed_at|date:"F d, Y H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Work Duration:</strong> 
+                            {% if request.work_started_at and request.completed_at %}
+                                {{ request.work_started_at|timesince:request.completed_at }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </p>
+                        {% if request.completion_notes %}
+                        <p><strong>Completion Notes:</strong></p>
+                        <p class="text-muted">{{ request.completion_notes }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if request.student_feedback %}
+                <hr>
+                <h6>Student Feedback:</h6>
+                <p class="text-muted">{{ request.student_feedback }}</p>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+.card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+}
+
+.badge {
+    font-size: 0.75em;
+}
+
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.9em;
+    }
+}
+</style>
+{% endblock %}

@@ -10,6 +10,7 @@ from django.db import transaction
 from service.forms import ServiceExpertLoginForm, StartWorkForm, CompleteWorkForm
 from functools import wraps
 
+
 class ServiceExpertLoginView(LoginView):
     form_class = ServiceExpertLoginForm
     template_name = 'service/login.html'
@@ -22,6 +23,7 @@ class ServiceExpertLoginView(LoginView):
         user = form.get_user()
         messages.success(self.request, f'Welcome back, {user.username}!')
         return super().form_valid(form)
+
 
 class ServiceExpertLogoutView(LoginRequiredMixin, LogoutView):
     next_page = reverse_lazy('service_login')
@@ -51,6 +53,7 @@ def claim_request(request, request_id):
 
     return redirect('service_dashboard')
 
+
 ##################decorator###################
 def service_expert_required(view_func):
     """
@@ -78,6 +81,8 @@ def service_expert_required(view_func):
         return view_func(request, *args, **kwargs)
 
     return _wrapped_view
+
+
 #############decorator#############################
 
 @service_expert_required
@@ -140,3 +145,18 @@ def complete_work(request, request_id):
         'form': form,
         'maintenance_request': maintenance_request
     })
+
+
+@service_expert_required
+def completed_tasks(request):
+    """Show all completed tasks for the service expert"""
+    expert = request.user.expert_profile
+    completed_requests = expert.get_my_completed_requests()
+
+    context = {
+        'expert': expert,
+        'completed_requests': completed_requests,
+        'total_completed': completed_requests.count(),
+    }
+
+    return render(request, 'service/completed_tasks.html', context)

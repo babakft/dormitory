@@ -10,7 +10,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h2>
-                        <i class="fas fa-tools text-success"></i> 
+                        <i class="fas fa-tools text-success"></i>
                         Welcome, {{ expert.user.username }}!
                     </h2>
                     <p class="text-muted mb-0">
@@ -62,19 +62,21 @@
         </div>
 
         <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5 class="card-title">Completed</h5>
-                            <h3>{{ total_completed }}</h3>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-check-circle fa-2x"></i>
+            <a href="{% url 'completed_tasks' %}" class="text-decoration-none">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title">Completed</h5>
+                                <h3>{{ total_completed }}</h3>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-check-circle fa-2x"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <div class="col-md-3">
@@ -323,6 +325,12 @@
         transform: translateY(-2px);
         transition: transform 0.2s ease-in-out;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Make the completed tasks card clickable */
+    a.text-decoration-none .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     }
 
     @media (max-width: 768px) {
