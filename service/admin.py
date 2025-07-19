@@ -1,10 +1,9 @@
 from django.contrib import admin
-from django.contrib import messages
-from django.db.models import Avg, Count, Q
+from django.db.models import Count, Q
 from django.utils import timezone
 from service.models import ServiceExpert
-from student.models import User
-
+from maintenance.models import MaintenanceRequest
+from datetime import  timedelta
 
 @admin.register(ServiceExpert)
 class ServiceExpertAdmin(admin.ModelAdmin):
@@ -94,29 +93,35 @@ class ServiceExpertAdmin(admin.ModelAdmin):
 
     deactivate_experts.short_description = "🚫 Deactivate experts"
 
+
     def view_expert_workload(self, request, queryset):
-        """View current workload"""
-        from maintenance.models import MaintenanceRequest
+
+        # Get the date one month ago from today
+        one_month_ago = timezone.now() - timedelta(days=30)
 
         report = "WORKLOAD REPORT:\n"
         for expert in queryset:
+            # Get the number of requests assigned and in progress
             assigned = MaintenanceRequest.objects.filter(
                 assigned_expert=expert, status__in=['approved', 'in_progress']
             ).count()
+
+            # Get the number of requests completed in the last month
             completed = MaintenanceRequest.objects.filter(
-                assigned_expert=expert, status='completed'
+                assigned_expert=expert, status='completed', completed_at__gte=one_month_ago
             ).count()
+
             rating = expert.average_rating or 0
 
-            report += f"{expert.user.username}: {assigned} assigned, {completed} completed, {rating}/5 rating\n"
+            report += f"{expert.user.username}: {assigned} assigned, {completed} completed (last month), {rating}/5 rating\n"
 
+        # Send the report as a message to the user
         self.message_user(request, report)
 
     view_expert_workload.short_description = "📊 View workload"
 
     def force_complete_requests(self, request, queryset):
         """Force complete stuck requests"""
-        from maintenance.models import MaintenanceRequest
 
         completed_count = 0
         for expert in queryset:
@@ -134,7 +139,6 @@ class ServiceExpertAdmin(admin.ModelAdmin):
 
     def view_completed_requests(self, request, queryset):
         """View completed requests summary"""
-        from maintenance.models import MaintenanceRequest
 
         report = "COMPLETED REQUESTS:\n"
         for expert in queryset:
@@ -143,9 +147,8 @@ class ServiceExpertAdmin(admin.ModelAdmin):
             ).count()
             rating = expert.average_rating or 0
 
-            report += f"{expert.user.username}: {completed} completed, {rating}/5 average\n"
+            report += f"{expert.user.username}: {completed} completed, {rating}/5 average rating\n"
 
         self.message_user(request, report)
 
     view_completed_requests.short_description = "✅ View completed"
-
