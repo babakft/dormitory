@@ -13,15 +13,27 @@
                         <i class="fas fa-tools text-success"></i>
                         Welcome, {{ expert.user.username }}!
                     </h2>
-                    <p class="text-muted mb-0">
+                    <p class="text-muted mb-1">
                         <strong>Specialization:</strong> {{ expert.get_specialization_display }}
                         <span class="mx-2">|</span>
                         <strong>Employee ID:</strong> {{ expert.employee_id }}
                     </p>
+                    <!-- Expert Rating Display -->
+                    <div class="mt-2">
+                        <strong>Your Rating:</strong>
+                        <span class="rating-display">{{ expert.rating_display }}</span>
+                    </div>
                 </div>
                 <div class="text-end">
                     <p class="mb-0"><strong>Email:</strong> {{ expert.user.email }}</p>
                     <small class="text-muted">Service Expert Portal</small>
+                    {% if expert.average_rating %}
+                    <div class="mt-1">
+                        <small class="text-success">
+                            <i class="fas fa-star"></i> Rated Expert
+                        </small>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -84,17 +96,57 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5 class="card-title">Quick Actions</h5>
-                            <small>Dashboard Menu</small>
+                            <h5 class="card-title">Performance</h5>
+                            {% if expert.average_rating %}
+                                <h3>{{ expert.average_rating|floatformat:1 }}/5</h3>
+                            {% else %}
+                                <h3>N/A</h3>
+                            {% endif %}
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-cogs fa-2x"></i>
+                            <i class="fas fa-star fa-2x"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Performance Summary Card -->
+    {% if expert.average_rating %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-success border-left-success">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5 class="alert-heading">
+                            <i class="fas fa-trophy text-warning"></i> Your Performance Summary
+                        </h5>
+                        <p class="mb-1">
+                            <strong>Current Rating:</strong> {{ expert.rating_display }}
+                        </p>
+                        <p class="mb-0">
+                            <small class="text-muted">
+                                Based on {{ total_completed }} completed requests with student feedback
+                            </small>
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end align-self-center">
+                        {% if expert.average_rating >= 4.5 %}
+                        <span class="badge bg-success fs-6">Excellent Service</span>
+                        {% elif expert.average_rating >= 4.0 %}
+                        <span class="badge bg-info fs-6">Great Service</span>
+                        {% elif expert.average_rating >= 3.5 %}
+                        <span class="badge bg-warning fs-6">Good Service</span>
+                        {% else %}
+                        <span class="badge bg-secondary fs-6">Keep Improving</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- My Assigned Requests -->
     <div class="row mb-4">
@@ -333,6 +385,28 @@
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     }
 
+    /* Rating display styling */
+    .rating-display {
+        font-size: 1.1em;
+        color: #ffc107;
+        font-weight: 500;
+    }
+
+    /* Performance summary card */
+    .border-left-success {
+        border-left: 4px solid #28a745 !important;
+    }
+
+    .alert-success {
+        background-color: #f8f9fa;
+        border-color: #28a745;
+    }
+
+    /* Performance badge styling */
+    .fs-6 {
+        font-size: 1rem !important;
+    }
+
     @media (max-width: 768px) {
         .container-fluid {
             padding: 0 15px;
@@ -344,6 +418,10 @@
 
         .btn {
             font-size: 0.85em;
+        }
+
+        .rating-display {
+            font-size: 0.95em;
         }
     }
 </style>

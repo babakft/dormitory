@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -6,7 +6,8 @@ from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.db import transaction
 from maintenance.models import MaintenanceRequest
-from maintenance.forms import MaintenanceRequestForm
+from maintenance.forms import MaintenanceRequestForm, MaintenanceRatingForm
+from django.utils import timezone
 
 
 class MaintenanceRequestCreateView(LoginRequiredMixin, CreateView):
@@ -71,3 +72,51 @@ def maintenance_request_detail(request, pk):
     }
 
     return render(request, 'maintenance/request_detail.html', context)
+
+
+@login_required(login_url='student_login')
+def rate_maintenance_request(request, pk):
+    """Allow students to rate completed maintenance work"""
+    maintenance_request = get_object_or_404(
+        MaintenanceRequest.objects.select_related(
+            'student__user', 'assigned_expert__user'
+        ),
+        pk=pk,
+        student=request.user.student_profile,
+        status='completed'
+    )
+
+    # Check if already rated
+    if maintenance_request.student_rating:
+        messages.warning(request, 'You have already rated this maintenance request.')
+        return redirect('maintenance:detail', pk=pk)
+
+    if request.method == 'POST':
+        form = MaintenanceRatingForm(request.POST)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    # Update the maintenance request with rating and feedback
+                    maintenance_request.student_rating = form.cleaned_data['student_rating']
+                    maintenance_request.student_feedback = form.cleaned_data['student_feedback']
+                    maintenance_request.feedback_at = timezone.now()
+                    maintenance_request.save()
+
+                messages.success(
+                    request,
+                    f'Thank you for rating the service! Your feedback helps improve our maintenance services.'
+                )
+                return redirect('maintenance:detail', pk=pk)
+            except Exception as e:
+                messages.error(request, 'Failed to submit rating. Please try again.')
+                return render(request, 'maintenance/rate_request.html', {
+                    'form': form,
+                    'maintenance_request': maintenance_request
+                })
+    else:
+        form = MaintenanceRatingForm()
+
+    return render(request, 'maintenance/rate_request.html', {
+        'form': form,
+        'maintenance_request': maintenance_request
+    })

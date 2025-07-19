@@ -1,5 +1,6 @@
 from django.db import models
 from student.models import User
+from django.db.models import Avg
 
 
 class ServiceExpert(models.Model):
@@ -26,6 +27,12 @@ class ServiceExpert(models.Model):
     # Status
     is_active = models.BooleanField(default=True)
 
+    # rating
+    average_rating = models.DecimalField(
+        max_digits=3, decimal_places=2,
+        null=True, blank=True,
+        help_text="Average rating from completed requests"
+    )
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -35,6 +42,30 @@ class ServiceExpert(models.Model):
     class Meta:
         verbose_name = 'Service Expert'
         verbose_name_plural = 'Service Experts'
+
+    @property
+    def rating_display(self):
+        """Display rating as stars"""
+        if self.average_rating:
+            stars = '★' * int(self.average_rating) + '☆' * (5 - int(self.average_rating))
+            return f"{stars} ({self.average_rating}/5)"
+        return "No ratings yet"
+
+    def update_average_rating(self):
+        """Update average rating from actual requests"""
+        from maintenance.models import MaintenanceRequest
+
+        completed_requests = MaintenanceRequest.objects.filter(
+            assigned_expert=self,
+            status='completed',
+            student_rating__isnull=False
+        )
+        rating_data = completed_requests.aggregate(
+            avg_rating=Avg('student_rating')
+        )
+        self.average_rating = rating_data['avg_rating']
+
+        self.save(update_fields=['average_rating'])
 
     def get_available_requests(self):
         from maintenance.models import MaintenanceRequest

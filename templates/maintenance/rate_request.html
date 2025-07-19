@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}Rate Maintenance Service{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-star"></i> Rate Maintenance Service
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Request Summary -->
+                    <div class="alert alert-info mb-4">
+                        <h6><i class="fas fa-info-circle"></i> Request Summary</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Title:</strong> {{ maintenance_request.title }}</p>
+                                <p class="mb-1"><strong>Location:</strong> {{ maintenance_request.full_location }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Expert:</strong> {{ maintenance_request.assigned_expert.user.username }}</p>
+                                <p class="mb-1"><strong>Completed:</strong> {{ maintenance_request.completed_at|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rating Form -->
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    {% for field, errors in form.errors.items %}
+                                        {% for error in errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        <!-- Rating Section -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">{{ form.student_rating.label }}</label>
+                            <div class="rating-section p-3 border rounded">
+                                {% for choice in form.student_rating %}
+                                <div class="form-check mb-2">
+                                    {{ choice.tag }}
+                                    <label class="form-check-label rating-label" for="{{ choice.id_for_label }}">
+                                        <span class="star-display">
+                                            {% if choice.choice_value == "1" %}★☆☆☆☆{% endif %}
+                                            {% if choice.choice_value == "2" %}★★☆☆☆{% endif %}
+                                            {% if choice.choice_value == "3" %}★★★☆☆{% endif %}
+                                            {% if choice.choice_value == "4" %}★★★★☆{% endif %}
+                                            {% if choice.choice_value == "5" %}★★★★★{% endif %}
+                                        </span>
+                                        {{ choice.choice_label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted">Your rating helps us improve our maintenance services</small>
+                        </div>
+
+                        <!-- Feedback Section -->
+                        <div class="mb-4">
+                            <label for="{{ form.student_feedback.id_for_label }}" class="form-label fw-bold">
+                                {{ form.student_feedback.label }}
+                            </label>
+                            {{ form.student_feedback }}
+                            <small class="text-muted">
+                                Share details about the quality of work, expert's professionalism, timeliness, etc.
+                            </small>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-star"></i> Submit Rating
+                            </button>
+                            <a href="{% url 'maintenance:detail' maintenance_request.pk %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Request Details
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- Rating Guidelines -->
+                    <div class="mt-4">
+                        <h6 class="text-muted">Rating Guidelines:</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <strong>5 Stars - Excellent:</strong> Outstanding work, exceeded expectations<br>
+                                    <strong>4 Stars - Very Good:</strong> High quality work, met expectations<br>
+                                    <strong>3 Stars - Good:</strong> Satisfactory work, acceptable quality
+                                </small>
+                            </div>
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <strong>2 Stars - Fair:</strong> Below expectations, some issues<br>
+                                    <strong>1 Star - Poor:</strong> Unsatisfactory work, major problems
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.rating-section {
+    background-color: #f8f9fa;
+}
+
+.rating-label {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rating-label:hover {
+    transform: translateX(5px);
+    color: #0d6efd;
+}
+
+.star-display {
+    color: #ffc107;
+    font-size: 1.2em;
+    margin-right: 10px;
+}
+
+.form-check-input:checked + .rating-label {
+    color: #198754;
+    font-weight: bold;
+}
+
+.form-check-input:checked + .rating-label .star-display {
+    color: #198754;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .star-display {
+        font-size: 1em;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click animation to rating options
+    const ratingLabels = document.querySelectorAll('.rating-label');
+    
+    ratingLabels.forEach(label => {
+        label.addEventListener('click', function() {
+            // Remove previous selection styling
+            ratingLabels.forEach(l => l.classList.remove('selected'));
+            
+            // Add selection styling
+            this.classList.add('selected');
+            
+            // Optional: Show confirmation message
+            const rating = this.querySelector('input').value;
+            const stars = this.querySelector('.star-display').textContent;
+            
+            // You could show a small feedback message here
+            console.log(`Selected rating: ${rating} stars (${stars})`);
+        });
+    });
+});
+</script>
+{% endblock %}

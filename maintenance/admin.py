@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils import timezone
-from django.contrib import messages
-from django.db.models import Q  # Importing Q here
+from django.db.models import Q
 from maintenance.models import MaintenanceRequest, MaintenanceImage
 from service.models import ServiceExpert
+
 
 class MaintenanceImageInline(admin.TabularInline):
     """Inline for viewing maintenance images"""
@@ -34,18 +34,19 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
         'priority',
         'status',
         'assigned_expert_info',
+        'student_rating_display',
         'created_at',
         'days_since_created'
     ]
 
     list_filter = [
         'status', 'priority', 'service_type', 'created_at',
-        'assigned_expert__specialization', 'room__building'
+        'assigned_expert__specialization', 'room__building', 'student_rating'
     ]
 
     search_fields = [
         'title', 'description', 'student__user__username',
-        'student__student_number', 'assigned_expert__user__username'
+        'student__student_number', 'assigned_expert__user__username', 'student_feedback'
     ]
 
     ordering = ['-created_at']
@@ -58,7 +59,7 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
 
     readonly_fields = [
         'student', 'created_at', 'updated_at', 'days_since_created',
-        'issue_image_preview', 'completion_image_preview'
+        'issue_image_preview', 'completion_image_preview', 'feedback_at'
     ]
 
     fieldsets = (
@@ -77,6 +78,10 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
         }),
         ('Work Progress', {
             'fields': ('work_started_at', 'completion_notes', 'completed_at')
+        }),
+        ('Student Feedback', {
+            'fields': ('student_rating', 'student_feedback', 'feedback_at'),
+            'classes': ('collapse',)
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at', 'days_since_created'),
@@ -115,18 +120,6 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
 
     student_info.short_description = 'Student'
 
-    def priority(self, obj):
-        """Display priority"""
-        return obj.get_priority_display()
-
-    priority.short_description = 'Priority'
-
-    def status(self, obj):
-        """Display status"""
-        return obj.get_status_display()
-
-    status.short_description = 'Status'
-
     def assigned_expert_info(self, obj):
         """Display assigned expert's information"""
         if obj.assigned_expert:
@@ -138,6 +131,18 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
         return "No expert assigned"
 
     assigned_expert_info.short_description = 'Assigned Expert'
+
+    def student_rating_display(self, obj):
+        """Display student rating with stars"""
+        if obj.student_rating:
+            stars = '★' * obj.student_rating + '☆' * (5 - obj.student_rating)
+            return format_html(
+                '<span style="color: #ffc107;">{}</span><br><small>({}/5)</small>',
+                stars, obj.student_rating
+            )
+        return format_html('<span class="text-muted">Not rated</span>')
+
+    student_rating_display.short_description = 'Student Rating'
 
     def days_since_created(self, obj):
         """Display how many days ago the request was created"""
@@ -207,7 +212,6 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
             if expert:
                 maintenance_request.assigned_expert = expert
                 maintenance_request.assigned_at = timezone.now()
-                # Removed the line that tracked who assigned the expert
                 if maintenance_request.status == 'pending':
                     maintenance_request.status = 'approved'
                     maintenance_request.approved_by_name = request.user.username

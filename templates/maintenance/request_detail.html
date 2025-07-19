@@ -124,30 +124,39 @@
             <!-- Student Feedback -->
             {% if request.student_rating or request.student_feedback %}
             <div class="card mb-4">
-                <div class="card-header">
+                <div class="card-header bg-success text-white">
                     <h5 class="mb-0">Your Feedback</h5>
                 </div>
                 <div class="card-body">
                     {% if request.student_rating %}
-                    <p><strong>Rating:</strong>
-                        {% for i in "12345" %}
-                        {% if forloop.counter <= request.student_rating %}
-                        <i class="fas fa-star text-warning"></i>
-                        {% else %}
-                        <i class="far fa-star text-warning"></i>
-                        {% endif %}
-                        {% endfor %}
-                        ({{ request.student_rating }}/5)
-                    </p>
+                    <div class="mb-3">
+                        <strong>Rating:</strong>
+                        <div class="rating-display mt-1">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= request.student_rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-2 fw-bold">({{ request.student_rating }}/5)</span>
+                        </div>
+                    </div>
                     {% endif %}
 
                     {% if request.student_feedback %}
-                    <p><strong>Comment:</strong></p>
-                    <p>{{ request.student_feedback }}</p>
+                    <div class="mb-3">
+                        <strong>Your Comments:</strong>
+                        <div class="mt-2 p-3 bg-light rounded">
+                            <em>"{{ request.student_feedback }}"</em>
+                        </div>
+                    </div>
                     {% endif %}
 
                     {% if request.feedback_at %}
-                    <small class="text-muted">Feedback given: {{ request.feedback_at|date:"F d, Y at H:i" }}</small>
+                    <small class="text-muted">
+                        <i class="fas fa-clock"></i> Feedback given: {{ request.feedback_at|date:"F d, Y at H:i" }}
+                    </small>
                     {% endif %}
                 </div>
             </div>
@@ -164,6 +173,28 @@
                     {% if request.approved_at %}
                     <small class="text-muted">Processed: {{ request.approved_at|date:"F d, Y at H:i" }}</small>
                     {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Rating Call-to-Action for Completed Requests -->
+            {% if can_provide_feedback %}
+            <div class="alert alert-success">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h6 class="alert-heading mb-2">
+                            <i class="fas fa-star text-warning"></i> Rate This Service
+                        </h6>
+                        <p class="mb-0">
+                            Help us improve our maintenance services by rating the work completed by
+                            <strong>{{ request.assigned_expert.user.username }}</strong>.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <a href="{% url 'maintenance:rate' request.pk %}" class="btn btn-warning btn-lg">
+                            <i class="fas fa-star"></i> Rate Service
+                        </a>
+                    </div>
                 </div>
             </div>
             {% endif %}
@@ -218,6 +249,14 @@
                             <small class="text-muted">{{ request.completed_at|date:"M d, Y H:i" }}</small>
                         </li>
                         {% endif %}
+
+                        {% if request.student_rating %}
+                        <li class="mb-2">
+                            <i class="fas fa-star text-warning"></i>
+                            <strong>Rated by Student</strong><br>
+                            <small class="text-muted">{{ request.feedback_at|date:"M d, Y H:i" }}</small>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -231,6 +270,15 @@
                 <div class="card-body">
                     <p><strong>{{ request.assigned_expert.user.username }}</strong></p>
                     <p><small class="text-muted">{{ request.assigned_expert.get_specialization_display }}</small></p>
+
+                    <!-- Show Expert's Rating -->
+                    {% if request.assigned_expert.average_rating %}
+                    <div class="mb-2">
+                        <small class="text-muted">Expert Rating:</small><br>
+                        <span class="expert-rating">{{ request.assigned_expert.rating_display }}</span>
+                    </div>
+                    {% endif %}
+
                     {% if request.assigned_at %}
                     <small class="text-muted">Assigned: {{ request.assigned_at|date:"M d, Y H:i" }}</small>
                     {% endif %}
@@ -250,9 +298,13 @@
                         </a>
 
                         {% if can_provide_feedback %}
-                        <a href="#" class="btn btn-success">
+                        <a href="{% url 'maintenance:rate' request.pk %}" class="btn btn-success">
                             <i class="fas fa-star"></i> Rate Service
                         </a>
+                        {% elif request.student_rating %}
+                        <div class="alert alert-info mb-0">
+                            <small><i class="fas fa-check-circle"></i> You have rated this service</small>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
@@ -260,4 +312,44 @@
         </div>
     </div>
 </div>
+
+<style>
+.rating-display {
+    font-size: 1.2em;
+}
+
+.rating-display .fas,
+.rating-display .far {
+    margin-right: 2px;
+}
+
+.expert-rating {
+    color: #ffc107;
+    font-weight: 500;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.alert-success {
+    border-left: 4px solid #28a745;
+}
+
+.timeline-item {
+    border-left: 2px solid #e9ecef;
+    padding-left: 1rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+}
+</style>
 {% endblock %}

@@ -119,3 +119,39 @@ class MaintenanceRequestForm(forms.ModelForm):
             )
 
         return instance
+
+
+class MaintenanceRatingForm(forms.Form):
+    """Form for students to rate completed maintenance work"""
+
+    RATING_CHOICES = [
+        (1, '1 - Poor'),
+        (2, '2 - Fair'),
+        (3, '3 - Good'),
+        (4, '4 - Very Good'),
+        (5, '5 - Excellent'),
+    ]
+
+    student_rating = forms.ChoiceField(
+        choices=RATING_CHOICES,
+        widget=forms.RadioSelect(attrs={
+            'class': 'form-check-input'
+        }),
+        label='Rate the service quality'
+    )
+
+    student_feedback = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'Share your experience with the maintenance work (optional)...'
+        }),
+        required=False,
+        label='Additional Comments'
+    )
+
+    def clean_student_rating(self):
+        rating = self.cleaned_data.get('student_rating')
+        if not rating:
+            raise forms.ValidationError('Please select a rating.')
+        return int(rating)
