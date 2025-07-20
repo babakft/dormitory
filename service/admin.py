@@ -1,9 +1,16 @@
+import secrets, string
 from django.contrib import admin
 from django.db.models import Count, Q
 from django.utils import timezone
 from service.models import ServiceExpert
 from maintenance.models import MaintenanceRequest
-from datetime import  timedelta
+from datetime import timedelta
+from django.db import transaction
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from django.contrib import messages
+
 
 @admin.register(ServiceExpert)
 class ServiceExpertAdmin(admin.ModelAdmin):
@@ -19,7 +26,8 @@ class ServiceExpertAdmin(admin.ModelAdmin):
 
     actions = [
         'activate_experts', 'deactivate_experts',
-        'view_expert_workload', 'force_complete_requests', 'view_completed_requests'
+        'view_expert_workload', 'force_complete_requests', 'view_completed_requests',
+        'reset_expert_passwords'
     ]
 
     fieldsets = (
@@ -93,7 +101,6 @@ class ServiceExpertAdmin(admin.ModelAdmin):
 
     deactivate_experts.short_description = "🚫 Deactivate experts"
 
-
     def view_expert_workload(self, request, queryset):
 
         # Get the date one month ago from today
@@ -152,3 +159,65 @@ class ServiceExpertAdmin(admin.ModelAdmin):
         self.message_user(request, report)
 
     view_completed_requests.short_description = "✅ View completed"
+
+    @staticmethod
+    def generate_secure_password():
+        """Generate a cryptographically secure random password"""
+        length = 8
+        characters = string.ascii_letters + string.digits
+        return ''.join(secrets.choice(characters) for _ in range(length))
+
+    @staticmethod
+    def send_expert_password_email(expert, new_password):
+        """Send password reset email to service expert using template"""
+        context = {
+            'expert': expert,
+            'new_password': new_password,
+            'username': expert.user.username,
+            'employee_id': expert.employee_id,
+        }
+
+        message = render_to_string('emails/password_reset_expert.txt', context)
+
+        send_mail(
+            subject='🔐 Password Reset - Service Expert Portal',
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[expert.user.email],
+            fail_silently=False,
+        )
+
+    def reset_expert_passwords(self, request, queryset):
+        """Reset passwords for selected service experts and send new passwords via email"""
+        success_count = 0
+        failed_count = 0
+
+        for expert in queryset:
+            try:
+                with transaction.atomic():
+                    # Generate new secure password
+                    new_password = self.generate_secure_password()
+
+                    # Set the new password (automatically hashes it)
+                    expert.user.set_password(new_password)
+                    expert.user.save()
+
+                    # Send email with new password
+                    self.send_expert_password_email(expert, new_password)
+
+                    # Only increment success if everything completed without exception
+                    success_count += 1
+
+            except Exception as e:
+                messages.error(request, f'Failed to reset password for {expert.user.username}: {str(e)}')
+                failed_count += 1
+                # Transaction will automatically rollback due to exception
+
+        if success_count > 0:
+            messages.success(request,
+                             f'Successfully reset passwords for {success_count} service experts. New passwords sent via email.')
+
+        if failed_count > 0:
+            messages.warning(request, f'{failed_count} password resets failed.')
+
+    reset_expert_passwords.short_description = "🔐 Reset expert passwords"
