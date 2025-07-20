@@ -24,7 +24,8 @@ class StudentRegisterView(FormView):
 
             messages.success(
                 self.request,
-                'Registration successful! Please check your email to verify your account.'
+                'Registration successful! Please check your email to verify your account. \n'
+                'NOTE THAT YOU ONLY HAVE 15 MINUTES TO VERIFY IT'
             )
             return super().form_valid(form)
         except Exception as e:

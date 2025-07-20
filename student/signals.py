@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save, post_init
 from django.dispatch import receiver
 from student.models import Student, User
+import threading
 
 
 @receiver(post_init, sender=Student)
@@ -37,3 +38,20 @@ def user_activation_status_notification(sender, instance, created, **kwargs):
             # User was deactivated
             instance.student_profile.send_deactivation_email()
 
+
+######## Delete student if email not verified after 15 minutes ############
+def delete_unverified_student(student_id):
+    student = Student.objects.get(id=student_id)
+    # Check if still not verified (user is still inactive)
+    if not student.user.is_active:
+        print(f"Deleting unverified student: {student.user.username}")
+        student.user.delete()
+
+
+@receiver(post_save, sender=Student)
+def schedule_student_deletion(sender, instance, created, **kwargs):
+    """Schedule student deletion if email not verified in 15 minutes"""
+    if created and not instance.user.is_active:
+        # Schedule deletion after 15 minutes (900 seconds)
+        timer = threading.Timer(30.0, delete_unverified_student, args=[instance.id])
+        timer.start()

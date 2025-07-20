@@ -62,7 +62,8 @@ class StudentRegistrationForm(UserCreationForm):
             raise ValidationError("Student number is required.")
 
         if Student.objects.filter(student_number=student_number).exists():
-            raise ValidationError("A student with this student number already exists.")
+            raise ValidationError(f"A student with this student number already exists. \n"
+                                  f"in case you didn't verify email waite and try again later ")
 
             # Remove any spaces or non-digit characters
         student_number = str(student_number).replace(' ', '').replace('-', '')
