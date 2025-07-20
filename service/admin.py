@@ -10,14 +10,14 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.contrib import messages
-
+from django.utils.html import format_html
 
 @admin.register(ServiceExpert)
 class ServiceExpertAdmin(admin.ModelAdmin):
     list_display = [
         'user_info', 'employee_id', 'specialization',
         'is_active', 'current_workload', 'completed_count',
-        'average_rating'
+        'average_rating_stars'
     ]
 
     list_filter = ['specialization', 'is_active']
@@ -78,13 +78,19 @@ class ServiceExpertAdmin(admin.ModelAdmin):
 
     completed_count.short_description = 'Completed'
 
-    def average_rating(self, obj):
-        """Display average rating as number"""
+    def average_rating_stars(self, obj):
+        """Display average rating with stars"""
         if obj.average_rating:
-            return f"{obj.average_rating}/5"
-        return "No rating"
+            rating = int(round(obj.average_rating))  # Round to nearest integer for star display
+            stars = '★' * rating + '☆' * (5 - rating)
+            return format_html(
+                '<span style="color: #ffc107;">{}</span><br><small>({}/5)</small>',
+                stars, obj.average_rating
+            )
+        return format_html('<span class="text-muted">No rating</span>')
 
-    average_rating.short_description = 'Rating'
+    average_rating_stars.short_description = 'Rating'
+    average_rating_stars.admin_order_field = 'average_rating'
 
     # Admin Actions
     def activate_experts(self, request, queryset):
