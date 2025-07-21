@@ -130,21 +130,29 @@ class StudentLoginForm(AuthenticationForm):
         return student_number
 
     def clean(self):
-        cleaned_data = super().clean()
-        student_number = cleaned_data.get('username')
-        password = cleaned_data.get('password')
+        student_number = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
 
         if student_number and password:
             try:
                 student = Student.objects.select_related('user').get(student_number=student_number)
+
+                # Check if password is correct
+                if not student.user.check_password(password):
+                    raise ValidationError("Invalid student number or password.")
+
+                # Check if student can login (handles pending/rejected status)
                 if not student.can_login():
                     raise ValidationError(student.get_login_error_message())
 
-                user = authenticate(self.request, username=student_number, password=password)
-                if user is None:
-                    raise ValidationError("Invalid student number or password.")
+                # If we get here, student should be able to login
+                self.user_cache = student.user
 
             except Student.DoesNotExist:
                 raise ValidationError("Invalid student number or password.")
 
-        return cleaned_data
+        return self.cleaned_data
+
+    def get_user(self):
+        """Return the authenticated user."""
+        return getattr(self, 'user_cache', None)
