@@ -137,12 +137,19 @@ class StudentLoginForm(AuthenticationForm):
         if student_number and password:
             try:
                 student = Student.objects.select_related('user').get(student_number=student_number)
+
+                # First check if password is correct
+                if not student.user.check_password(password):
+                    raise ValidationError("Invalid student number or password.")
+
+                # Then check if student can login (this handles pending/rejected status)
                 if not student.can_login():
                     raise ValidationError(student.get_login_error_message())
 
+                # Only call authenticate if we know the student can login
                 user = authenticate(self.request, username=student_number, password=password)
                 if user is None:
-                    raise ValidationError("Invalid student number or password.")
+                    raise ValidationError("Authentication failed. Please try again.")
 
             except Student.DoesNotExist:
                 raise ValidationError("Invalid student number or password.")
