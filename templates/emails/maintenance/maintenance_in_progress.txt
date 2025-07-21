@@ -12,10 +12,15 @@ WORK INFORMATION:
 - Assigned Expert: {{ assigned_expert.user.username }}
 - Specialization: {{ assigned_expert.get_specialization_display }}
 - Work Started: {{ work_started_at|date:"F d, Y at H:i" }}
+{% if request.expert_notes %}
+- Expert Notes: {{ request.expert_notes }}
+{% endif %}
 
-The assigned expert is now working on resolving your maintenance issue. You may be contacted if additional information or access is needed.
-
-You can track the progress of your request through your student dashboard.
+WHAT TO EXPECT:
+- The assigned expert is now working on resolving your maintenance issue
+- You may be contacted if additional information or access is needed
+- You'll receive another email when the work is completed
+- You can track the progress through your student dashboard
 
 If you have any questions about the work being performed, please contact the dormitory administration.
 

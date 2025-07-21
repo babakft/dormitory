@@ -11,6 +11,9 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.utils.html import format_html
+from dormitory.utils.email_service import ServiceEmailService
+from dormitory.utils.password_generator import PasswordGenerator
+
 
 @admin.register(ServiceExpert)
 class ServiceExpertAdmin(admin.ModelAdmin):
@@ -166,33 +169,6 @@ class ServiceExpertAdmin(admin.ModelAdmin):
 
     view_completed_requests.short_description = "✅ View completed"
 
-    @staticmethod
-    def generate_secure_password():
-        """Generate a cryptographically secure random password"""
-        length = 8
-        characters = string.ascii_letters + string.digits
-        return ''.join(secrets.choice(characters) for _ in range(length))
-
-    @staticmethod
-    def send_expert_password_email(expert, new_password):
-        """Send password reset email to service expert using template"""
-        context = {
-            'expert': expert,
-            'new_password': new_password,
-            'username': expert.user.username,
-            'employee_id': expert.employee_id,
-        }
-
-        message = render_to_string('emails/password_reset_expert.txt', context)
-
-        send_mail(
-            subject='🔐 Password Reset - Service Expert Portal',
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[expert.user.email],
-            fail_silently=False,
-        )
-
     def reset_expert_passwords(self, request, queryset):
         """Reset passwords for selected service experts and send new passwords via email"""
         success_count = 0
@@ -201,23 +177,24 @@ class ServiceExpertAdmin(admin.ModelAdmin):
         for expert in queryset:
             try:
                 with transaction.atomic():
-                    # Generate new secure password
-                    new_password = self.generate_secure_password()
+                    # Generate new secure password using PasswordGenerator
+                    new_password = PasswordGenerator.generate_secure_password()
 
                     # Set the new password (automatically hashes it)
                     expert.user.set_password(new_password)
                     expert.user.save()
 
-                    # Send email with new password
-                    self.send_expert_password_email(expert, new_password)
+                    # Send email with new password using ServiceEmailService
+                    email_sent = ServiceEmailService.send_password_reset_email(expert, new_password)
 
-                    # Only increment success if everything completed without exception
-                    success_count += 1
+                    if email_sent:
+                        success_count += 1
+                    else:
+                        failed_count += 1
 
             except Exception as e:
                 messages.error(request, f'Failed to reset password for {expert.user.username}: {str(e)}')
                 failed_count += 1
-                # Transaction will automatically rollback due to exception
 
         if success_count > 0:
             messages.success(request,

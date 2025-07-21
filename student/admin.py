@@ -1,4 +1,3 @@
-import secrets, string
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib import messages
@@ -8,8 +7,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.db import transaction
-
-
+from dormitory.utils.password_generator import PasswordGenerator
+from dormitory.utils.email_service import StudentEmailService
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     list_display = ['email', 'username', 'user_type', 'is_active', 'is_staff', 'date_joined']
@@ -109,33 +108,6 @@ class StudentAdmin(admin.ModelAdmin):
 
     deactivate_students.short_description = "🚫 Deactivate selected students"
 
-    @staticmethod
-    def generate_secure_password():
-        """Generate a cryptographically secure random password"""
-        length = 8
-        characters = string.ascii_letters + string.digits
-        return ''.join(secrets.choice(characters) for _ in range(length))
-
-    @staticmethod
-    def send_password_reset_email(student, new_password):
-        """Send password reset email to student using template"""
-        context = {
-            'student': student,
-            'new_password': new_password,
-            'username': student.user.username,
-            'student_number': student.student_number,
-        }
-
-        message = render_to_string('emails/password_reset_student.txt', context)
-
-        send_mail(
-            subject='🔐 Password Reset - Dormitory Management System',
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[student.user.email],
-            fail_silently=False,
-        )
-
     def reset_student_passwords(self, request, queryset):
         """Reset passwords for selected students and send new passwords via email"""
         success_count = 0
@@ -145,14 +117,14 @@ class StudentAdmin(admin.ModelAdmin):
             try:
                 with transaction.atomic():
                     # Generate new secure password
-                    new_password = self.generate_secure_password()
+                    new_password = PasswordGenerator.generate_secure_password()
 
                     # Set the new password (automatically hashes it)
                     student.user.set_password(new_password)
                     student.user.save()
 
                     # Send email with new password
-                    self.send_password_reset_email(student, new_password)
+                    email_sent = StudentEmailService.send_password_reset_email(student, new_password)
 
                     # Only increment success if everything completed without exception
                     success_count += 1

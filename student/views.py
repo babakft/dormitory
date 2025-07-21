@@ -10,6 +10,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from student.models import Student
 from django.utils.decorators import method_decorator
 from django.db import transaction
+from dormitory.utils.email_service import StudentEmailService
 
 class StudentRegisterView(FormView):
     form_class = StudentRegistrationForm
@@ -20,7 +21,7 @@ class StudentRegisterView(FormView):
         try:
             with transaction.atomic():
                 student = form.save()
-                student.send_verification_email(self.request)
+                StudentEmailService.send_verification_email(student, self.request)
 
             messages.success(
                 self.request,
@@ -34,7 +35,7 @@ class StudentRegisterView(FormView):
 
 
 class EmailVerificationSentView(TemplateView):
-    template_name = 'emails/email_verification_sent.html'
+    template_name = 'emails/student/email_verification_sent.html'
 
 
 class RegistrationSuccessView(TemplateView):

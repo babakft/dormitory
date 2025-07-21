@@ -1,11 +1,8 @@
 import uuid
-from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
-from django.core.mail import send_mail
-from django.urls import reverse
-from django.template.loader import render_to_string
+
 
 
 class UserManager(BaseUserManager):
@@ -231,27 +228,6 @@ class Student(models.Model):
 
         )
 
-    ################################emails#######################################
-    def send_verification_email(self, request):
-        """Send email verification to student"""
-        verification_url = request.build_absolute_uri(
-            reverse('verify_email', kwargs={'token': self.verification_token})
-        )
-
-        context = {
-            'student': self,
-            'verification_url': verification_url,
-        }
-
-        message = render_to_string('emails/verification_email.txt', context)
-
-        send_mail(
-            subject='Verify Your Email - Dormitory Registration',
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[self.user.email],
-            fail_silently=False,
-        )
 
     def verify_email(self):
         """Mark email as verified by activating user"""
@@ -259,60 +235,3 @@ class Student(models.Model):
         self.user.save()
         return True
 
-    def send_approval_email(self):
-        context = {
-            'student': self,
-            'username': self.user.username,
-            'student_number': self.student_number,
-            'room': self.room,
-            'processed_by': self.processed_by_name,
-            'processed_at': self.processed_at,
-        }
-
-        message = render_to_string('emails/approval_notification.txt', context)
-
-        send_mail(
-            subject='✅ Registration Approved - Dormitory Management System',
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[self.user.email],
-            fail_silently=False,
-        )
-
-    def send_rejection_email(self):
-        context = {
-            'student': self,
-            'username': self.user.username,
-            'student_number': self.student_number,
-            'rejection_reason': self.rejection_reason or 'Please contact administration for details.',
-            'processed_by': self.processed_by_name,
-            'processed_at': self.processed_at,
-        }
-
-        message = render_to_string('emails/rejection_notification.txt', context)
-
-        send_mail(
-            subject='❌ Registration Update - Dormitory Management System',
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[self.user.email],
-            fail_silently=False,
-        )
-
-    def send_deactivation_email(self):
-        context = {
-            'student': self,
-            'username': self.user.username,
-            'student_number': self.student_number,
-            'room': self.room,
-        }
-
-        message = render_to_string('emails/deactivation_notification.txt', context)
-
-        send_mail(
-            subject='⚠️ Account Deactivated - Dormitory Management System',
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[self.user.email],
-            fail_silently=False,
-        )

@@ -2,7 +2,7 @@ from django.db.models.signals import post_save, post_init
 from django.dispatch import receiver
 from student.models import Student, User
 import threading
-
+from dormitory.utils.email_service import StudentEmailService
 
 @receiver(post_init, sender=Student)
 @receiver(post_init, sender=User)
@@ -21,11 +21,11 @@ def student_status_change_notification(sender, instance, created, **kwargs):
     if original_status != current_status:
         if current_status == 'approved' and original_status in ['pending', 'rejected']:
             # Status changed to approved
-            instance.send_approval_email()
+            StudentEmailService.send_approval_email(instance)
 
         elif current_status == 'rejected' and original_status == 'pending':
             # Status changed to rejected
-            instance.send_rejection_email()
+            StudentEmailService.send_rejection_email(instance)
 
 
 @receiver(post_save, sender=User)
@@ -36,7 +36,8 @@ def user_activation_status_notification(sender, instance, created, **kwargs):
     if original_is_active != current_is_active:
         if original_is_active is True and current_is_active is False:
             # User was deactivated
-            instance.student_profile.send_deactivation_email()
+            if hasattr(instance, 'student_profile'):
+                StudentEmailService.send_deactivation_email(instance.student_profile)
 
 
 ######## Delete student if email not verified after 15 minutes ############
@@ -53,5 +54,5 @@ def schedule_student_deletion(sender, instance, created, **kwargs):
     """Schedule student deletion if email not verified in 15 minutes"""
     if created and not instance.user.is_active:
         # Schedule deletion after 15 minutes (900 seconds)
-        timer = threading.Timer(30.0, delete_unverified_student, args=[instance.id])
+        timer = threading.Timer(900.0, delete_unverified_student, args=[instance.id])
         timer.start()

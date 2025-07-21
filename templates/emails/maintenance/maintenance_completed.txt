@@ -1,0 +1,44 @@
+Dear {{ student.user.username }},
+
+Your maintenance request has been completed!
+
+REQUEST DETAILS:
+- Title: {{ request.title }}
+- Location: {{ request.full_location }}
+- Service Type: {{ request.get_service_type_display }}
+- Request ID: #{{ request.id }}
+
+COMPLETION INFORMATION:
+- Completed by: {{ assigned_expert.user.username }}
+- Completed on: {{ completed_at|date:"F d, Y at H:i" }}
+{% if completion_notes %}
+- Work Summary: {{ completion_notes }}
+{% endif %}
+
+RATE THE SERVICE:
+We would appreciate your feedback on the service provided. Please rate the work and leave comments to help us improve our maintenance services.
+
+⭐ REVIEW LINK: {{ review_url }}
+
+ALTERNATIVE ACCESS:
+You can also provide feedback by:
+1. Logging in to your student dashboard
+2. Finding your completed maintenance request
+3. Clicking "Rate Service" to provide your rating and comments
+
+IMPORTANCE OF YOUR FEEDBACK:
+Your feedback helps us:
+- Improve our maintenance services
+- Recognize excellent work by our experts
+- Address any service quality issues
+- Better serve all dormitory residents
+
+Thank you for reporting the issue and helping us maintain our dormitory facilities. We look forward to your feedback!
+
+Best regards,
+Dormitory Management Team
+Shahid Bahonar University
+
+---
+This is an automated message. Please do not reply to this email.
+For support, contact: administration@dormitory.edu
