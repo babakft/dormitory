@@ -9,6 +9,8 @@ from django.template.loader import render_to_string
 from django.db import transaction
 from dormitory.utils.password_generator import PasswordGenerator
 from dormitory.utils.email_service import StudentEmailService
+
+
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
     list_display = ['email', 'username', 'user_type', 'is_active', 'is_staff', 'date_joined']
@@ -36,12 +38,14 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ['student_number', 'username', 'email', 'room_info', 'registration_status', 'created_at']
+    list_display = ['student_number', 'username', 'email', 'room_info',
+                    'registration_status', 'is_active_status', 'created_at']
     list_filter = ['registration_status', 'room__building', 'room__floor', 'created_at']
     search_fields = ['student_number', 'user__username', 'user__email']
     ordering = ['-created_at']
     raw_id_fields = ['user', 'room']
-    actions = ['approve_students', 'reject_students', 'deactivate_students', 'reset_student_passwords']
+    actions = ['approve_students', 'reject_students', 'activate_students', 'deactivate_students',
+               'reset_student_passwords']
 
     fieldsets = (
         ('Student Information', {
@@ -64,18 +68,18 @@ class StudentAdmin(admin.ModelAdmin):
     email.short_description = 'Email'
     email.admin_order_field = 'user__email'
 
+    def is_active_status(self, obj):
+        return obj.user.is_active
+
+    is_active_status.short_description = 'Active'
+    is_active_status.admin_order_field = 'user__is_active'
+    is_active_status.boolean = True
+
     def room_info(self, obj):
         return str(obj.room) if obj.room else 'No room assigned'
 
     room_info.short_description = 'Room'
     room_info.admin_order_field = 'room__number'
-
-    def get_queryset(self, request):
-        # show only email-verified students
-        qs = super().get_queryset(request)
-        if not request.GET.get('user__is_active__exact'):
-            return qs.filter(user__is_active=True)
-        return qs
 
     # Admin Actions
     def approve_students(self, request, queryset):
@@ -142,6 +146,22 @@ class StudentAdmin(admin.ModelAdmin):
             messages.warning(request, f'{failed_count} password resets failed.')
 
     reset_student_passwords.short_description = "🔐 Reset student passwords (generate random)"
+
+    def activate_students(self, request, queryset):
+        """Activate selected student accounts"""
+        activated_count = 0
+        for student in queryset:
+            if not student.user.is_active:
+                student.user.is_active = True
+                student.user.save()
+                activated_count += 1
+
+        if activated_count > 0:
+            messages.success(request, f'Successfully activated {activated_count} student accounts.')
+        else:
+            messages.info(request, 'No inactive students were found in the selection.')
+
+    activate_students.short_description = "✅ Activate selected students"
 
 
 @admin.register(Building)
