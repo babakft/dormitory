@@ -15,12 +15,13 @@
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
-                        {% if form.errors %}
-                            <div class="alert alert-danger">
-                                {{ form.errors }}
-                            </div>
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
                         {% endif %}
-
                         <div class="mb-3">
                             {{ form.username.label_tag }}
                             {{ form.username }}

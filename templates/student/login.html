@@ -14,25 +14,29 @@
                     <form method="post">
                         {% csrf_token %}
                         {% if form.errors %}
-                            <div class="alert alert-danger">
-                                {{ form.errors }}
-                            </div>
+                        <div class="alert alert-danger">
+                            {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                            <div>{{ error }}</div>
+                            {% endfor %}
+                            {% endfor %}
+                        </div>
                         {% endif %}
-                        
+
                         <div class="mb-3">
                             {{ form.username.label_tag }}
                             {{ form.username }}
                             <small class="form-text text-muted">Enter your student number</small>
                         </div>
-                        
+
                         <div class="mb-3">
                             {{ form.password.label_tag }}
                             {{ form.password }}
                         </div>
-                        
+
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
-                    
+
                     <div class="text-center mt-3">
                         <p>Don't have an account? <a href="{% url 'student_register' %}">Register here</a></p>
                     </div>
