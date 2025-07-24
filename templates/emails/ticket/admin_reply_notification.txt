@@ -1,0 +1,32 @@
+Dear {{ user.username }},
+
+An administrator has responded to your ticket.
+
+TICKET DETAILS:
+- Ticket ID: #{{ ticket.id }}
+- Title: {{ ticket.title }}
+- Status: {{ ticket.get_status_display }}
+- Created: {{ ticket.created_at|date:"F d, Y at H:i" }}
+
+You can view the admin's response and continue the conversation by logging in to your account.
+
+VIEW TICKET: {{ ticket_url }}
+
+LOGIN INFORMATION:
+{% if user_type == "Student" %}
+- Use your student number and password to log in
+- Go to "My Tickets" section to view the response
+{% elif user_type == "Service Expert" %}
+- Use your employee ID and password to log in
+- Go to "My Tickets" section to view the response
+{% endif %}
+
+If you have additional questions or need further assistance, you can reply to this ticket through the system.
+
+Best regards,
+Dormitory Management Team
+Shahid Bahonar University
+
+---
+This is an automated message. Please do not reply to this email.
+To respond, please log in to the system and use the ticket interface.

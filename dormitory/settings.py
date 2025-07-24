@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'student.apps.StudentConfig',
     'service.apps.ServiceConfig',
     'maintenance.apps.MaintenanceConfig',
+    'ticket.apps.TicketConfig'
 ]
 
 AUTHENTICATION_BACKENDS = [

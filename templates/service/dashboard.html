@@ -96,17 +96,20 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5 class="card-title">Performance</h5>
-                            {% if expert.average_rating %}
-                                <h3>{{ expert.average_rating|floatformat:1 }}/5</h3>
-                            {% else %}
-                                <h3>N/A</h3>
-                            {% endif %}
+                            <h5 class="card-title">My Tickets</h5>
+                            <h3>{{ total_tickets|default:0 }}</h3>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-star fa-2x"></i>
+                            <i class="fas fa-ticket-alt fa-2x"></i>
                         </div>
                     </div>
+                    <small class="mt-1">
+                        {% if pending_tickets %}
+                            {{ pending_tickets }} pending
+                        {% else %}
+                            All up to date
+                        {% endif %}
+                    </small>
                 </div>
             </div>
         </div>
@@ -325,12 +328,17 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 mb-2">
+                        <div class="col-md-4 mb-2">
+                            <a href="{% url 'ticket:list' %}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-ticket-alt"></i><br>My Tickets
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-2">
                             <button onclick="location.reload()" class="btn btn-outline-info w-100">
                                 <i class="fas fa-sync-alt"></i><br>Refresh Dashboard
                             </button>
                         </div>
-                        <div class="col-md-6 mb-2">
+                        <div class="col-md-4 mb-2">
                             <form method="post" action="{% url 'service_logout' %}">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-outline-danger w-100">

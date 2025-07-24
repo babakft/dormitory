@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Create New Ticket{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Create New Ticket</h4>
+                    <p class="mb-0 text-muted">Submit a question, concern, or issue to administration</p>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Display non-field errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Title Field -->
+                        <div class="mb-3">
+                            {{ form.title.label_tag }}
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small">{{ form.title.errors }}</div>
+                            {% endif %}
+                            {% if form.title.help_text %}
+                                <small class="form-text text-muted">{{ form.title.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description Field -->
+                        <div class="mb-3">
+                            {{ form.description.label_tag }}
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors }}</div>
+                            {% endif %}
+                            {% if form.description.help_text %}
+                                <small class="form-text text-muted">{{ form.description.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <!-- Image Field -->
+                        <div class="mb-3">
+                            {{ form.image.label_tag }}
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                                <div class="text-danger small">{{ form.image.errors }}</div>
+                            {% endif %}
+                            {% if form.image.help_text %}
+                                <small class="form-text text-muted">{{ form.image.help_text }}</small>
+                            {% endif %}
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-camera"></i>
+                                    Accepted formats: JPG, PNG, GIF (Max size: 5MB)
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane"></i> Submit Ticket
+                            </button>
+                            <a href="{% url 'ticket:list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to My Tickets
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- Information Note -->
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> Your ticket will be reviewed by administration.
+                        You will receive email notifications when admin responds to your ticket.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image preview functionality
+    const imageInput = document.getElementById('id_image');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Remove any existing preview
+                const existingPreview = document.getElementById('imagePreview');
+                if (existingPreview) {
+                    existingPreview.remove();
+                }
+
+                // Create image preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.createElement('div');
+                    preview.id = 'imagePreview';
+                    preview.className = 'mt-2';
+                    preview.innerHTML = `
+                        <small class="text-muted d-block mb-2">Preview:</small>
+                        <img src="${e.target.result}" class="img-thumbnail" style="max-height: 200px; max-width: 100%;">
+                    `;
+                    imageInput.parentNode.appendChild(preview);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+
+<style>
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.text-danger.small {
+    margin-top: 0.25rem;
+}
+
+.alert-info {
+    border-left: 4px solid #0dcaf0;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#imagePreview {
+    animation: fadeIn 0.3s ease-in;
+}
+</style>
+{% endblock %}

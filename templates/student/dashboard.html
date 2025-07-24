@@ -75,13 +75,20 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5 class="card-title">Quick Actions</h5>
-                            <a href="{% url 'maintenance:create' %}" class="btn btn-light btn-sm">New Request</a>
+                            <h5 class="card-title">My Tickets</h5>
+                            <h3>{{ total_tickets|default:0 }}</h3>
                         </div>
                         <div class="align-self-center">
-                            <i class="fas fa-plus fa-2x"></i>
+                            <i class="fas fa-ticket-alt fa-2x"></i>
                         </div>
                     </div>
+                    <small class="mt-1">
+                        {% if pending_tickets %}
+                            {{ pending_tickets }} pending
+                        {% else %}
+                            All up to date
+                        {% endif %}
+                    </small>
                 </div>
             </div>
         </div>
@@ -197,17 +204,22 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4 mb-2">
+                        <div class="col-md-3 mb-2">
                             <a href="{% url 'maintenance:create' %}" class="btn btn-outline-primary w-100">
                                 <i class="fas fa-plus"></i><br>New Request
                             </a>
                         </div>
-                        <div class="col-md-4 mb-2">
+                        <div class="col-md-3 mb-2">
+                            <a href="{% url 'ticket:list' %}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-ticket-alt"></i><br>My Tickets
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
                             <a href="#" class="btn btn-outline-success w-100">
                                 <i class="fas fa-user"></i><br>Profile
                             </a>
                         </div>
-                        <div class="col-md-4 mb-2">
+                        <div class="col-md-3 mb-2">
                             <form method="post" action="{% url 'student_logout' %}">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-outline-danger w-100">

@@ -227,3 +227,29 @@ class MaintenanceEmailService(BaseEmailService):
             message=message,
             recipient_list=[maintenance_request.student.user.email]
         )
+
+
+class TicketEmailService(BaseEmailService):
+    """Email service for ticket-related notifications"""
+
+    @classmethod
+    def send_admin_reply_notification(cls, ticket, admin_message):
+        """Send notification when admin replies to a ticket"""
+
+        # Determine user type for personalized message
+        user_type = ticket.get_creator_type()
+
+        context = {
+            'ticket': ticket,
+            'user': ticket.created_by,
+            'user_type': user_type,
+            'ticket_url': cls._get_base_url() + f'/ticket/{ticket.pk}/',
+        }
+
+        message = render_to_string('emails/ticket/admin_reply_notification.txt', context)
+
+        return cls._send_email(
+            subject=f'📩 Admin Response to Your Ticket #{ticket.id}',
+            message=message,
+            recipient_list=[ticket.created_by.email]
+        )
