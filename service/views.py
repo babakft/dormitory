@@ -9,22 +9,57 @@ from django.utils.decorators import method_decorator
 from django.db import transaction
 from service.forms import ServiceExpertLoginForm, StartWorkForm, CompleteWorkForm
 from functools import wraps
+from django.contrib.auth import logout,login
 
 
 class ServiceExpertLoginView(LoginView):
     form_class = ServiceExpertLoginForm
     template_name = 'service/login.html'
-    redirect_authenticated_user = True
+    redirect_authenticated_user = False
 
     def get_success_url(self):
         return reverse_lazy('service_dashboard')
 
+    def dispatch(self, request, *args, **kwargs):
+        # If user is authenticated and is a service expert, redirect to dashboard
+        if (request.user.is_authenticated and
+                hasattr(request.user, 'expert_profile') and
+                request.user.expert_profile.is_active and
+                request.user.user_type == 'expert'):
+            return redirect('service_dashboard')
+
+        # If user is authenticated but is not a service expert, show message
+        if request.user.is_authenticated:
+            if hasattr(request.user, 'student_profile'):
+                messages.info(request,
+                              'You are logged in as a student. Please logout first to login as a service expert.')
+            else:
+                messages.info(request, 'Please logout first to login as a service expert.')
+
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         user = form.get_user()
+
+        # Double-check that user has expert profile
+        if not hasattr(user, 'expert_profile'):
+            messages.error(self.request, 'Invalid service expert account.')
+            return self.form_invalid(form)
+
+        # If there was a previous user logged in, logout first
+        if self.request.user.is_authenticated:
+            logout(self.request)
+
+        # Set the backend attribute on the user
+        user.backend = 'service.backends.ServiceExpertEmployeeIdBackend'
+
+        # Login the new user
+        login(self.request, user)
+
         messages.success(self.request, f'Welcome back, {user.username}!')
-        return super().form_valid(form)
 
-
+        # Redirect to success URL
+        return redirect(self.get_success_url())
 class ServiceExpertLogoutView(LoginRequiredMixin, LogoutView):
     next_page = reverse_lazy('service_login')
 
@@ -32,6 +67,27 @@ class ServiceExpertLogoutView(LoginRequiredMixin, LogoutView):
 @method_decorator(login_required(login_url='service_login'), name='dispatch')
 class ServiceDashboardView(TemplateView):
     template_name = 'service/dashboard.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        # Check if user has expert_profile before proceeding
+        if not hasattr(request.user, 'expert_profile'):
+            messages.error(request, 'Access denied. Service expert account required.')
+            logout(request)
+            return redirect('service_login')
+
+        # Check if expert profile is active
+        if not request.user.expert_profile.is_active:
+            messages.error(request, 'Your service expert account is inactive.')
+            logout(request)
+            return redirect('service_login')
+
+        # Check if user type is expert
+        if request.user.user_type != 'expert':
+            messages.error(request, 'Access denied. Service expert account required.')
+            logout(request)
+            return redirect('service_login')
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -57,31 +113,32 @@ def claim_request(request, request_id):
 ##################decorator###################
 def service_expert_required(view_func):
     """
-    Decorator to ensure user is an authenticated and active service expert
+    Enhanced decorator to ensure user is an authenticated and active service expert
     """
-
     @wraps(view_func)
     @login_required(login_url='service_login')
     def _wrapped_view(request, *args, **kwargs):
         # Check if user has expert_profile
         if not hasattr(request.user, 'expert_profile'):
             messages.error(request, 'Access denied. Service expert account required.')
+            logout(request)
             return redirect('service_login')
 
         # Check if expert profile is active
         if not request.user.expert_profile.is_active:
             messages.error(request, 'Your service expert account is inactive.')
+            logout(request)
             return redirect('service_login')
 
         # Check if user type is expert
         if request.user.user_type != 'expert':
             messages.error(request, 'Access denied. Service expert account required.')
+            logout(request)
             return redirect('service_login')
 
         return view_func(request, *args, **kwargs)
 
     return _wrapped_view
-
 
 #############decorator#############################
 

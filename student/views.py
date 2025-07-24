@@ -68,11 +68,16 @@ class StudentLoginView(LoginView):
         return reverse_lazy('student_dashboard')
 
     def dispatch(self, request, *args, **kwargs):
+        # If user is authenticated and is an approved student, redirect to dashboard
         if request.user.is_authenticated and request.user.is_approved_student():
             return redirect('student_dashboard')
-        elif request.user.is_authenticated:
-            logout(request)
-            messages.warning(request, 'Please login with a valid student account.')
+
+        # If user is authenticated but is not a student (e.g., service expert),
+        # don't automatically logout - let them choose
+        if request.user.is_authenticated and hasattr(request.user, 'expert_profile'):
+            messages.info(request,
+                          'You are currently logged in as a service expert. Please logout first to login as a student.')
+
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -81,9 +86,20 @@ class StudentLoginView(LoginView):
             messages.error(self.request, user.student_profile.get_login_error_message())
             return self.form_invalid(form)
 
-        messages.success(self.request, f'Welcome back, {user.username}!')
-        return super().form_valid(form)
+        # If there was a previous user logged in, logout first
+        if self.request.user.is_authenticated:
+            logout(self.request)
 
+        # Set the backend attribute on the user
+        user.backend = 'student.backends.StudentNumberBackend'
+
+        # Login the new user
+        login(self.request, user)
+
+        messages.success(self.request, f'Welcome back, {user.username}!')
+
+        # Redirect to success URL
+        return redirect(self.get_success_url())
 
 class StudentLogoutView(LoginRequiredMixin, LogoutView):
     next_page = reverse_lazy('student_login')

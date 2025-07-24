@@ -1,9 +1,14 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
+from django import forms
+from django.contrib.auth.forms import AuthenticationForm
+from django.core.exceptions import ValidationError
+from service.models import ServiceExpert
+
 
 class ServiceExpertLoginForm(AuthenticationForm):
-    """Simple login form for service experts using employee ID"""
+    """Enhanced login form for service experts with proper validation"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -24,8 +29,43 @@ class ServiceExpertLoginForm(AuthenticationForm):
 
         # Clean the employee ID (remove spaces, dashes, etc.)
         employee_id = str(employee_id).replace(' ', '').replace('-', '')
-
         return employee_id
+
+    def clean(self):
+        cleaned_data = super().clean()
+        employee_id = cleaned_data.get('username')
+        password = cleaned_data.get('password')
+
+        if employee_id and password:
+            try:
+                # Check if service expert exists with this employee ID
+                expert = ServiceExpert.objects.select_related('user').get(
+                    employee_id=employee_id,
+                    is_active=True
+                )
+
+                # Check if password is correct
+                if not expert.user.check_password(password):
+                    raise ValidationError("Invalid employee ID or password.")
+
+                # Check if user is active and has correct type
+                if not expert.user.is_active:
+                    raise ValidationError("Your account has been deactivated.")
+
+                if expert.user.user_type != 'expert':
+                    raise ValidationError("Access denied. Service expert account required.")
+
+                # If we get here, expert should be able to login
+                self.user_cache = expert.user
+
+            except ServiceExpert.DoesNotExist:
+                raise ValidationError("Invalid employee ID or password.")
+
+        return cleaned_data
+
+    def get_user(self):
+        """Return the authenticated user."""
+        return getattr(self, 'user_cache', None)
 
 
 class StartWorkForm(forms.Form):
