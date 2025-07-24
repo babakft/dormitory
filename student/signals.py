@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save, post_init
+from django.db.models.signals import post_save, post_init,post_delete
 from django.dispatch import receiver
 from student.models import Student, User
 import threading
@@ -56,3 +56,14 @@ def schedule_student_deletion(sender, instance, created, **kwargs):
         # Schedule deletion after 15 minutes (900 seconds)
         timer = threading.Timer(900.0, delete_unverified_student, args=[instance.id])
         timer.start()
+
+#######################
+@receiver(post_delete, sender=Student)
+def delete_user_with_student(sender, instance, **kwargs):
+    """Delete the associated user when a student is deleted"""
+    if instance.user:
+        try:
+            instance.user.delete()
+        except Exception:
+            # User might already be deleted
+            pass
