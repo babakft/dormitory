@@ -1,4 +1,4 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect,reverse
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 from django.db import transaction
 from dormitory.utils.email_service import StudentEmailService
 
+
 class StudentRegisterView(FormView):
     form_class = StudentRegistrationForm
     template_name = 'student/register.html'
@@ -21,7 +22,14 @@ class StudentRegisterView(FormView):
         try:
             with transaction.atomic():
                 student = form.save()
-                StudentEmailService.send_verification_email(student, self.request)
+
+                # Build verification URL
+                verification_url = self.request.build_absolute_uri(
+                    reverse('verify_email', kwargs={'token': student.verification_token})
+                )
+
+                # Send async verification email
+                StudentEmailService.send_verification_email.delay(student.id, verification_url)
 
             messages.success(
                 self.request,

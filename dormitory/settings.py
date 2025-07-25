@@ -141,3 +141,9 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 AUTH_USER_MODEL = 'student.User'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CELERY
+CELERY_BROKER_URL = CELERY_BROKER_URL
+CELERY_TIMEZONE = "Asia/Tehran"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 2 * 60

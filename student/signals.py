@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save, post_init,post_delete
+from django.db.models.signals import post_save, post_init
 from django.dispatch import receiver
 from student.models import Student, User
 import threading
@@ -20,12 +20,12 @@ def student_status_change_notification(sender, instance, created, **kwargs):
 
     if original_status != current_status:
         if current_status == 'approved' and original_status in ['pending', 'rejected']:
-            # Status changed to approved
-            StudentEmailService.send_approval_email(instance)
+            # Status changed to approved - send async task
+            StudentEmailService.send_approval_email.delay(instance.id)
 
         elif current_status == 'rejected' and original_status == 'pending':
-            # Status changed to rejected
-            StudentEmailService.send_rejection_email(instance)
+            # Status changed to rejected - send async task
+            StudentEmailService.send_rejection_email.delay(instance.id)
 
 
 @receiver(post_save, sender=User)
@@ -37,16 +37,19 @@ def user_activation_status_notification(sender, instance, created, **kwargs):
         if original_is_active is True and current_is_active is False:
             # User was deactivated
             if hasattr(instance, 'student_profile'):
-                StudentEmailService.send_deactivation_email(instance.student_profile)
+                StudentEmailService.send_deactivation_email.delay(instance.student_profile.id)
 
 
 ######## Delete student if email not verified after 15 minutes ############
 def delete_unverified_student(student_id):
-    student = Student.objects.get(id=student_id)
-    # Check if still not verified (user is still inactive)
-    if not student.user.is_active:
-        print(f"Deleting unverified student: {student.user.username}")
-        student.user.delete()
+    try:
+        student = Student.objects.get(id=student_id)
+        # Check if still not verified (user is still inactive)
+        if not student.user.is_active:
+            print(f"Deleting unverified student: {student.user.username}")
+            student.user.delete()
+    except Student.DoesNotExist:
+        pass  # Student already deleted or verified
 
 
 @receiver(post_save, sender=Student)
@@ -56,14 +59,3 @@ def schedule_student_deletion(sender, instance, created, **kwargs):
         # Schedule deletion after 15 minutes (900 seconds)
         timer = threading.Timer(900.0, delete_unverified_student, args=[instance.id])
         timer.start()
-
-#######################
-@receiver(post_delete, sender=Student)
-def delete_user_with_student(sender, instance, **kwargs):
-    """Delete the associated user when a student is deleted"""
-    if instance.user:
-        try:
-            instance.user.delete()
-        except Exception:
-            # User might already be deleted
-            pass

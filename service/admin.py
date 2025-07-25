@@ -184,13 +184,10 @@ class ServiceExpertAdmin(admin.ModelAdmin):
                     expert.user.set_password(new_password)
                     expert.user.save()
 
-                    # Send email with new password using ServiceEmailService
-                    email_sent = ServiceEmailService.send_password_reset_email(expert, new_password)
+                    # Send async email with new password
+                    ServiceEmailService.send_password_reset_email.delay(expert.id, new_password)
 
-                    if email_sent:
-                        success_count += 1
-                    else:
-                        failed_count += 1
+                    success_count += 1
 
             except Exception as e:
                 messages.error(request, f'Failed to reset password for {expert.user.username}: {str(e)}')
@@ -198,7 +195,7 @@ class ServiceExpertAdmin(admin.ModelAdmin):
 
         if success_count > 0:
             messages.success(request,
-                             f'Successfully reset passwords for {success_count} service experts. New passwords sent via email.')
+                             f'Successfully reset passwords for {success_count} service experts. Password reset emails are being sent.')
 
         if failed_count > 0:
             messages.warning(request, f'{failed_count} password resets failed.')

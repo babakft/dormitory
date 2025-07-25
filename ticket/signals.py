@@ -16,8 +16,8 @@ def ticket_message_notification(sender, instance, created, **kwargs):
             ticket.status = 'answered'
             ticket.save()
 
-            # Send email notification to ticket creator
-            TicketEmailService.send_admin_reply_notification(ticket, instance)
+            # Send async email notification to ticket creator
+            TicketEmailService.send_admin_reply_notification.delay(ticket.id, instance.id)
 
         else:
             # User replied to ticket

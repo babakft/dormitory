@@ -127,20 +127,19 @@ class StudentAdmin(admin.ModelAdmin):
                     student.user.set_password(new_password)
                     student.user.save()
 
-                    # Send email with new password
-                    email_sent = StudentEmailService.send_password_reset_email(student, new_password)
+                    # Send async email with new password
+                    StudentEmailService.send_password_reset_email.delay(student.id, new_password)
 
-                    # Only increment success if everything completed without exception
+                    # Count as success since we dispatched the task
                     success_count += 1
 
             except Exception as e:
                 messages.error(request, f'Failed to reset password for {student.user.username}: {str(e)}')
                 failed_count += 1
-                # Transaction will automatically rollback due to exception
 
         if success_count > 0:
             messages.success(request,
-                             f'Successfully reset passwords for {success_count} students. New passwords sent via email.')
+                             f'Successfully reset passwords for {success_count} students. Password reset emails are being sent.')
 
         if failed_count > 0:
             messages.warning(request, f'{failed_count} password resets failed.')
