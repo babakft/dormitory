@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'student.apps.StudentConfig',
     'service.apps.ServiceConfig',
     'maintenance.apps.MaintenanceConfig',
-    'ticket.apps.TicketConfig'
+    'ticket.apps.TicketConfig',
+    'channels',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -118,6 +119,17 @@ EMAIL_HOST_USER = EMAIL_HOST_USER  # From local_setting.py
 EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD  # From local_setting.py
 DEFAULT_FROM_EMAIL = f'Dormitory Management <{EMAIL_HOST_USER}>'
 
+# ASGI
+ASGI_APPLICATION = 'dormitory.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 

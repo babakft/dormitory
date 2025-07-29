@@ -1,20 +1,23 @@
-<!-- templates/ticket/ticket_list.html -->
-{% extends 'base.html' %}
-
-{% block title %}My Tickets{% endblock %}
-
-{% block content %}
+<!-- templates/admin/chat_list.html (New file) -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Chat Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
 <div class="container-fluid mt-4">
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h2><i class="fas fa-ticket-alt text-primary"></i> My Tickets</h2>
-                    <p class="text-muted mb-0">Real-time chat with administration</p>
+                    <h2><i class="fas fa-comments text-primary"></i> Admin Chat Dashboard</h2>
+                    <p class="text-muted mb-0">Real-time chat with users</p>
                 </div>
                 <div>
-                    <a href="{% url 'ticket:create' %}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> New Ticket
+                    <a href="/admin/" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Admin
                     </a>
                 </div>
             </div>
@@ -23,41 +26,54 @@
 
     <!-- Stats Cards -->
     <div class="row mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
                             <h5>Total Tickets</h5>
-                            <h3>{{ total_tickets }}</h3>
+                            <h3>{{ tickets.count }}</h3>
                         </div>
                         <i class="fas fa-ticket-alt fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card bg-warning text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
                             <h5>Pending</h5>
-                            <h3>{{ pending_tickets }}</h3>
+                            <h3>{{ tickets|length }}</h3>
                         </div>
                         <i class="fas fa-clock fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5>Answered</h5>
-                            <h3>{{ answered_tickets }}</h3>
+                            <h5>Active Chats</h5>
+                            <h3 id="activeChats">0</h3>
                         </div>
-                        <i class="fas fa-reply fa-2x"></i>
+                        <i class="fas fa-comments fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5>Notifications</h5>
+                            <h3 id="notificationCount">0</h3>
+                        </div>
+                        <i class="fas fa-bell fa-2x"></i>
                     </div>
                 </div>
             </div>
@@ -67,7 +83,7 @@
     <!-- Tickets Table -->
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0">My Tickets</h5>
+            <h5 class="mb-0">All Tickets</h5>
         </div>
         <div class="card-body">
             {% if tickets %}
@@ -77,7 +93,9 @@
                         <tr>
                             <th>ID</th>
                             <th>Title</th>
+                            <th>User</th>
                             <th>Status</th>
+                            <th>Messages</th>
                             <th>Created</th>
                             <th>Actions</th>
                         </tr>
@@ -91,6 +109,10 @@
                                 <small class="text-muted">{{ ticket.description|truncatechars:50 }}</small>
                             </td>
                             <td>
+                                <strong>{{ ticket.created_by.username }}</strong><br>
+                                <small class="text-muted">{{ ticket.get_creator_type }}</small>
+                            </td>
+                            <td>
                                 {% if ticket.status == 'pending' %}
                                 <span class="badge bg-warning">Pending</span>
                                 {% elif ticket.status == 'answered' %}
@@ -100,13 +122,16 @@
                                 {% endif %}
                             </td>
                             <td>
+                                <span class="badge bg-info">{{ ticket.message_count }} messages</span>
+                            </td>
+                            <td>
                                 <small>
                                     {{ ticket.created_at|date:"M d, Y" }}<br>
                                     <span class="text-muted">{{ ticket.days_since_created }} days ago</span>
                                 </small>
                             </td>
                             <td>
-                                <a href="{% url 'ticket:detail' ticket.pk %}" class="btn btn-sm btn-primary">
+                                <a href="{% url 'ticket:admin_chat_interface' ticket.id %}" class="btn btn-sm btn-primary">
                                     <i class="fas fa-comments"></i> Chat
                                 </a>
                             </td>
@@ -119,13 +144,16 @@
             <div class="text-center py-5">
                 <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
                 <h5 class="text-muted">No tickets yet</h5>
-                <p class="text-muted">Create your first ticket to start chatting with admin.</p>
-                <a href="{% url 'ticket:create' %}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Create Ticket
-                </a>
+                <p class="text-muted">Waiting for users to create tickets...</p>
             </div>
             {% endif %}
         </div>
     </div>
 </div>
-{% endblock %}
+
+<script>
+// Admin notifications WebSocket will go here in next step
+console.log('Admin chat dashboard loaded');
+</script>
+</body>
+</html>

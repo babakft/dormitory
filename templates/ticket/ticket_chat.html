@@ -1,0 +1,389 @@
+<!-- templates/ticket/ticket_chat.html (Full version) -->
+{% extends 'base.html' %}
+
+{% block title %}Chat - Ticket #{{ ticket.id }}{% endblock %}
+
+{% block extrahead %}
+<style>
+.chat-container {
+    max-width: 800px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.chat-header {
+    background: #007bff;
+    color: white;
+    padding: 15px;
+}
+
+.chat-messages {
+    height: 400px;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f8f9fa;
+}
+
+.message {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.message.admin {
+    justify-content: flex-end;
+}
+
+.message.user {
+    justify-content: flex-start;
+}
+
+.message-content {
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 18px;
+    word-wrap: break-word;
+}
+
+.message.admin .message-content {
+    background: #007bff;
+    color: white;
+}
+
+.message.user .message-content {
+    background: white;
+    border: 1px solid #ddd;
+}
+
+.message-info {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 5px;
+}
+
+.chat-input {
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    background: white;
+}
+
+.connection-status {
+    padding: 8px;
+    font-size: 12px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.connected {
+    background: #d4edda;
+    color: #155724;
+}
+
+.disconnected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.connecting {
+    background: #fff3cd;
+    color: #856404;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="chat-container">
+                <!-- Connection Status -->
+                <div id="connectionStatus" class="connection-status connecting">
+                    Connecting...
+                </div>
+
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">Ticket #{{ ticket.id }}: {{ ticket.title }}</h5>
+                            <small>Status: {{ ticket.get_status_display }} | Real-time chat with admin</small>
+                        </div>
+                        <a href="{% url 'ticket:list' %}" class="btn btn-sm btn-outline-light">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Messages Area -->
+                <div id="chatMessages" class="chat-messages">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-comments fa-2x mb-2"></i>
+                        <p>Loading chat history...</p>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                {% if can_chat %}
+                <div class="chat-input">
+                    <div class="input-group">
+                        <input type="text"
+                               id="messageInput"
+                               class="form-control"
+                               placeholder="Type your message..."
+                               maxlength="1000"
+                               autocomplete="off">
+                        <button id="sendButton" class="btn btn-primary" type="button">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
+                    </div>
+                    <small class="text-muted mt-1 d-block">
+                        <i class="fas fa-info-circle"></i> Press Enter to send • Messages are delivered in real-time
+                    </small>
+                </div>
+                {% else %}
+                <div class="alert alert-warning m-3">
+                    <i class="fas fa-lock"></i> This ticket is closed and no longer accepts messages.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+class TicketChat {
+    constructor(ticketId) {
+        this.ticketId = ticketId;
+        this.ws = null;
+        this.reconnectAttempts = 0;
+        this.maxReconnectAttempts = 5;
+        this.isConnecting = false;
+
+        this.init();
+    }
+
+    init() {
+        this.connectWebSocket();
+        this.bindEvents();
+    }
+
+    connectWebSocket() {
+        if (this.isConnecting) return;
+
+        this.isConnecting = true;
+        this.updateConnectionStatus('connecting');
+
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/ticket/${this.ticketId}/`;
+
+        console.log('Connecting to WebSocket:', wsUrl);
+        this.ws = new WebSocket(wsUrl);
+
+        this.ws.onopen = () => {
+            console.log('✅ WebSocket connected');
+            this.updateConnectionStatus('connected');
+            this.reconnectAttempts = 0;
+            this.isConnecting = false;
+        };
+
+        this.ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log('📨 Received:', data);
+            this.handleMessage(data);
+        };
+
+        this.ws.onclose = (event) => {
+            console.log('❌ WebSocket disconnected:', event.code, event.reason);
+            this.updateConnectionStatus('disconnected');
+            this.isConnecting = false;
+            this.attemptReconnect();
+        };
+
+        this.ws.onerror = (error) => {
+            console.error('🚨 WebSocket error:', error);
+            this.isConnecting = false;
+        };
+    }
+
+    handleMessage(data) {
+        switch(data.type) {
+            case 'message_history':
+                this.displayMessageHistory(data.messages);
+                break;
+            case 'message':
+                this.displayMessage(data.message);
+                break;
+            case 'error':
+                this.showError(data.message);
+                break;
+            default:
+                console.log('Unknown message type:', data.type);
+        }
+    }
+
+    displayMessageHistory(messages) {
+        const container = document.getElementById('chatMessages');
+        container.innerHTML = '';
+
+        if (messages.length === 0) {
+            container.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-comments fa-2x mb-2"></i>
+                    <p>No messages yet. Start the conversation!</p>
+                </div>
+            `;
+        } else {
+            messages.forEach(message => this.displayMessage(message));
+        }
+
+        this.scrollToBottom();
+    }
+
+    displayMessage(message) {
+        const container = document.getElementById('chatMessages');
+
+        // Remove "no messages" placeholder if it exists
+        const placeholder = container.querySelector('.text-center.text-muted');
+        if (placeholder) {
+            placeholder.remove();
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${message.author_type}`;
+
+        const date = new Date(message.created_at);
+        const timeString = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+        messageDiv.innerHTML = `
+            <div class="message-content">
+                <div>${this.escapeHtml(message.content)}</div>
+                <div class="message-info">
+                    ${this.escapeHtml(message.author)} • ${timeString}
+                </div>
+            </div>
+        `;
+
+        container.appendChild(messageDiv);
+        this.scrollToBottom();
+    }
+
+    sendMessage() {
+        const input = document.getElementById('messageInput');
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            console.log('📤 Sending message:', message);
+            this.ws.send(JSON.stringify({
+                type: 'chat_message',
+                message: message
+            }));
+            input.value = '';
+        } else {
+            this.showError('Not connected. Please wait for reconnection.');
+        }
+    }
+
+    bindEvents() {
+        const input = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        if (sendButton) {
+            sendButton.addEventListener('click', () => this.sendMessage());
+        }
+
+        if (input) {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
+            });
+        }
+    }
+
+    updateConnectionStatus(status) {
+        const statusElement = document.getElementById('connectionStatus');
+        const input = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        switch(status) {
+            case 'connected':
+                statusElement.textContent = '🟢 Connected - Real-time chat active';
+                statusElement.className = 'connection-status connected';
+                if (input) input.disabled = false;
+                if (sendButton) sendButton.disabled = false;
+                break;
+            case 'disconnected':
+                statusElement.textContent = '🔴 Disconnected - Attempting to reconnect...';
+                statusElement.className = 'connection-status disconnected';
+                if (input) input.disabled = true;
+                if (sendButton) sendButton.disabled = true;
+                break;
+            case 'connecting':
+                statusElement.textContent = '🟡 Connecting...';
+                statusElement.className = 'connection-status connecting';
+                if (input) input.disabled = true;
+                if (sendButton) sendButton.disabled = true;
+                break;
+        }
+    }
+
+    attemptReconnect() {
+        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+            this.reconnectAttempts++;
+            const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 10000);
+
+            console.log(`🔄 Reconnection attempt ${this.reconnectAttempts} in ${delay}ms`);
+
+            setTimeout(() => {
+                if (!this.isConnecting) {
+                    this.connectWebSocket();
+                }
+            }, delay);
+        } else {
+            this.updateConnectionStatus('disconnected');
+            this.showError('Connection lost. Please refresh the page.');
+        }
+    }
+
+    scrollToBottom() {
+        const container = document.getElementById('chatMessages');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    showError(message) {
+        const container = document.getElementById('chatMessages');
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger mx-3 my-2';
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${this.escapeHtml(message)}`;
+        container.appendChild(errorDiv);
+        this.scrollToBottom();
+
+        // Auto-remove error after 5 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.remove();
+            }
+        }, 5000);
+    }
+}
+
+// Initialize chat when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const ticketId = {{ ticket.id }};
+    console.log('🚀 Initializing chat for ticket #' + ticketId);
+    window.ticketChat = new TicketChat(ticketId);
+});
+</script>
+{% endblock %}

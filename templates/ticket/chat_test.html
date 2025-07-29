@@ -1,0 +1,152 @@
+<!-- templates/ticket/chat_test.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ticket Chat Test</title>
+    <style>
+        #messages {
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        .admin-message {
+            background-color: #e8f5e8;
+            border-left: 4px solid #28a745;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            border-left: 4px solid #007bff;
+        }
+        .existing-message {
+            opacity: 0.9;
+        }
+        .new-message {
+            opacity: 1;
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .timestamp {
+            font-size: 0.8em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ticket #{{ ticket.id }} Chat Test</h1>
+    <p><strong>Ticket:</strong> {{ ticket.title }}</p>
+    <p><strong>Status:</strong> {{ ticket.get_status_display }}</p>
+    <p><strong>Messages:</strong> {{ existing_messages.count }} total</p>
+
+    <div id="messages">
+        <!-- Load existing messages -->
+        {% for message in existing_messages %}
+        <div class="message existing-message {% if message.is_admin_message %}admin-message{% else %}user-message{% endif %}">
+            <strong>
+                {% if message.is_admin_message %}
+                    🛡️ Admin {{ message.author.username }}
+                {% else %}
+                    👤 User {{ message.author.username }}
+                {% endif %}
+            </strong>
+            <span class="timestamp">({{ message.created_at|date:"M d, H:i" }})</span>
+            <br>
+            {{ message.content|linebreaks }}
+        </div>
+        {% empty %}
+        <p><em>No messages yet. Start the conversation!</em></p>
+        {% endfor %}
+    </div>
+
+    <div>
+        <input type="text" id="messageInput" placeholder="Type your message..." style="width: 80%;">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        const ticketId = {{ ticket.id }};
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/ticket/' + ticketId + '/'
+        );
+
+        // Scroll to bottom on page load
+        const messagesDiv = document.getElementById('messages');
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+
+            if (data.type === 'connection_established') {
+                // Add connection status (optional)
+                console.log(data.message);
+            } else if (data.type === 'message') {
+                const messageClass = data.is_admin ? 'admin-message' : 'user-message';
+                const authorLabel = data.is_admin ? '🛡️ Admin' : '👤 User';
+                const timestamp = new Date(data.timestamp).toLocaleString();
+
+                // Create new message element
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message new-message ' + messageClass;
+                messageElement.innerHTML =
+                    '<strong>' + authorLabel + ' ' + data.author + '</strong> ' +
+                    '<span class="timestamp">(' + timestamp + ')</span><br>' +
+                    data.message.replace(/\n/g, '<br>');
+
+                // Add to messages container
+                messagesDiv.appendChild(messageElement);
+
+                // Scroll to bottom
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            } else if (data.type === 'error') {
+                // Show error message
+                const errorElement = document.createElement('div');
+                errorElement.innerHTML = '<p style="color: red;"><em>Error: ' + data.message + '</em></p>';
+                messagesDiv.appendChild(errorElement);
+            }
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+            const statusElement = document.createElement('div');
+            statusElement.innerHTML = '<p style="color: red; text-align: center;"><em>Connection lost - refresh page to reconnect</em></p>';
+            messagesDiv.appendChild(statusElement);
+        };
+
+        chatSocket.onerror = function(e) {
+            console.error('WebSocket error:', e);
+        };
+
+        function sendMessage() {
+            const messageInputDom = document.getElementById('messageInput');
+            const message = messageInputDom.value.trim();
+
+            if (message) {
+                chatSocket.send(JSON.stringify({
+                    'message': message
+                }));
+                messageInputDom.value = '';
+            }
+        }
+
+        // Send message on Enter key
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Focus on input field
+        document.getElementById('messageInput').focus();
+    </script>
+</body>
+</html>
