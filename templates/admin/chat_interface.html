@@ -1,4 +1,4 @@
-<!-- templates/admin/chat_interface.html (Complete with Image Support) -->
+<!-- templates/admin/chat_interface.html (Updated with Close Functionality) -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -74,30 +74,6 @@
             margin-top: 5px;
         }
 
-        .message-image {
-            margin-bottom: 8px;
-        }
-
-        .message-image img {
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            max-width: 300px;
-            max-height: 200px;
-            object-fit: cover;
-        }
-
-        .message-image img:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        .message-image img.expanded {
-            max-width: 100% !important;
-            max-height: none !important;
-            object-fit: contain;
-        }
-
         .chat-input {
             padding: 20px;
             border-top: 2px solid #dee2e6;
@@ -126,6 +102,11 @@
             color: #856404;
         }
 
+        .closed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         .admin-badge {
             background: #dc3545;
             color: white;
@@ -133,43 +114,6 @@
             border-radius: 12px;
             font-size: 10px;
             margin-left: 8px;
-        }
-
-        .btn-image-upload {
-            border-color: #6c757d;
-            color: #6c757d;
-        }
-
-        .btn-image-upload:hover {
-            background-color: #6c757d;
-            border-color: #6c757d;
-            color: white;
-        }
-
-        .upload-progress {
-            padding: 8px 12px;
-            background: #ffebee;
-            border: 1px solid #ffcdd2;
-            border-radius: 12px;
-            font-size: 12px;
-            margin: 5px 0;
-            color: #c62828;
-        }
-
-        .image-preview {
-            max-width: 100px;
-            max-height: 100px;
-            border-radius: 4px;
-            margin: 5px 0;
-        }
-
-        #imagePreviewContainer {
-            display: none;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: #fff3cd;
-            border-radius: 4px;
-            border: 1px solid #ffeaa7;
         }
     </style>
 </head>
@@ -191,6 +135,17 @@
                         <h6 class="mb-0">{{ ticket.title }}</h6>
                     </div>
                     <div>
+                        {% if ticket.status != 'closed' %}
+                        <a href="{% url 'ticket:admin_close_ticket' ticket.id %}"
+                           class="btn btn-warning btn-sm me-2"
+                           onclick="return confirm('Are you sure you want to close this ticket?')">
+                            <i class="fas fa-lock"></i> Close Ticket
+                        </a>
+                        {% else %}
+                        <span class="badge bg-secondary me-2">
+                            <i class="fas fa-lock"></i> Ticket Closed
+                        </span>
+                        {% endif %}
                         <a href="/ticket/admin-chat/" class="btn btn-light btn-sm">
                             <i class="fas fa-arrow-left"></i> Back to Dashboard
                         </a>
@@ -217,6 +172,7 @@
                         <span class="badge
                             {% if ticket.status == 'pending' %}bg-warning
                             {% elif ticket.status == 'answered' %}bg-success
+                            {% elif ticket.status == 'closed' %}bg-secondary
                             {% else %}bg-secondary{% endif %}">
                             {{ ticket.get_status_display }}
                         </span>
@@ -238,35 +194,14 @@
             </div>
 
             <!-- Chat Input -->
+            {% if ticket.status != 'closed' %}
             <div class="chat-input">
-                <!-- Image Preview Container -->
-                <div id="imagePreviewContainer">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <img id="imagePreview" class="image-preview" alt="Image preview">
-                            <div id="imageInfo" class="small text-muted"></div>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="cancelImageUpload()">
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
-                    </div>
-                </div>
-
                 <div class="row">
                     <div class="col-md-9">
                         <textarea id="messageInput" class="form-control" rows="3"
                             placeholder="Type your admin response here..."></textarea>
                     </div>
                     <div class="col-md-3 d-flex flex-column gap-2">
-                        <!-- Image Upload Button -->
-                        <button id="imageUploadButton"
-                                class="btn btn-outline-secondary btn-image-upload"
-                                type="button"
-                                title="Upload Image">
-                            <i class="fas fa-image"></i> Image
-                        </button>
-
-                        <!-- Send Button -->
                         <button id="sendButton" class="btn btn-danger h-100">
                             <i class="fas fa-paper-plane"></i><br>Send as Admin
                         </button>
@@ -278,17 +213,16 @@
                         <small class="text-muted">
                             <i class="fas fa-info-circle"></i>
                             User will receive email notification when you send a message.
-                            Press Ctrl+Enter to send quickly. Click image button to share photos.
+                            Press Ctrl+Enter to send quickly.
                         </small>
                     </div>
                 </div>
             </div>
-
-            <!-- Hidden File Input -->
-            <input type="file"
-                   id="hiddenImageInput"
-                   accept="image/*"
-                   style="display: none;">
+            {% else %}
+            <div class="alert alert-warning m-3">
+                <i class="fas fa-lock"></i> This ticket is closed and no longer accepts messages.
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -300,7 +234,6 @@
                 this.reconnectAttempts = 0;
                 this.maxReconnectAttempts = 5;
                 this.isConnecting = false;
-                this.selectedImage = null;
 
                 this.init();
             }
@@ -309,90 +242,6 @@
                 this.connectWebSocket();
                 this.bindEvents();
                 this.requestNotificationPermission();
-                this.initImageUpload();
-            }
-
-            initImageUpload() {
-                const imageButton = document.getElementById('imageUploadButton');
-                const hiddenInput = document.getElementById('hiddenImageInput');
-
-                if (imageButton && hiddenInput) {
-                    imageButton.addEventListener('click', () => {
-                        hiddenInput.click();
-                    });
-
-                    hiddenInput.addEventListener('change', (e) => {
-                        this.handleImageSelection(e);
-                    });
-                }
-            }
-
-            handleImageSelection(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                // Validate file
-                if (!file.type.startsWith('image/')) {
-                    this.showError('Please select an image file.');
-                    return;
-                }
-
-                if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                    this.showError('Image size cannot exceed 5MB.');
-                    return;
-                }
-
-                this.selectedImage = file;
-                this.showImagePreview(file);
-            }
-
-            showImagePreview(file) {
-                const container = document.getElementById('imagePreviewContainer');
-                const preview = document.getElementById('imagePreview');
-                const info = document.getElementById('imageInfo');
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    preview.src = e.target.result;
-                    info.textContent = `${file.name} (${this.formatFileSize(file.size)})`;
-                    container.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-
-            async uploadImage() {
-                if (!this.selectedImage) return false;
-
-                this.showUploadProgress();
-
-                const formData = new FormData();
-                formData.append('image', this.selectedImage);
-
-                try {
-                    const response = await fetch(`/ticket/upload-image/${this.ticketId}/`, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRFToken': this.getCsrfToken()
-                        }
-                    });
-
-                    const result = await response.json();
-
-                    if (result.success) {
-                        this.hideUploadProgress();
-                        this.cancelImageUpload();
-                        return true;
-                    } else {
-                        this.showError(result.error || 'Upload failed');
-                        this.hideUploadProgress();
-                        return false;
-                    }
-                } catch (error) {
-                    this.showError('Upload failed: ' + error.message);
-                    this.hideUploadProgress();
-                    return false;
-                }
             }
 
             connectWebSocket() {
@@ -442,12 +291,38 @@
                         this.displayMessage(data.message);
                         this.showNotification(data.message);
                         break;
+                    case 'ticket_closed':
+                        this.handleTicketClosed(data.message);
+                        break;
                     case 'error':
                         this.showError(data.message);
                         break;
                     default:
                         console.log('Unknown message type:', data.type);
                 }
+            }
+
+            handleTicketClosed(message) {
+                // Disable chat input
+                const input = document.getElementById('messageInput');
+                const sendButton = document.getElementById('sendButton');
+
+                if (input) {
+                    input.disabled = true;
+                    input.placeholder = 'This ticket is closed';
+                }
+                if (sendButton) sendButton.disabled = true;
+
+                // Show closure message
+                this.showError(message);
+
+                // Update connection status
+                this.updateConnectionStatus('closed');
+
+                // Reload page to show updated UI
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
             }
 
             displayMessageHistory(messages) {
@@ -471,7 +346,6 @@
             displayMessage(message) {
                 const container = document.getElementById('chatMessages');
 
-                // Remove "no messages" placeholder if it exists
                 const placeholder = container.querySelector('.text-center.text-muted');
                 if (placeholder) {
                     placeholder.remove();
@@ -486,21 +360,7 @@
 
                 const adminBadge = message.is_admin_message ? '<span class="admin-badge">ADMIN</span>' : '';
 
-                // Build message content with image support
-                let contentHtml = '';
-
-                if (message.has_image && message.image_url) {
-                    contentHtml += `
-                        <div class="message-image">
-                            <img src="${message.image_url}"
-                                 alt="Shared image"
-                                 class="img-fluid rounded"
-                                 onclick="this.classList.toggle('expanded')">
-                        </div>
-                    `;
-                }
-
-                contentHtml += `
+                const contentHtml = `
                     <div>${this.escapeHtml(message.content)}</div>
                     <div class="message-info">
                         ${this.escapeHtml(message.author)}${adminBadge} • ${timeString} • ${dateString}
@@ -514,17 +374,6 @@
             }
 
             async sendMessage() {
-                // If image is selected, upload it first
-                if (this.selectedImage) {
-                    const uploaded = await this.uploadImage();
-                    if (uploaded) {
-                        return; // Image message sent via HTTP upload
-                    } else {
-                        return; // Upload failed
-                    }
-                }
-
-                // Send text message via WebSocket
                 const input = document.getElementById('messageInput');
                 const message = input.value.trim();
 
@@ -551,15 +400,12 @@
                 }
 
                 if (input) {
-                    // Send on Ctrl+Enter
                     input.addEventListener('keydown', (e) => {
                         if (e.ctrlKey && e.key === 'Enter') {
                             e.preventDefault();
                             this.sendMessage();
                         }
                     });
-
-                    // Focus on input
                     input.focus();
                 }
             }
@@ -568,7 +414,6 @@
                 const statusElement = document.getElementById('connectionStatus');
                 const input = document.getElementById('messageInput');
                 const sendButton = document.getElementById('sendButton');
-                const imageButton = document.getElementById('imageUploadButton');
 
                 switch(status) {
                     case 'connected':
@@ -576,21 +421,27 @@
                         statusElement.className = 'connection-status connected';
                         if (input) input.disabled = false;
                         if (sendButton) sendButton.disabled = false;
-                        if (imageButton) imageButton.disabled = false;
+                        break;
+                    case 'closed':
+                        statusElement.textContent = '🔒 Ticket Closed - No messages can be sent';
+                        statusElement.className = 'connection-status closed';
+                        if (input) {
+                            input.disabled = true;
+                            input.placeholder = 'This ticket is closed';
+                        }
+                        if (sendButton) sendButton.disabled = true;
                         break;
                     case 'disconnected':
                         statusElement.textContent = '🔴 Disconnected - Attempting to reconnect...';
                         statusElement.className = 'connection-status disconnected';
                         if (input) input.disabled = true;
                         if (sendButton) sendButton.disabled = true;
-                        if (imageButton) imageButton.disabled = true;
                         break;
                     case 'connecting':
                         statusElement.textContent = '🟡 Connecting...';
                         statusElement.className = 'connection-status connecting';
                         if (input) input.disabled = true;
                         if (sendButton) sendButton.disabled = true;
-                        if (imageButton) imageButton.disabled = true;
                         break;
                 }
             }
@@ -620,33 +471,12 @@
             }
 
             showNotification(message) {
-                // Only show notification for user messages
                 if (!message.is_admin_message && Notification.permission === 'granted') {
                     new Notification(`New message in Ticket #${this.ticketId}`, {
                         body: `${message.author}: ${message.content.substring(0, 50)}...`,
                         icon: '/static/admin/img/icon-admin.svg'
                     });
                 }
-            }
-
-            showUploadProgress() {
-                const container = document.getElementById('chatMessages');
-                let progress = document.getElementById('uploadProgress');
-
-                if (!progress) {
-                    progress = document.createElement('div');
-                    progress.id = 'uploadProgress';
-                    progress.className = 'upload-progress';
-                    progress.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Admin uploading image...';
-                    container.appendChild(progress);
-                }
-
-                this.scrollToBottom();
-            }
-
-            hideUploadProgress() {
-                const progress = document.getElementById('uploadProgress');
-                if (progress) progress.remove();
             }
 
             scrollToBottom() {
@@ -668,38 +498,11 @@
                 container.appendChild(errorDiv);
                 this.scrollToBottom();
 
-                // Auto-remove error after 5 seconds
                 setTimeout(() => {
                     if (errorDiv.parentNode) {
                         errorDiv.remove();
                     }
                 }, 5000);
-            }
-
-            getCsrfToken() {
-                return document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
-                       document.querySelector('meta[name=csrf-token]')?.getAttribute('content') || '';
-            }
-
-            formatFileSize(bytes) {
-                if (bytes === 0) return '0 Bytes';
-                const k = 1024;
-                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-            }
-
-            cancelImageUpload() {
-                this.selectedImage = null;
-                document.getElementById('imagePreviewContainer').style.display = 'none';
-                document.getElementById('hiddenImageInput').value = '';
-            }
-        }
-
-        // Global function for cancel button
-        function cancelImageUpload() {
-            if (window.adminTicketChat) {
-                window.adminTicketChat.cancelImageUpload();
             }
         }
 

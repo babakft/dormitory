@@ -50,6 +50,27 @@ class Ticket(models.Model):
             self.status = 'answered'
             self.save(update_fields=['status', 'updated_at'])
 
+    def close_ticket(self, closed_by_admin=None):
+        """Close ticket and prevent further messages"""
+        if self.status != 'closed':
+            self.status = 'closed'
+            self.save(update_fields=['status', 'updated_at'])
+
+            # Log closure in messages
+            if closed_by_admin:
+                TicketMessage.objects.create(
+                    ticket=self,
+                    author=closed_by_admin,
+                    content="🔒 This ticket has been closed by admin. No further messages can be sent.",
+                    is_admin_message=True
+                )
+            return True
+        return False
+
+    def can_send_messages(self):
+        """Check if ticket accepts new messages"""
+        return self.status != 'closed'
+
 
 class TicketMessage(models.Model):
     """Messages for real-time chat with image support"""

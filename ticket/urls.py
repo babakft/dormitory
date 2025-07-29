@@ -2,7 +2,8 @@
 from django.urls import path
 from ticket.views import (
     TicketCreateView, TicketListView, ticket_detail,
-    admin_chat_list, admin_chat_interface, upload_chat_image  # Add upload_chat_image import
+    admin_chat_list, admin_chat_interface, upload_chat_image,
+    close_ticket
 )
 
 app_name = 'ticket'
@@ -18,4 +19,5 @@ urlpatterns = [
     # Admin chat URLs
     path('admin-chat/', admin_chat_list, name='admin_chat_list'),
     path('admin-chat/<int:ticket_id>/', admin_chat_interface, name='admin_chat_interface'),
+    path('admin-chat/<int:ticket_id>/close/', close_ticket, name='admin_close_ticket'),
 ]

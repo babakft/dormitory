@@ -1,4 +1,4 @@
-# ticket/consumers.py - Complete with Read Tracking
+# ticket/consumers.py - Complete with Close Ticket Prevention
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
@@ -32,7 +32,7 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
         # Send message history immediately after connection
         await self.send_message_history()
 
-        # NEW: Mark messages as read if admin connects
+        # Mark messages as read if admin connects
         if self.user.is_staff:
             await self.mark_messages_as_read()
 
@@ -63,10 +63,18 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
         if not message_content:
             return
 
+        # Check if ticket is closed - prevent any new messages
+        if not await self.can_send_message():
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'message': 'This ticket is closed. No messages can be sent.'
+            }))
+            return
+
         # Save message to database
         message = await self.save_message(message_content)
 
-        # Update ticket status based on who sent the message
+        # Update ticket status based on who sent the message (only if not closed)
         await self.update_ticket_status(message)
 
         # Broadcast to room group
@@ -93,6 +101,13 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
             'message': event['message']
         }))
 
+    async def ticket_closed(self, event):
+        """Handle ticket closure broadcast"""
+        await self.send(text_data=json.dumps({
+            'type': 'ticket_closed',
+            'message': event['message']
+        }))
+
     @database_sync_to_async
     def has_permission(self):
         """Check if user can access this ticket"""
@@ -100,6 +115,15 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
             ticket = Ticket.objects.get(id=self.ticket_id)
             # Allow ticket creator OR admin staff
             return (self.user.is_staff or ticket.created_by == self.user)
+        except Ticket.DoesNotExist:
+            return False
+
+    @database_sync_to_async
+    def can_send_message(self):
+        """Check if user can send message to this ticket"""
+        try:
+            ticket = Ticket.objects.get(id=self.ticket_id)
+            return ticket.can_send_messages()
         except Ticket.DoesNotExist:
             return False
 
@@ -118,6 +142,10 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
     def update_ticket_status(self, message):
         """Update ticket status based on who sent the message"""
         ticket = Ticket.objects.get(id=self.ticket_id)
+
+        # Don't change status if ticket is closed
+        if ticket.status == 'closed':
+            return
 
         if message.is_admin_message:
             # Admin replied - mark as answered
@@ -148,7 +176,6 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
             'messages': messages
         }))
 
-    # NEW: Mark messages as read when admin connects
     @database_sync_to_async
     def mark_messages_as_read(self):
         """Mark all user messages as read when admin connects"""

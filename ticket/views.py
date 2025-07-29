@@ -215,3 +215,16 @@ def admin_chat_interface(request, ticket_id):
     }
 
     return render(request, 'admin/chat_interface.html', context)
+
+
+@staff_member_required
+def close_ticket(request, ticket_id):
+    """Admin closes a ticket"""
+    ticket = get_object_or_404(Ticket, pk=ticket_id)
+
+    if ticket.close_ticket(closed_by_admin=request.user):
+        messages.success(request, f'Ticket #{ticket.id} has been closed.')
+    else:
+        messages.warning(request, f'Ticket #{ticket.id} is already closed.')
+
+    return redirect('ticket:admin_chat_interface', ticket_id=ticket.id)
