@@ -1,8 +1,8 @@
-# ticket/urls.py (Add admin URLs)
+# ticket/urls.py - Complete with Image Upload URL
 from django.urls import path
 from ticket.views import (
     TicketCreateView, TicketListView, ticket_detail,
-    admin_chat_list, admin_chat_interface  # ADD THESE
+    admin_chat_list, admin_chat_interface, upload_chat_image  # Add upload_chat_image import
 )
 
 app_name = 'ticket'
@@ -12,7 +12,10 @@ urlpatterns = [
     path('', TicketListView.as_view(), name='list'),
     path('<int:pk>/', ticket_detail, name='detail'),
 
+    # Image upload endpoint
+    path('upload-image/<int:ticket_id>/', upload_chat_image, name='upload_chat_image'),
+
     # Admin chat URLs
-    path('admin-chat/', admin_chat_list, name='admin_chat_list'),  # ADD THIS
-    path('admin-chat/<int:ticket_id>/', admin_chat_interface, name='admin_chat_interface'),  # ADD THIS
+    path('admin-chat/', admin_chat_list, name='admin_chat_list'),
+    path('admin-chat/<int:ticket_id>/', admin_chat_interface, name='admin_chat_interface'),
 ]

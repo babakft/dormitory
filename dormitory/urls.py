@@ -9,6 +9,4 @@ urlpatterns = [
     path('maintenance/', include('maintenance.urls')),
     path('service/', include('service.urls')),
     path('ticket/', include('ticket.urls')),
-    # Add direct admin access
-    path('admin-chat/', include('ticket.urls')),  # Add this line
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

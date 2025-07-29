@@ -1,7 +1,7 @@
-# ticket/forms.py
+# ticket/forms.py - Complete with Image Upload Form
 from django import forms
 from django.core.exceptions import ValidationError
-from ticket.models import Ticket
+from ticket.models import Ticket, TicketMessage
 
 
 class TicketForm(forms.ModelForm):
@@ -40,3 +40,31 @@ class TicketForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+
+class ChatImageUploadForm(forms.ModelForm):
+    """Form for uploading images in chat"""
+
+    class Meta:
+        model = TicketMessage
+        fields = ['image']
+        widgets = {
+            'image': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*',
+                'id': 'chatImageInput'
+            })
+        }
+
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image:
+            # Validate file size (max 5MB)
+            if image.size > 5 * 1024 * 1024:
+                raise forms.ValidationError('Image size cannot exceed 5MB.')
+
+            # Validate file type
+            if not image.content_type.startswith('image/'):
+                raise forms.ValidationError('Only image files are allowed.')
+
+        return image

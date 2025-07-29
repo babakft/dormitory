@@ -99,16 +99,13 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def save_message(self, content):
-        """Save message to database with proper admin detection"""
+        """Save text message (images handled separately via HTTP)"""
         ticket = Ticket.objects.get(id=self.ticket_id)
-
-        # Create message - the model's save method will set is_admin_message
         message = TicketMessage.objects.create(
             ticket=ticket,
             author=self.user,
             content=content
         )
-
         return message
 
     @database_sync_to_async
@@ -129,21 +126,11 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_message_history(self):
-        """Get all messages for this ticket"""
+        """Get all messages with image support"""
         try:
             ticket = Ticket.objects.get(id=self.ticket_id)
             messages = ticket.messages.select_related('author').order_by('created_at')
-            return [
-                {
-                    'id': msg.id,
-                    'content': msg.content,
-                    'author': msg.author.username,
-                    'is_admin_message': msg.is_admin_message,
-                    'created_at': msg.created_at.isoformat(),
-                    'author_type': 'admin' if msg.is_admin_message else 'user'
-                }
-                for msg in messages
-            ]
+            return [msg.to_dict() for msg in messages]
         except Ticket.DoesNotExist:
             return []
 
@@ -154,6 +141,7 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
             'type': 'message_history',
             'messages': messages
         }))
+
 
 # ADD THIS SECOND CONSUMER CLASS TOO:
 class AdminNotificationConsumer(AsyncWebsocketConsumer):

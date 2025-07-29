@@ -1,4 +1,4 @@
-# ticket/models.py
+# ticket/models.py - Updated with Image Support
 from django.db import models
 from django.utils import timezone
 from student.models import User
@@ -54,13 +54,23 @@ class Ticket(models.Model):
             self.status = 'answered'
             self.save(update_fields=['status', 'updated_at'])
 
+
 class TicketMessage(models.Model):
-    """Messages for real-time chat"""
+    """Messages for real-time chat with image support"""
 
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='messages')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ticket_messages')
     content = models.TextField()
     is_admin_message = models.BooleanField(default=False)
+
+    # Add image field
+    image = models.ImageField(
+        upload_to='ticket_images/%Y/%m/%d/',
+        null=True,
+        blank=True,
+        help_text='Optional image attachment'
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -82,3 +92,26 @@ class TicketMessage(models.Model):
 
         # Update ticket's updated_at timestamp
         self.ticket.save(update_fields=['updated_at'])
+
+    @property
+    def has_image(self):
+        """Check if message has an image attachment"""
+        return bool(self.image)
+
+    @property
+    def image_url(self):
+        """Get image URL if exists"""
+        return self.image.url if self.image else None
+
+    def to_dict(self):
+        """Convert message to dictionary for WebSocket transmission"""
+        return {
+            'id': self.id,
+            'content': self.content,
+            'author': self.author.username,
+            'is_admin_message': self.is_admin_message,
+            'created_at': self.created_at.isoformat(),
+            'author_type': 'admin' if self.is_admin_message else 'user',
+            'has_image': self.has_image,
+            'image_url': self.image_url,
+        }
