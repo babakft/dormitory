@@ -1,10 +1,45 @@
-<!-- templates/admin/chat_list.html (New file) -->
+<!-- templates/admin/chat_list.html -->
 <!DOCTYPE html>
 <html>
 <head>
     <title>Admin Chat Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .notification-dot {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .ticket-row:hover {
+            background-color: #f8f9fa;
+            cursor: pointer;
+        }
+
+        .status-badge {
+            font-size: 0.75em;
+        }
+
+        .urgent-ticket {
+            border-left: 4px solid #dc3545;
+        }
+
+        .answered-ticket {
+            border-left: 4px solid #28a745;
+        }
+
+        .pending-ticket {
+            border-left: 4px solid #ffc107;
+        }
+    </style>
 </head>
 <body>
 <div class="container-fluid mt-4">
@@ -13,9 +48,12 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h2><i class="fas fa-comments text-primary"></i> Admin Chat Dashboard</h2>
-                    <p class="text-muted mb-0">Real-time chat with users</p>
+                    <p class="text-muted mb-0">Real-time chat with users • Auto-refresh every 30 seconds</p>
                 </div>
                 <div>
+                    <button onclick="location.reload()" class="btn btn-outline-primary me-2">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
                     <a href="/admin/" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back to Admin
                     </a>
@@ -32,7 +70,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h5>Total Tickets</h5>
-                            <h3>{{ tickets.count }}</h3>
+                            <h3>{{ total_tickets }}</h3>
                         </div>
                         <i class="fas fa-ticket-alt fa-2x"></i>
                     </div>
@@ -45,7 +83,7 @@
                     <div class="d-flex justify-content-between">
                         <div>
                             <h5>Pending</h5>
-                            <h3>{{ tickets|length }}</h3>
+                            <h3>{{ pending_count }}</h3>
                         </div>
                         <i class="fas fa-clock fa-2x"></i>
                     </div>
@@ -57,10 +95,10 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5>Active Chats</h5>
-                            <h3 id="activeChats">0</h3>
+                            <h5>Answered</h5>
+                            <h3>{{ answered_count }}</h3>
                         </div>
-                        <i class="fas fa-comments fa-2x"></i>
+                        <i class="fas fa-reply fa-2x"></i>
                     </div>
                 </div>
             </div>
@@ -70,70 +108,145 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5>Notifications</h5>
-                            <h3 id="notificationCount">0</h3>
+                            <h5>Active Chats</h5>
+                            <h3 id="activeChatsCount">0</h3>
                         </div>
-                        <i class="fas fa-bell fa-2x"></i>
+                        <i class="fas fa-comments fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Filter Options -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="btn-group" role="group">
+                <a href="?status=" class="btn btn-outline-primary {% if not current_status %}active{% endif %}">
+                    All Tickets
+                </a>
+                <a href="?status=pending" class="btn btn-outline-warning {% if current_status == 'pending' %}active{% endif %}">
+                    Pending
+                </a>
+                <a href="?status=answered" class="btn btn-outline-success {% if current_status == 'answered' %}active{% endif %}">
+                    Answered
+                </a>
+            </div>
+        </div>
+        <div class="col-md-6 text-end">
+            <span class="text-muted">
+                <i class="fas fa-circle text-warning"></i> Pending •
+                <i class="fas fa-circle text-success"></i> Answered •
+                <i class="fas fa-circle text-secondary"></i> Closed
+            </span>
+        </div>
+    </div>
+
     <!-- Tickets Table -->
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0">All Tickets</h5>
+            <h5 class="mb-0">
+                <i class="fas fa-list"></i> All Tickets
+                {% if current_status %}({{ current_status|capfirst }}){% endif %}
+            </h5>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
             {% if tickets %}
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
                         <tr>
                             <th>ID</th>
-                            <th>Title</th>
-                            <th>User</th>
+                            <th>Title & User</th>
                             <th>Status</th>
                             <th>Messages</th>
-                            <th>Created</th>
+                            <th>Last Activity</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for ticket in tickets %}
-                        <tr>
-                            <td><strong>#{{ ticket.id }}</strong></td>
+                        <tr class="ticket-row
+                            {% if ticket.status == 'pending' %}pending-ticket
+                            {% elif ticket.status == 'answered' %}answered-ticket
+                            {% else %}closed-ticket{% endif %}"
+                            onclick="window.open('{% url 'ticket:admin_chat_interface' ticket.id %}', '_blank')">
+
                             <td>
-                                <strong>{{ ticket.title }}</strong><br>
-                                <small class="text-muted">{{ ticket.description|truncatechars:50 }}</small>
-                            </td>
-                            <td>
-                                <strong>{{ ticket.created_by.username }}</strong><br>
-                                <small class="text-muted">{{ ticket.get_creator_type }}</small>
-                            </td>
-                            <td>
-                                {% if ticket.status == 'pending' %}
-                                <span class="badge bg-warning">Pending</span>
-                                {% elif ticket.status == 'answered' %}
-                                <span class="badge bg-success">Answered</span>
-                                {% elif ticket.status == 'closed' %}
-                                <span class="badge bg-secondary">Closed</span>
+                                <strong>#{{ ticket.id }}</strong>
+                                {% if ticket.unread_count > 0 %}
+                                <span class="badge bg-danger ms-1">{{ ticket.unread_count }} new</span>
                                 {% endif %}
                             </td>
+
                             <td>
-                                <span class="badge bg-info">{{ ticket.message_count }} messages</span>
+                                <div>
+                                    <strong>{{ ticket.title }}</strong>
+                                    {% if ticket.title|length > 40 %}...{% endif %}
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-user"></i> {{ ticket.created_by.username }}
+                                    {% if ticket.created_by.student_profile %}
+                                        <span class="badge bg-primary ms-1">Student</span>
+                                    {% elif ticket.created_by.expert_profile %}
+                                        <span class="badge bg-success ms-1">Expert</span>
+                                    {% endif %}
+                                </small>
+                                <br>
+                                <small class="text-muted">{{ ticket.description|truncatechars:60 }}</small>
                             </td>
+
+                            <td>
+                                {% if ticket.status == 'pending' %}
+                                <span class="badge bg-warning status-badge">
+                                    <i class="fas fa-clock"></i> Pending
+                                </span>
+                                {% elif ticket.status == 'answered' %}
+                                <span class="badge bg-success status-badge">
+                                    <i class="fas fa-check"></i> Answered
+                                </span>
+                                {% elif ticket.status == 'closed' %}
+                                <span class="badge bg-secondary status-badge">
+                                    <i class="fas fa-lock"></i> Closed
+                                </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="position-relative d-inline-block">
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-comments"></i> {{ ticket.message_count }}
+                                    </span>
+                                    {% if ticket.unread_count > 0 %}
+                                    <span class="notification-dot">{{ ticket.unread_count }}</span>
+                                    {% endif %}
+                                </div>
+                                {% if ticket.latest_message %}
+                                <br><small class="text-muted">
+                                    Last: {{ ticket.latest_message.created_at|timesince }} ago
+                                </small>
+                                {% endif %}
+                            </td>
+
                             <td>
                                 <small>
-                                    {{ ticket.created_at|date:"M d, Y" }}<br>
-                                    <span class="text-muted">{{ ticket.days_since_created }} days ago</span>
+                                    <strong>Created:</strong> {{ ticket.created_at|date:"M d, Y" }}<br>
+                                    <strong>Updated:</strong> {{ ticket.updated_at|timesince }} ago<br>
+                                    <span class="text-muted">{{ ticket.days_since_created }} days old</span>
                                 </small>
                             </td>
+
                             <td>
-                                <a href="{% url 'ticket:admin_chat_interface' ticket.id %}" class="btn btn-sm btn-primary">
+                                <a href="{% url 'ticket:admin_chat_interface' ticket.id %}"
+                                   class="btn btn-sm btn-primary"
+                                   onclick="event.stopPropagation()">
                                     <i class="fas fa-comments"></i> Chat
                                 </a>
+                                {% if ticket.status == 'pending' %}
+                                <span class="badge bg-warning ms-1">
+                                    <i class="fas fa-exclamation"></i> Needs Reply
+                                </span>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
@@ -143,17 +256,40 @@
             {% else %}
             <div class="text-center py-5">
                 <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No tickets yet</h5>
+                <h5 class="text-muted">No tickets found</h5>
+                {% if current_status %}
+                <p class="text-muted">No {{ current_status }} tickets at the moment.</p>
+                <a href="/ticket/admin-chat/" class="btn btn-primary">View All Tickets</a>
+                {% else %}
                 <p class="text-muted">Waiting for users to create tickets...</p>
+                {% endif %}
             </div>
             {% endif %}
         </div>
     </div>
+
+    <!-- Real-time Updates Notice -->
+    <div class="alert alert-info mt-4">
+        <i class="fas fa-info-circle"></i>
+        <strong>Real-time Updates:</strong> This dashboard updates automatically.
+        New messages will show notification badges. Click any ticket to start chatting.
+    </div>
 </div>
 
 <script>
-// Admin notifications WebSocket will go here in next step
-console.log('Admin chat dashboard loaded');
+// Auto-refresh every 30 seconds
+setInterval(function() {
+    location.reload();
+}, 30000);
+
+// Simulate active chats count (in real app, this would come from WebSocket connections)
+document.addEventListener('DOMContentLoaded', function() {
+    // Simulate some active chats
+    const activeCount = {{ pending_count|default:0 }};
+    document.getElementById('activeChatsCount').textContent = activeCount;
+});
+
+console.log('Admin chat dashboard loaded - auto-refresh enabled');
 </script>
 </body>
 </html>

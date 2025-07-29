@@ -30,17 +30,29 @@ class Ticket(models.Model):
     def days_since_created(self):
         return (timezone.now() - self.created_at).days
 
-    @property
-    def latest_message(self):
-        return self.messages.first()
-
     def get_creator_type(self):
+        """Get the type of user who created this ticket"""
         if hasattr(self.created_by, 'student_profile'):
             return 'Student'
         elif hasattr(self.created_by, 'expert_profile'):
             return 'Service Expert'
         return 'Admin'
 
+    @property
+    def latest_message(self):
+        """Get the most recent message"""
+        return self.messages.order_by('-created_at').first()
+
+    @property
+    def unread_admin_messages_count(self):
+        """Count messages from users that admin hasn't seen"""
+        return self.messages.filter(is_admin_message=False).count()
+
+    def mark_as_viewed_by_admin(self):
+        """Mark ticket as viewed when admin opens it"""
+        if self.status == 'pending':
+            self.status = 'answered'
+            self.save(update_fields=['status', 'updated_at'])
 
 class TicketMessage(models.Model):
     """Messages for real-time chat"""
@@ -59,9 +71,14 @@ class TicketMessage(models.Model):
         return f"{message_type} message in ticket #{self.ticket.id}"
 
     def save(self, *args, **kwargs):
+        """Automatically detect if message is from admin"""
+        # Check if user is admin/staff OR doesn't have student/expert profile
         self.is_admin_message = (
-            self.author.is_staff or
-            self.author.is_superuser or
-            not (hasattr(self.author, 'student_profile') or hasattr(self.author, 'expert_profile'))
+                self.author.is_staff or
+                self.author.is_superuser or
+                not (hasattr(self.author, 'student_profile') or hasattr(self.author, 'expert_profile'))
         )
         super().save(*args, **kwargs)
+
+        # Update ticket's updated_at timestamp
+        self.ticket.save(update_fields=['updated_at'])

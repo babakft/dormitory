@@ -18,6 +18,7 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
+        # Allow both ticket creator and admin staff
         if not await self.has_permission():
             await self.close()
             return
@@ -27,6 +28,8 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
         await self.accept()
+
+        # Send message history immediately after connection
         await self.send_message_history()
 
     async def disconnect(self, close_code):
@@ -47,7 +50,7 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             await self.send(text_data=json.dumps({
                 'type': 'error',
-                'message': str(e)
+                'message': f'Error processing message: {str(e)}'
             }))
 
     async def handle_chat_message(self, data):
@@ -58,6 +61,9 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
 
         # Save message to database
         message = await self.save_message(message_content)
+
+        # Update ticket status based on who sent the message
+        await self.update_ticket_status(message)
 
         # Broadcast to room group
         await self.channel_layer.group_send(
@@ -75,51 +81,55 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
-        # Send notification to admin if user message
-        if not message.is_admin_message:
-            await self.notify_admins(message)  # ADD THIS LINE
-
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
             'type': 'message',
             'message': event['message']
         }))
 
-    async def notify_admins(self, message):  # ADD THIS METHOD
-        """Send notification to all connected admin users"""
-        await self.channel_layer.group_send(
-            'admin_notifications',
-            {
-                'type': 'admin_notification',
-                'data': {
-                    'ticket_id': self.ticket_id,
-                    'message': message.content[:50] + '...' if len(message.content) > 50 else message.content,
-                    'author': message.author.username,
-                    'timestamp': message.created_at.isoformat()
-                }
-            }
-        )
-
     @database_sync_to_async
     def has_permission(self):
+        """Check if user can access this ticket"""
         try:
             ticket = Ticket.objects.get(id=self.ticket_id)
+            # Allow ticket creator OR admin staff
             return (self.user.is_staff or ticket.created_by == self.user)
         except Ticket.DoesNotExist:
             return False
 
     @database_sync_to_async
     def save_message(self, content):
+        """Save message to database with proper admin detection"""
         ticket = Ticket.objects.get(id=self.ticket_id)
+
+        # Create message - the model's save method will set is_admin_message
         message = TicketMessage.objects.create(
             ticket=ticket,
             author=self.user,
             content=content
         )
+
         return message
 
     @database_sync_to_async
+    def update_ticket_status(self, message):
+        """Update ticket status based on who sent the message"""
+        ticket = Ticket.objects.get(id=self.ticket_id)
+
+        if message.is_admin_message:
+            # Admin replied - mark as answered
+            if ticket.status == 'pending':
+                ticket.status = 'answered'
+                ticket.save(update_fields=['status', 'updated_at'])
+        else:
+            # User replied - mark as pending if it was answered
+            if ticket.status == 'answered':
+                ticket.status = 'pending'
+                ticket.save(update_fields=['status', 'updated_at'])
+
+    @database_sync_to_async
     def get_message_history(self):
+        """Get all messages for this ticket"""
         try:
             ticket = Ticket.objects.get(id=self.ticket_id)
             messages = ticket.messages.select_related('author').order_by('created_at')
@@ -138,12 +148,12 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
             return []
 
     async def send_message_history(self):
+        """Send complete message history to newly connected client"""
         messages = await self.get_message_history()
         await self.send(text_data=json.dumps({
             'type': 'message_history',
             'messages': messages
         }))
-
 
 # ADD THIS SECOND CONSUMER CLASS TOO:
 class AdminNotificationConsumer(AsyncWebsocketConsumer):

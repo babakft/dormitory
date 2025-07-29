@@ -1,14 +1,63 @@
-# ticket/views.py
+# ticket/views.py - Fix the import and query
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.views.generic import CreateView, ListView
 from django.urls import reverse_lazy
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Q, Count, Max, F  # Add F import here
 from ticket.models import Ticket
 from ticket.forms import TicketForm
-from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import Q, Count
+
+
+@staff_member_required
+def admin_chat_list(request):
+    """Admin dashboard showing all tickets with proper message counts"""
+
+    # Simplified version without the complex F() query that was causing issues
+    tickets = Ticket.objects.select_related('created_by').annotate(
+        message_count=Count('messages'),
+        # Simplified unread count - count all user messages
+        unread_count=Count('messages', filter=Q(messages__is_admin_message=False))
+    ).prefetch_related('messages').order_by('-updated_at')
+
+    # Filter by status if requested
+    status_filter = request.GET.get('status')
+    if status_filter and status_filter in ['pending', 'answered', 'closed']:
+        tickets = tickets.filter(status=status_filter)
+
+    # Calculate stats
+    all_tickets = Ticket.objects.all()
+    stats = {
+        'total_tickets': all_tickets.count(),
+        'pending_count': all_tickets.filter(status='pending').count(),
+        'answered_count': all_tickets.filter(status='answered').count(),
+        'closed_count': all_tickets.filter(status='closed').count(),
+    }
+
+    context = {
+        'tickets': tickets,
+        'current_status': status_filter,
+        **stats
+    }
+
+    return render(request, 'admin/chat_list.html', context)
+
+
+@staff_member_required
+def admin_chat_interface(request, ticket_id):
+    """Individual ticket chat interface for admin with message history"""
+
+    ticket = get_object_or_404(
+        Ticket.objects.select_related('created_by'),
+        pk=ticket_id
+    )
+
+    # Mark ticket as viewed by admin when they open it
+    if ticket.status == 'pending':
+        ticket.status = 'answered'
 
 class TicketCreateView(LoginRequiredMixin, CreateView):
     """Create new ticket for real-time chat"""
@@ -87,23 +136,33 @@ def ticket_detail(request, pk):
 
 @staff_member_required
 def admin_chat_list(request):
-    """Admin dashboard showing all tickets with chat capability"""
+    """Admin dashboard showing all tickets with proper message counts"""
 
-    # Get tickets with message counts
+    # Simplified version without the complex F() query that was causing issues
     tickets = Ticket.objects.select_related('created_by').annotate(
         message_count=Count('messages'),
+        # Simplified unread count - count all user messages
         unread_count=Count('messages', filter=Q(messages__is_admin_message=False))
-    ).order_by('-updated_at')
+    ).prefetch_related('messages').order_by('-updated_at')
 
     # Filter by status if requested
     status_filter = request.GET.get('status')
-    if status_filter:
+    if status_filter and status_filter in ['pending', 'answered', 'closed']:
         tickets = tickets.filter(status=status_filter)
+
+    # Calculate stats
+    all_tickets = Ticket.objects.all()
+    stats = {
+        'total_tickets': all_tickets.count(),
+        'pending_count': all_tickets.filter(status='pending').count(),
+        'answered_count': all_tickets.filter(status='answered').count(),
+        'closed_count': all_tickets.filter(status='closed').count(),
+    }
 
     context = {
         'tickets': tickets,
-        'status_choices': Ticket.STATUS_CHOICES,
         'current_status': status_filter,
+        **stats
     }
 
     return render(request, 'admin/chat_list.html', context)
@@ -111,20 +170,28 @@ def admin_chat_list(request):
 
 @staff_member_required
 def admin_chat_interface(request, ticket_id):
-    """Individual ticket chat interface for admin"""
+    """Individual ticket chat interface for admin with message history"""
 
     ticket = get_object_or_404(
         Ticket.objects.select_related('created_by'),
         pk=ticket_id
     )
 
-    # Mark ticket as viewed if pending
+    # Mark ticket as viewed by admin when they open it
     if ticket.status == 'pending':
         ticket.status = 'answered'
-        ticket.save()
+        ticket.save(update_fields=['status', 'updated_at'])
+
+    # Get existing messages for display
+    existing_messages = ticket.messages.select_related('author').order_by('created_at')
+
+    # Determine creator type for better display
+    creator_type = ticket.get_creator_type()
 
     context = {
         'ticket': ticket,
+        'existing_messages': existing_messages,
+        'creator_type': creator_type,
     }
 
     return render(request, 'admin/chat_interface.html', context)
