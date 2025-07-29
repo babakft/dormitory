@@ -1,4 +1,4 @@
-from django.shortcuts import redirect,reverse
+from django.shortcuts import redirect
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,7 +12,6 @@ from django.utils.decorators import method_decorator
 from django.db import transaction
 from dormitory.utils.email_service import StudentEmailService
 
-
 class StudentRegisterView(FormView):
     form_class = StudentRegistrationForm
     template_name = 'student/register.html'
@@ -22,14 +21,7 @@ class StudentRegisterView(FormView):
         try:
             with transaction.atomic():
                 student = form.save()
-
-                # Build verification URL
-                verification_url = self.request.build_absolute_uri(
-                    reverse('verify_email', kwargs={'token': student.verification_token})
-                )
-
-                # Send async verification email
-                StudentEmailService.send_verification_email.delay(student.id, verification_url)
+                StudentEmailService.send_verification_email(student, self.request)
 
             messages.success(
                 self.request,
@@ -76,16 +68,11 @@ class StudentLoginView(LoginView):
         return reverse_lazy('student_dashboard')
 
     def dispatch(self, request, *args, **kwargs):
-        # If user is authenticated and is an approved student, redirect to dashboard
         if request.user.is_authenticated and request.user.is_approved_student():
             return redirect('student_dashboard')
-
-        # If user is authenticated but is not a student (e.g., service expert),
-        # don't automatically logout - let them choose
-        if request.user.is_authenticated and hasattr(request.user, 'expert_profile'):
-            messages.info(request,
-                          'You are currently logged in as a service expert. Please logout first to login as a student.')
-
+        elif request.user.is_authenticated:
+            logout(request)
+            messages.warning(request, 'Please login with a valid student account.')
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -94,20 +81,9 @@ class StudentLoginView(LoginView):
             messages.error(self.request, user.student_profile.get_login_error_message())
             return self.form_invalid(form)
 
-        # If there was a previous user logged in, logout first
-        if self.request.user.is_authenticated:
-            logout(self.request)
-
-        # Set the backend attribute on the user
-        user.backend = 'student.backends.StudentNumberBackend'
-
-        # Login the new user
-        login(self.request, user)
-
         messages.success(self.request, f'Welcome back, {user.username}!')
+        return super().form_valid(form)
 
-        # Redirect to success URL
-        return redirect(self.get_success_url())
 
 class StudentLogoutView(LoginRequiredMixin, LogoutView):
     next_page = reverse_lazy('student_login')

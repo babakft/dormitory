@@ -1,19 +1,16 @@
+<!-- templates/ticket/ticket_list.html -->
 {% extends 'base.html' %}
 
 {% block title %}My Tickets{% endblock %}
 
 {% block content %}
 <div class="container-fluid mt-4">
-    <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h2>
-                        <i class="fas fa-ticket-alt text-primary"></i>
-                        My Tickets
-                    </h2>
-                    <p class="text-muted mb-0">View and manage your support tickets</p>
+                    <h2><i class="fas fa-ticket-alt text-primary"></i> My Tickets</h2>
+                    <p class="text-muted mb-0">Real-time chat with administration</p>
                 </div>
                 <div>
                     <a href="{% url 'ticket:create' %}" class="btn btn-primary">
@@ -26,245 +23,109 @@
 
     <!-- Stats Cards -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5 class="card-title">Total Tickets</h5>
+                            <h5>Total Tickets</h5>
                             <h3>{{ total_tickets }}</h3>
                         </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-ticket-alt fa-2x"></i>
-                        </div>
+                        <i class="fas fa-ticket-alt fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="card bg-warning text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5 class="card-title">Pending</h5>
+                            <h5>Pending</h5>
                             <h3>{{ pending_tickets }}</h3>
                         </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-clock fa-2x"></i>
-                        </div>
+                        <i class="fas fa-clock fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5 class="card-title">Answered</h5>
-                            <h3>{{ answered_tickets }}</h3>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-reply fa-2x"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <h5 class="card-title">Closed</h5>
-                            <h3>{{ closed_tickets }}</h3>
+                            <h5>Answered</h5>
+                            <h3>{{ answered_tickets }}</h3>
                         </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-check-circle fa-2x"></i>
-                        </div>
+                        <i class="fas fa-reply fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tickets List -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">My Tickets</h5>
-                    <a href="{% url 'ticket:create' %}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> New Ticket
-                    </a>
-                </div>
-                <div class="card-body">
-                    {% if tickets %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Title</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th>Last Activity</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for ticket in tickets %}
-                            <tr>
-                                <td>
-                                    <strong>#{{ ticket.id }}</strong>
-                                </td>
-                                <td>
-                                    <strong>{{ ticket.title }}</strong>
-                                    <br>
-                                    <small class="text-muted">{{ ticket.description|truncatechars:50 }}</small>
-                                </td>
-                                <td>
-                                    {% if ticket.status == 'pending' %}
-                                    <span class="badge bg-warning">Pending</span>
-                                    {% elif ticket.status == 'viewed' %}
-                                    <span class="badge bg-info">Viewed</span>
-                                    {% elif ticket.status == 'answered' %}
-                                    <span class="badge bg-success">Answered</span>
-                                    {% elif ticket.status == 'closed' %}
-                                    <span class="badge bg-secondary">Closed</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <small>
-                                        {{ ticket.created_at|date:"M d, Y" }}<br>
-                                        <span class="text-muted">{{ ticket.days_since_created }} days ago</span>
-                                    </small>
-                                </td>
-                                <td>
-                                    <small>
-                                        {{ ticket.updated_at|date:"M d, Y H:i" }}<br>
-                                        {% if ticket.latest_message %}
-                                        <span class="text-muted">
-                                            {% if ticket.latest_message.is_admin_message %}
-                                                Admin replied
-                                            {% else %}
-                                                You replied
-                                            {% endif %}
-                                        </span>
-                                        {% endif %}
-                                    </small>
-                                </td>
-                                <td>
-                                    <a href="{% url 'ticket:detail' ticket.pk %}" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                    {% if ticket.status != 'closed' %}
-                                    <a href="{% url 'ticket:reply' ticket.pk %}" class="btn btn-sm btn-outline-success">
-                                        <i class="fas fa-reply"></i> Reply
-                                    </a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Pagination -->
-                    {% if is_paginated %}
-                    <nav aria-label="Tickets pagination">
-                        <ul class="pagination justify-content-center mt-3">
-                            {% if page_obj.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                            </li>
-                            {% endif %}
-
-                            {% for num in page_obj.paginator.page_range %}
-                            {% if page_obj.number == num %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ num }}</span>
-                            </li>
-                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                            </li>
-                            {% endif %}
-                            {% endfor %}
-
-                            {% if page_obj.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                            </li>
-                            {% endif %}
-                        </ul>
-                    </nav>
-                    {% endif %}
-
-                    {% else %}
-                    <div class="text-center py-5">
-                        <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">No tickets yet</h5>
-                        <p class="text-muted">Create your first ticket to get support from administration.</p>
-                        <a href="{% url 'ticket:create' %}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Create Ticket
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
+    <!-- Tickets Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">My Tickets</h5>
+        </div>
+        <div class="card-body">
+            {% if tickets %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td><strong>#{{ ticket.id }}</strong></td>
+                            <td>
+                                <strong>{{ ticket.title }}</strong><br>
+                                <small class="text-muted">{{ ticket.description|truncatechars:50 }}</small>
+                            </td>
+                            <td>
+                                {% if ticket.status == 'pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% elif ticket.status == 'answered' %}
+                                <span class="badge bg-success">Answered</span>
+                                {% elif ticket.status == 'closed' %}
+                                <span class="badge bg-secondary">Closed</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>
+                                    {{ ticket.created_at|date:"M d, Y" }}<br>
+                                    <span class="text-muted">{{ ticket.days_since_created }} days ago</span>
+                                </small>
+                            </td>
+                            <td>
+                                <a href="{% url 'ticket:detail' ticket.pk %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-comments"></i> Chat
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No tickets yet</h5>
+                <p class="text-muted">Create your first ticket to start chatting with admin.</p>
+                <a href="{% url 'ticket:create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create Ticket
+                </a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
-
-<style>
-    .card {
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        border: 1px solid rgba(0, 0, 0, 0.125);
-    }
-
-    .card-header {
-        background-color: #f8f9fa;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-    }
-
-    .table th {
-        border-top: none;
-        font-weight: 600;
-    }
-
-    .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .badge {
-        font-size: 0.75em;
-    }
-
-    /* Stats card hover effects */
-    .card:hover {
-        transform: translateY(-2px);
-        transition: transform 0.2s ease-in-out;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .container-fluid {
-            padding: 0 15px;
-        }
-
-        .table-responsive {
-            font-size: 0.9em;
-        }
-
-        .btn {
-            font-size: 0.85em;
-        }
-    }
-</style>
 {% endblock %}
