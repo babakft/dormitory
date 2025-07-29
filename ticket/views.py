@@ -10,12 +10,8 @@ from django.db.models import Q, Count, Max
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
-import json
-
-# Add these imports for image upload
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-
 from ticket.models import Ticket, TicketMessage
 from ticket.forms import TicketForm, ChatImageUploadForm
 
@@ -156,11 +152,14 @@ def upload_chat_image(request, ticket_id):
 def admin_chat_list(request):
     """Admin dashboard showing all tickets with proper message counts"""
 
-    # Simplified version without the complex F() query that was causing issues
+    # Updated query to count only unread messages
     tickets = Ticket.objects.select_related('created_by').annotate(
         message_count=Count('messages'),
-        # Simplified unread count - count all user messages
-        unread_count=Count('messages', filter=Q(messages__is_admin_message=False))
+        # Count only unread user messages
+        unread_count=Count('messages', filter=Q(
+            messages__is_admin_message=False,
+            messages__read_by_admin=False
+        ))
     ).prefetch_related('messages').order_by('-updated_at')
 
     # Filter by status if requested
@@ -199,6 +198,9 @@ def admin_chat_interface(request, ticket_id):
     if ticket.status == 'pending':
         ticket.status = 'answered'
         ticket.save(update_fields=['status', 'updated_at'])
+
+    # NEW: Mark all user messages as read by admin
+    ticket.messages.filter(is_admin_message=False, read_by_admin=False).update(read_by_admin=True)
 
     # Get existing messages for display
     existing_messages = ticket.messages.select_related('author').order_by('created_at')

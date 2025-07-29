@@ -291,5 +291,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 console.log('Admin chat dashboard loaded - auto-refresh enabled');
 </script>
+<script>
+// Auto-refresh every 10 seconds to update unread counts
+setInterval(function() {
+    // Only refresh if no modal or form is open
+    if (!document.querySelector('.modal.show') && !document.activeElement.matches('input, textarea')) {
+        location.reload();
+    }
+}, 10000);
+</script>
 </body>
 </html>

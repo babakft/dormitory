@@ -5,8 +5,6 @@ from student.models import User
 
 
 class Ticket(models.Model):
-    """Ticket system for real-time chat with admin"""
-
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('answered', 'Answered'),
@@ -45,11 +43,9 @@ class Ticket(models.Model):
 
     @property
     def unread_admin_messages_count(self):
-        """Count messages from users that admin hasn't seen"""
         return self.messages.filter(is_admin_message=False).count()
 
     def mark_as_viewed_by_admin(self):
-        """Mark ticket as viewed when admin opens it"""
         if self.status == 'pending':
             self.status = 'answered'
             self.save(update_fields=['status', 'updated_at'])
@@ -62,6 +58,7 @@ class TicketMessage(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ticket_messages')
     content = models.TextField()
     is_admin_message = models.BooleanField(default=False)
+    read_by_admin = models.BooleanField(default=False)
 
     # Add image field
     image = models.ImageField(

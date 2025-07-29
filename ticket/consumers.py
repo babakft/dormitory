@@ -1,4 +1,4 @@
-# ticket/consumers.py
+# ticket/consumers.py - Complete with Read Tracking
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
@@ -31,6 +31,10 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
 
         # Send message history immediately after connection
         await self.send_message_history()
+
+        # NEW: Mark messages as read if admin connects
+        if self.user.is_staff:
+            await self.mark_messages_as_read()
 
     async def disconnect(self, close_code):
         if hasattr(self, 'room_group_name'):
@@ -76,7 +80,9 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
                     'author': message.author.username,
                     'is_admin_message': message.is_admin_message,
                     'created_at': message.created_at.isoformat(),
-                    'author_type': 'admin' if message.is_admin_message else 'user'
+                    'author_type': 'admin' if message.is_admin_message else 'user',
+                    'has_image': message.has_image,
+                    'image_url': message.image_url,
                 }
             }
         )
@@ -142,8 +148,24 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
             'messages': messages
         }))
 
+    # NEW: Mark messages as read when admin connects
+    @database_sync_to_async
+    def mark_messages_as_read(self):
+        """Mark all user messages as read when admin connects"""
+        try:
+            ticket = Ticket.objects.get(id=self.ticket_id)
+            # Mark all unread user messages as read
+            updated_count = ticket.messages.filter(
+                is_admin_message=False,
+                read_by_admin=False
+            ).update(read_by_admin=True)
 
-# ADD THIS SECOND CONSUMER CLASS TOO:
+            print(f"Admin connected to ticket #{self.ticket_id}: Marked {updated_count} messages as read")
+
+        except Ticket.DoesNotExist:
+            pass
+
+
 class AdminNotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]
