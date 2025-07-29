@@ -11,17 +11,21 @@ def ticket_message_notification(sender, instance, created, **kwargs):
     if created:  # Only for new messages
         ticket = instance.ticket
 
+        # Don't change status if ticket is already closed
+        if ticket.status == 'closed':
+            return
+
         if instance.is_admin_message:
-            # Admin replied to ticket
-            ticket.status = 'answered'
-            ticket.save()
+            # Admin replied to ticket - only change to answered if not closed
+            if ticket.status != 'closed':
+                ticket.status = 'answered'
+                ticket.save()
 
             # Send email notification to ticket creator
             TicketEmailService.send_admin_reply_notification(ticket, instance)
 
         else:
-            # User replied to ticket
+            # User replied to ticket - only change to pending if was answered and not closed
             if ticket.status == 'answered':
-                # Change status back to pending if user replies after admin answer
                 ticket.status = 'pending'
                 ticket.save()

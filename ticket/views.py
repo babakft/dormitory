@@ -221,8 +221,26 @@ def admin_chat_interface(request, ticket_id):
 def close_ticket(request, ticket_id):
     """Admin closes a ticket"""
     ticket = get_object_or_404(Ticket, pk=ticket_id)
+    print(f"DEBUG: Current ticket status: {ticket.status}")
+    if ticket.status != 'closed':
+        # Close the ticket
+        result = ticket.close_ticket(closed_by_admin=request.user)
+        print(f"DEBUG: Close ticket result: {result}")
+        # Broadcast closure to WebSocket
+        ticket.refresh_from_db()
+        print(f"DEBUG: New ticket status: {ticket.status}")
 
-    if ticket.close_ticket(closed_by_admin=request.user):
+
+        channel_layer = get_channel_layer()
+        if channel_layer:
+            async_to_sync(channel_layer.group_send)(
+                f'ticket_{ticket_id}',
+                {
+                    'type': 'ticket_closed',
+                    'message': 'This ticket has been closed by admin. No further messages can be sent.'
+                }
+            )
+
         messages.success(request, f'Ticket #{ticket.id} has been closed.')
     else:
         messages.warning(request, f'Ticket #{ticket.id} is already closed.')

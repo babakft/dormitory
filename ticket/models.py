@@ -53,10 +53,11 @@ class Ticket(models.Model):
     def close_ticket(self, closed_by_admin=None):
         """Close ticket and prevent further messages"""
         if self.status != 'closed':
+            # Update status and save
             self.status = 'closed'
             self.save(update_fields=['status', 'updated_at'])
 
-            # Log closure in messages
+            # Add closure message
             if closed_by_admin:
                 TicketMessage.objects.create(
                     ticket=self,
@@ -64,6 +65,7 @@ class Ticket(models.Model):
                     content="🔒 This ticket has been closed by admin. No further messages can be sent.",
                     is_admin_message=True
                 )
+
             return True
         return False
 
