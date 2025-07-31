@@ -1,4 +1,3 @@
-# ticket/views.py - Complete with Image Upload
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -6,14 +5,15 @@ from django.contrib import messages
 from django.views.generic import CreateView, ListView
 from django.urls import reverse_lazy
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models import Q, Count, Max
+from django.db.models import Q, Count
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from ticket.models import Ticket, TicketMessage
-from ticket.forms import TicketForm, ChatImageUploadForm
+from ticket.forms import TicketForm
+from notification.views import AutoMarkViewedMixin
 
 
 class TicketCreateView(LoginRequiredMixin, CreateView):
@@ -152,6 +152,11 @@ def upload_chat_image(request, ticket_id):
 def admin_chat_list(request):
     """Admin dashboard showing all tickets with proper message counts"""
 
+    # Mark tickets as viewed
+    from notification.models import AdminActivityTracker
+    AdminActivityTracker.mark_as_viewed(request.user, 'tickets')
+    AdminActivityTracker.mark_as_viewed(request.user, 'ticket_messages')
+
     # Updated query to count only unread messages
     tickets = Ticket.objects.select_related('created_by').annotate(
         message_count=Count('messages'),
@@ -229,7 +234,6 @@ def close_ticket(request, ticket_id):
         # Broadcast closure to WebSocket
         ticket.refresh_from_db()
         print(f"DEBUG: New ticket status: {ticket.status}")
-
 
         channel_layer = get_channel_layer()
         if channel_layer:

@@ -1,0 +1,81 @@
+<!-- notification/templates/notification/dropdown_fragment.html -->
+<div class="dropdown-header bg-light">
+    <strong>New Notifications</strong>
+</div>
+
+<div class="list-group list-group-flush">
+    {% if counts.student_registrations > 0 %}
+    <a href="/admin/student/student/?registration_status__exact=pending"
+       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+       hx-post="{% url 'notification:mark_viewed' 'student_registrations' %}"
+       hx-trigger="click">
+        <div>
+            <i class="fas fa-user-plus text-primary me-2"></i>
+            <span>New Student Registrations</span>
+        </div>
+        <span class="badge bg-primary rounded-pill">{{ counts.student_registrations }}</span>
+    </a>
+    {% endif %}
+
+    {% if counts.maintenance_requests > 0 %}
+    <a href="/admin/maintenance/maintenancerequest/"
+       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+       hx-post="{% url 'notification:mark_viewed' 'maintenance_requests' %}"
+       hx-trigger="click">
+        <div>
+            <i class="fas fa-tools text-warning me-2"></i>
+            <span>New Maintenance Requests</span>
+        </div>
+        <span class="badge bg-warning rounded-pill">{{ counts.maintenance_requests }}</span>
+    </a>
+    {% endif %}
+
+    {% if counts.tickets > 0 %}
+    <a href="/ticket/admin-chat/"
+       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+       hx-post="{% url 'notification:mark_viewed' 'tickets' %}"
+       hx-trigger="click">
+        <div>
+            <i class="fas fa-ticket-alt text-info me-2"></i>
+            <span>New Tickets</span>
+        </div>
+        <span class="badge bg-info rounded-pill">{{ counts.tickets }}</span>
+    </a>
+    {% endif %}
+
+    {% if counts.ticket_messages > 0 %}
+    <a href="/ticket/admin-chat/"
+       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+       hx-post="{% url 'notification:mark_viewed' 'ticket_messages' %}"
+       hx-trigger="click">
+        <div>
+            <i class="fas fa-comment text-success me-2"></i>
+            <span>New Messages</span>
+        </div>
+        <span class="badge bg-success rounded-pill">{{ counts.ticket_messages }}</span>
+    </a>
+    {% endif %}
+
+    {% if counts.maintenance_status_changes > 0 %}
+    <a href="/admin/maintenance/maintenancerequest/?status__in=approved,rejected,completed"
+       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+       hx-post="{% url 'notification:mark_viewed' 'maintenance_status_changes' %}"
+       hx-trigger="click">
+        <div>
+            <i class="fas fa-sync text-secondary me-2"></i>
+            <span>Status Changes</span>
+        </div>
+        <span class="badge bg-secondary rounded-pill">{{ counts.maintenance_status_changes }}</span>
+    </a>
+    {% endif %}
+
+    {% if counts.total == 0 %}
+    <div class="list-group-item text-center text-muted">
+        <i class="fas fa-check-circle"></i> No new notifications
+    </div>
+    {% endif %}
+</div>
+
+<div class="dropdown-footer bg-light p-2 text-center">
+    <small class="text-muted">Click items to mark as viewed</small>
+</div>

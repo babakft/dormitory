@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'service.apps.ServiceConfig',
     'maintenance.apps.MaintenanceConfig',
     'ticket.apps.TicketConfig',
+    'notification.apps.NotificationConfig',
     'channels',
 ]
 

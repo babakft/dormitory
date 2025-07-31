@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.db.models import Q
 from maintenance.models import MaintenanceRequest, MaintenanceImage
 from service.models import ServiceExpert
-
+from notification.views import AutoMarkViewedMixin
 
 class MaintenanceImageInline(admin.TabularInline):
     """Inline for viewing maintenance images"""
@@ -25,7 +25,8 @@ class MaintenanceImageInline(admin.TabularInline):
 
 
 @admin.register(MaintenanceRequest)
-class MaintenanceRequestAdmin(admin.ModelAdmin):
+class MaintenanceRequestAdmin(AutoMarkViewedMixin, admin.ModelAdmin):
+    activity_type = 'maintenance_requests'
     list_display = [
         'id',
         'title_with_truncation',

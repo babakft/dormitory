@@ -81,8 +81,20 @@ class StudentLoginView(LoginView):
             messages.error(self.request, user.student_profile.get_login_error_message())
             return self.form_invalid(form)
 
+        # If there was a previous user logged in, logout first
+        if self.request.user.is_authenticated:
+            logout(self.request)
+
+        # Set the backend attribute on the user
+        user.backend = 'student.backends.StudentNumberBackend'
+
+        # Login the new user
+        login(self.request, user)
+
         messages.success(self.request, f'Welcome back, {user.username}!')
-        return super().form_valid(form)
+
+        # Redirect to success URL
+        return redirect(self.get_success_url())
 
 
 class StudentLogoutView(LoginRequiredMixin, LogoutView):

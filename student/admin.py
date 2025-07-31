@@ -3,13 +3,10 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib import messages
 from django.utils.timezone import now
 from student.models import User, Student, Room, Building
-from django.core.mail import send_mail
-from django.conf import settings
-from django.template.loader import render_to_string
 from django.db import transaction
 from dormitory.utils.password_generator import PasswordGenerator
 from dormitory.utils.email_service import StudentEmailService
-
+from notification.views import AutoMarkViewedMixin
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
@@ -37,7 +34,11 @@ class UserAdmin(BaseUserAdmin):
 
 
 @admin.register(Student)
-class StudentAdmin(admin.ModelAdmin):
+class StudentAdmin(AutoMarkViewedMixin, admin.ModelAdmin):
+    # For Notification
+    activity_type = 'student_registrations'
+    #
+
     list_display = ['student_number', 'username', 'email', 'room_info',
                     'registration_status', 'is_active_status', 'created_at']
     list_filter = ['registration_status', 'room__building', 'room__floor', 'created_at']
@@ -55,6 +56,8 @@ class StudentAdmin(admin.ModelAdmin):
             'fields': ('registration_status', 'processed_by_name', 'processed_at', 'rejection_reason')
         }),
     )
+
+
 
     def username(self, obj):
         return obj.user.username
