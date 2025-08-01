@@ -55,20 +55,6 @@
                 </a>
                 {% endif %}
 
-                {% if counts.maintenance_status_changes > 0 %}
-                <a href="/admin/maintenance/maintenancerequest/?status__in=approved,rejected,in_progress,completed"
-                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center notification-item"
-                   data-activity-type="maintenance_status_changes"
-                   style="color: #000; text-decoration: none;">
-                    <div>
-                        <i class="fas fa-sync text-info me-2"></i>
-                        <span>Maintenance Updates</span>
-                        <small class="d-block text-muted">Approved, Rejected, In Progress, Completed</small>
-                    </div>
-                    <span class="badge bg-info text-white rounded-pill">{{ counts.maintenance_status_changes }}</span>
-                </a>
-                {% endif %}
-
                 {% if counts.tickets > 0 %}
                 <a href="/ticket/admin-chat/"
                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center notification-item"
@@ -120,20 +106,16 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle notification item clicks with JavaScript instead of HTMX
     document.addEventListener('click', function(e) {
         if (e.target.closest('.notification-item')) {
             const item = e.target.closest('.notification-item');
             const activityType = item.getAttribute('data-activity-type');
             const href = item.getAttribute('href');
 
-            // Prevent default navigation temporarily
             e.preventDefault();
 
-            // Get CSRF token
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            // Mark as viewed via fetch
             fetch(`/admin/notifications/mark-viewed/${activityType}/`, {
                 method: 'POST',
                 headers: {
@@ -144,13 +126,9 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => response.json())
             .then(data => {
-                console.log('Marked as viewed:', data);
-                // Navigate to the intended page
                 window.location.href = href;
             })
             .catch(error => {
-                console.error('Error marking as viewed:', error);
-                // Navigate anyway
                 window.location.href = href;
             });
         }

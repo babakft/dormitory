@@ -26,8 +26,7 @@ class MaintenanceImageInline(admin.TabularInline):
 
 @admin.register(MaintenanceRequest)
 class MaintenanceRequestAdmin(admin.ModelAdmin):
-    # This will handle multiple activity types based on the current view
-    activity_type = 'maintenance_requests'  # Default
+    activity_type = 'maintenance_requests'
 
     list_display = [
         'id',
@@ -66,29 +65,10 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
     ]
 
     def dispatch(self, request, *args, **kwargs):
-        """Mark appropriate activity types as viewed based on URL filters"""
+        """Mark maintenance requests as viewed when admin accesses them"""
         if request.user.is_staff:
-            # Get URL parameters
-            status_filter = request.GET.get('status')
-            status_in_filter = request.GET.get('status__in')
-
-            print(f"DEBUG: Maintenance admin accessed with status={status_filter}, status__in={status_in_filter}")
-
-            # Determine which activity to mark based on filters
-            if status_filter == 'pending':
-                AdminActivityTracker.mark_as_viewed(request.user, 'maintenance_requests')
-            elif status_filter in ['approved', 'rejected', 'in_progress', 'completed']:
-                # ALL non-pending statuses are considered "status changes"
-                AdminActivityTracker.mark_as_viewed(request.user, 'maintenance_status_changes')
-            elif status_in_filter:
-                # Handle status__in filters
-                if any(status in status_in_filter for status in ['approved', 'rejected', 'in_progress', 'completed']):
-                    AdminActivityTracker.mark_as_viewed(request.user, 'maintenance_status_changes')
-                elif 'pending' in status_in_filter:
-                    AdminActivityTracker.mark_as_viewed(request.user, 'maintenance_requests')
-            else:
-                # Default view - mark general maintenance requests as viewed
-                AdminActivityTracker.mark_as_viewed(request.user, 'maintenance_requests')
+            from notification.models import AdminActivityTracker
+            AdminActivityTracker.mark_as_viewed(request.user, 'maintenance_requests')
 
         return super().dispatch(request, *args, **kwargs)
 
