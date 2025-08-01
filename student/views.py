@@ -21,7 +21,7 @@ class StudentRegisterView(FormView):
         try:
             with transaction.atomic():
                 student = form.save()
-                StudentEmailService.send_verification_email(student, self.request)
+                StudentEmailService.send_verification_email(student.id, self.request)
 
             messages.success(
                 self.request,

@@ -97,15 +97,23 @@ class ServiceDashboardView(TemplateView):
 
 @login_required(login_url='service_login')
 def claim_request(request, request_id):
+    """Expert claims a maintenance request"""
     from maintenance.models import MaintenanceRequest
+
     maintenance_request = get_object_or_404(MaintenanceRequest, id=request_id)
     expert = request.user.expert_profile
 
     try:
-        expert.claim_request(maintenance_request)
-        messages.success(request, f'Successfully claimed request: {maintenance_request.title}')
+        with transaction.atomic():
+            # Use the model method which properly updates timestamps
+            maintenance_request.assign_to_expert(expert)
+
+            messages.success(request, f'Successfully claimed request: {maintenance_request.title}')
+            print(f"DEBUG: Expert {expert.user.username} claimed request {maintenance_request.id}")
+
     except ValueError as e:
         messages.error(request, str(e))
+        print(f"ERROR: Failed to claim request {maintenance_request.id}: {e}")
 
     return redirect('service_dashboard')
 
@@ -146,6 +154,7 @@ def service_expert_required(view_func):
 def start_work(request, request_id):
     """Expert starts work on maintenance request"""
     from maintenance.models import MaintenanceRequest
+
     maintenance_request = get_object_or_404(
         MaintenanceRequest,
         id=request_id,
@@ -157,11 +166,18 @@ def start_work(request, request_id):
         form = StartWorkForm(request.POST)
         if form.is_valid():
             try:
-                maintenance_request.start_work(form.cleaned_data['expert_notes'])
-                messages.success(request, f'Work started on: {maintenance_request.title}')
+                with transaction.atomic():
+                    # Use the model method which properly updates timestamps
+                    maintenance_request.start_work(form.cleaned_data['expert_notes'])
+
+                    messages.success(request, f'Work started on: {maintenance_request.title}')
+                    print(
+                        f"DEBUG: Expert {request.user.expert_profile.user.username} started work on request {maintenance_request.id}")
+
                 return redirect('service_dashboard')
             except ValueError as e:
                 messages.error(request, str(e))
+                print(f"ERROR: Failed to start work on request {maintenance_request.id}: {e}")
     else:
         form = StartWorkForm()
 
@@ -175,6 +191,7 @@ def start_work(request, request_id):
 def complete_work(request, request_id):
     """Expert completes maintenance request"""
     from maintenance.models import MaintenanceRequest
+
     maintenance_request = get_object_or_404(
         MaintenanceRequest,
         id=request_id,
@@ -187,14 +204,20 @@ def complete_work(request, request_id):
         if form.is_valid():
             try:
                 with transaction.atomic():
+                    # Use the model method which properly updates timestamps
                     maintenance_request.complete_work(
                         completion_notes=form.cleaned_data['completion_notes'],
                         completion_image=form.cleaned_data['completion_image']
                     )
+
                 messages.success(request, f'Work completed on: {maintenance_request.title}')
+                print(
+                    f"DEBUG: Expert {request.user.expert_profile.user.username} completed work on request {maintenance_request.id}")
+
                 return redirect('service_dashboard')
             except ValueError as e:
                 messages.error(request, str(e))
+                print(f"ERROR: Failed to complete work on request {maintenance_request.id}: {e}")
     else:
         form = CompleteWorkForm()
 

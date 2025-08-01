@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.db.models import Q
 from maintenance.models import MaintenanceRequest, MaintenanceImage
 from service.models import ServiceExpert
-from notification.views import AutoMarkViewedMixin
+from notification.models import AdminActivityTracker
 
 class MaintenanceImageInline(admin.TabularInline):
     """Inline for viewing maintenance images"""
@@ -25,8 +25,10 @@ class MaintenanceImageInline(admin.TabularInline):
 
 
 @admin.register(MaintenanceRequest)
-class MaintenanceRequestAdmin(AutoMarkViewedMixin, admin.ModelAdmin):
-    activity_type = 'maintenance_requests'
+class MaintenanceRequestAdmin(admin.ModelAdmin):
+    # This will handle multiple activity types based on the current view
+    activity_type = 'maintenance_requests'  # Default
+
     list_display = [
         'id',
         'title_with_truncation',
@@ -63,32 +65,32 @@ class MaintenanceRequestAdmin(AutoMarkViewedMixin, admin.ModelAdmin):
         'issue_image_preview', 'completion_image_preview', 'feedback_at'
     ]
 
-    fieldsets = (
-        ('Request Information', {
-            'fields': ('student', 'title', 'description', 'service_type', 'room')
-        }),
-        ('Images', {
-            'fields': ('issue_image_preview', 'completion_image_preview'),
-            'classes': ('collapse',)
-        }),
-        ('Status & Priority', {
-            'fields': ('status', 'priority', 'rejection_reason')
-        }),
-        ('Assignment', {
-            'fields': ('assigned_expert', 'assigned_at', 'expert_notes')
-        }),
-        ('Work Progress', {
-            'fields': ('work_started_at', 'completion_notes', 'completed_at')
-        }),
-        ('Student Feedback', {
-            'fields': ('student_rating', 'student_feedback', 'feedback_at'),
-            'classes': ('collapse',)
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at', 'days_since_created'),
-            'classes': ('collapse',)
-        })
-    )
+    def dispatch(self, request, *args, **kwargs):
+        """Mark appropriate activity types as viewed based on URL filters"""
+        if request.user.is_staff:
+            # Get URL parameters
+            status_filter = request.GET.get('status')
+            status_in_filter = request.GET.get('status__in')
+
+            print(f"DEBUG: Maintenance admin accessed with status={status_filter}, status__in={status_in_filter}")
+
+            # Determine which activity to mark based on filters
+            if status_filter == 'pending':
+                AdminActivityTracker.mark_as_viewed(request.user, 'maintenance_requests')
+            elif status_filter in ['approved', 'rejected', 'in_progress', 'completed']:
+                # ALL non-pending statuses are considered "status changes"
+                AdminActivityTracker.mark_as_viewed(request.user, 'maintenance_status_changes')
+            elif status_in_filter:
+                # Handle status__in filters
+                if any(status in status_in_filter for status in ['approved', 'rejected', 'in_progress', 'completed']):
+                    AdminActivityTracker.mark_as_viewed(request.user, 'maintenance_status_changes')
+                elif 'pending' in status_in_filter:
+                    AdminActivityTracker.mark_as_viewed(request.user, 'maintenance_requests')
+            else:
+                # Default view - mark general maintenance requests as viewed
+                AdminActivityTracker.mark_as_viewed(request.user, 'maintenance_requests')
+
+        return super().dispatch(request, *args, **kwargs)
 
     inlines = [MaintenanceImageInline]
 

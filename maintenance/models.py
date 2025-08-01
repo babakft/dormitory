@@ -1,3 +1,4 @@
+# maintenance/models.py - FINAL FIX
 from django.db import models
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -86,15 +87,22 @@ class MaintenanceRequest(models.Model):
     student_feedback = models.TextField(blank=True)
     feedback_at = models.DateTimeField(null=True, blank=True)
 
-    # Timestamps
+    # Timestamps - CRITICAL FIX: Remove auto_now and handle manually
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(default=timezone.now)  # Changed from auto_now=True
 
     class Meta:
         ordering = ['-created_at']
 
     def __str__(self):
         return f"{self.title} - {self.student.user.username} ({self.get_status_display()})"
+
+    def save(self, *args, **kwargs):
+        """Override save to ALWAYS update updated_at timestamp"""
+        # ALWAYS update the timestamp on save
+        self.updated_at = timezone.now()
+        print(f"DEBUG: Saving request {getattr(self, 'id', 'NEW')} - Setting updated_at to {self.updated_at}")
+        super().save(*args, **kwargs)
 
     @property
     def full_location(self):
@@ -104,9 +112,8 @@ class MaintenanceRequest(models.Model):
     def days_since_created(self):
         return (timezone.now() - self.created_at).days
 
-    # Add these methods to your existing MaintenanceRequest class
-
     def assign_to_expert(self, expert):
+        """Assign request to expert and update timestamps"""
         if self.assigned_expert:
             raise ValueError("Request already assigned to an expert")
 
@@ -115,20 +122,33 @@ class MaintenanceRequest(models.Model):
 
         self.assigned_expert = expert
         self.assigned_at = timezone.now()
-        self.save()
+        # Don't set updated_at here - let save() handle it
+        self.save()  # This will trigger updated_at update
+
+        print(f"DEBUG: Request {self.id} assigned to expert {expert.user.username}")
 
     def start_work(self, expert_notes=""):
+        """Start work and update status"""
+        old_status = self.status
         self.status = 'in_progress'
         self.work_started_at = timezone.now()
         if expert_notes:
             self.expert_notes = expert_notes
-        self.save()
+
+        # Don't set updated_at here - let save() handle it
+        self.save()  # This will trigger updated_at update
+
+        print(f"DEBUG: Request {self.id} status changed from {old_status} to {self.status}")
 
     def complete_work(self, completion_notes, completion_image=None):
+        """Complete work and update status"""
+        old_status = self.status
         self.status = 'completed'
         self.completion_notes = completion_notes
         self.completed_at = timezone.now()
-        self.save()
+
+        # Don't set updated_at here - let save() handle it
+        self.save()  # This will trigger updated_at update
 
         if completion_image:
             MaintenanceImage.objects.create(
@@ -136,6 +156,8 @@ class MaintenanceRequest(models.Model):
                 image=completion_image,
                 image_type='completion'
             )
+
+        print(f"DEBUG: Request {self.id} status changed from {old_status} to {self.status}")
 
 
 class MaintenanceImage(models.Model):

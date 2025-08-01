@@ -49,6 +49,7 @@ class MaintenanceRequestCreateView(LoginRequiredMixin, CreateView):
 @login_required(login_url='student_login')
 def maintenance_request_detail(request, pk):
     """View individual maintenance request details"""
+
     maintenance_request = get_object_or_404(
         MaintenanceRequest.objects.select_related(
             'student__user', 'room__building', 'assigned_expert__user'

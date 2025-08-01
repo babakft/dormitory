@@ -1,3 +1,4 @@
+# notification/models.py
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -11,9 +12,9 @@ class AdminActivityTracker(models.Model):
     ACTIVITY_TYPES = [
         ('student_registrations', 'Student Registrations'),
         ('maintenance_requests', 'Maintenance Requests'),
+        ('maintenance_status_changes', 'Maintenance Status Changes'),
         ('tickets', 'Tickets'),
         ('ticket_messages', 'Ticket Messages'),
-        ('maintenance_status_changes', 'Maintenance Status Changes'),
     ]
 
     admin_user = models.ForeignKey(
@@ -39,6 +40,12 @@ class AdminActivityTracker(models.Model):
         if not user.is_staff:
             return
 
+        # Validate activity_type
+        valid_types = [choice[0] for choice in cls.ACTIVITY_TYPES]
+        if activity_type not in valid_types:
+            print(f"WARNING: Invalid activity_type '{activity_type}'. Valid types: {valid_types}")
+            return
+
         tracker, created = cls.objects.get_or_create(
             admin_user=user,
             activity_type=activity_type,
@@ -48,6 +55,8 @@ class AdminActivityTracker(models.Model):
         if not created:
             tracker.last_viewed_at = timezone.now()
             tracker.save(update_fields=['last_viewed_at'])
+
+        print(f"DEBUG: Marked {activity_type} as viewed for {user.username}")
 
     @classmethod
     def get_new_counts(cls, user):
@@ -62,61 +71,78 @@ class AdminActivityTracker(models.Model):
         counts = {
             'student_registrations': 0,
             'maintenance_requests': 0,
-            'maintenance_completed': 0,
+            'maintenance_status_changes': 0,
             'tickets': 0,
             'ticket_messages': 0,
-            'maintenance_status_changes': 0,
             'total': 0
         }
 
-        # Get or create trackers for this admin
+        # Get trackers for this admin
         trackers = {
             tracker.activity_type: tracker.last_viewed_at
             for tracker in cls.objects.filter(admin_user=user)
         }
 
-        # New student registrations (pending only)
-        last_viewed = trackers.get('student_registrations', timezone.now() - timezone.timedelta(days=365))
+        # Default to very old date if never viewed
+        default_date = timezone.now() - timezone.timedelta(days=365)
+
+        print(f"DEBUG: Getting notification counts for {user.username}")
+        print(f"DEBUG: Trackers: {trackers}")
+
+        # 1. New student registrations (pending only)
+        last_viewed = trackers.get('student_registrations', default_date)
         counts['student_registrations'] = Student.objects.filter(
             registration_status='pending',
             created_at__gt=last_viewed
         ).count()
+        print(f"DEBUG: Student registrations since {last_viewed}: {counts['student_registrations']}")
 
-        # New maintenance requests
-        last_viewed = trackers.get('maintenance_requests', timezone.now() - timezone.timedelta(days=365))
+        # 2. New maintenance requests (pending only, created after last view)
+        last_viewed = trackers.get('maintenance_requests', default_date)
         counts['maintenance_requests'] = MaintenanceRequest.objects.filter(
+            status='pending',
             created_at__gt=last_viewed
         ).count()
+        print(f"DEBUG: New maintenance requests since {last_viewed}: {counts['maintenance_requests']}")
 
-        # New tickets
-        last_viewed = trackers.get('tickets', timezone.now() - timezone.timedelta(days=365))
+        # 3. Maintenance status changes (ALL status changes: approved, rejected, in_progress, completed)
+        last_viewed = trackers.get('maintenance_status_changes', default_date)
+
+        # Get all requests that have been updated since last view AND have non-pending status
+        status_change_requests = MaintenanceRequest.objects.filter(
+            updated_at__gt=last_viewed,
+            status__in=['approved', 'rejected', 'in_progress', 'completed']
+        ).exclude(
+            # Exclude requests created after last view (those are "new requests", not "status changes")
+            created_at__gt=last_viewed
+        )
+
+        counts['maintenance_status_changes'] = status_change_requests.count()
+
+        print(f"DEBUG: Maintenance status changes since {last_viewed}: {counts['maintenance_status_changes']}")
+        if counts['maintenance_status_changes'] > 0:
+            print("DEBUG: Status change requests:")
+            for req in status_change_requests[:5]:  # Show first 5
+                print(f"  - Request {req.id}: {req.title} - Status: {req.status} - Updated: {req.updated_at}")
+
+        # 4. New tickets (created after last view)
+        last_viewed = trackers.get('tickets', default_date)
         counts['tickets'] = Ticket.objects.filter(
             created_at__gt=last_viewed
         ).count()
+        print(f"DEBUG: New tickets since {last_viewed}: {counts['tickets']}")
 
-        # New ticket messages (from users only, not admin)
-        last_viewed = trackers.get('ticket_messages', timezone.now() - timezone.timedelta(days=365))
+        # 5. New ticket messages (unread user messages created after last view)
+        last_viewed = trackers.get('ticket_messages', default_date)
         counts['ticket_messages'] = TicketMessage.objects.filter(
             is_admin_message=False,
+            read_by_admin=False,
             created_at__gt=last_viewed
         ).count()
-
-        # Maintenance status changes (approved/rejected since last view)
-        last_viewed = trackers.get('maintenance_status_changes', timezone.now() - timezone.timedelta(days=365))
-        counts['maintenance_status_changes'] = MaintenanceRequest.objects.filter(
-            updated_at__gt=last_viewed,
-            status__in=['approved', 'rejected', 'completed']
-        ).exclude(
-            created_at__gt=last_viewed  # Don't count brand new ones
-        ).count()
-
-        # Maintenance completed by service experts (admins need to know!)
-        last_viewed = trackers.get('maintenance_completed', timezone.now() - timezone.timedelta(days=365))
-        counts['maintenance_completed'] = MaintenanceRequest.objects.filter(
-            completed_at__gt=last_viewed,
-            status='completed'
-        ).count()
+        print(f"DEBUG: New ticket messages since {last_viewed}: {counts['ticket_messages']}")
 
         counts['total'] = sum(v for k, v in counts.items() if k != 'total')
+
+        print(f"DEBUG: Final notification counts for {user.username}: {counts}")
 
         return counts
