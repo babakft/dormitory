@@ -84,7 +84,7 @@ class AdminActivityTracker(models.Model):
         # 1. New student registrations (pending only)
         last_viewed = trackers.get('student_registrations', default_date)
         counts['student_registrations'] = Student.objects.filter(
-            registration_status='pending',
+            registration_status='pending',user__is_active=True,
             created_at__gt=last_viewed
         ).count()
 
