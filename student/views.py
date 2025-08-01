@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 from django.db import transaction
 from dormitory.utils.email_service import StudentEmailService
 
+
 class StudentRegisterView(FormView):
     form_class = StudentRegistrationForm
     template_name = 'student/register.html'
@@ -21,7 +22,13 @@ class StudentRegisterView(FormView):
         try:
             with transaction.atomic():
                 student = form.save()
-                StudentEmailService.send_verification_email(student.id, self.request)
+
+                # Build the verification URL properly
+                verification_path = reverse('verify_email', kwargs={'token': student.verification_token})
+                verification_url = self.request.build_absolute_uri(verification_path)
+
+                # Pass the URL string, not the request object
+                StudentEmailService.send_verification_email.delay(student.id, verification_url)
 
             messages.success(
                 self.request,

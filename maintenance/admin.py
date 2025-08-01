@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.db.models import Q
 from maintenance.models import MaintenanceRequest, MaintenanceImage
 from service.models import ServiceExpert
-from notification.models import AdminActivityTracker
+from django.contrib import messages
 
 class MaintenanceImageInline(admin.TabularInline):
     """Inline for viewing maintenance images"""
@@ -162,12 +162,41 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
 
     # Admin Actions
     def approve_requests(self, request, queryset):
-        """Approve selected maintenance requests"""
-        for maintenance_request in queryset.filter(status='pending'):
+        """Approve selected maintenance requests with priority validation"""
+        pending_requests = queryset.filter(status='pending')
+
+        # Check if any requests don't have priority set
+        no_priority_requests = pending_requests.filter(priority='not_decided')
+
+        if no_priority_requests.exists():
+            # Get the titles of requests without priority
+            request_titles = list(no_priority_requests.values_list('title', flat=True)[:3])
+            titles_display = ', '.join(request_titles)
+
+            if no_priority_requests.count() > 3:
+                titles_display += f' and {no_priority_requests.count() - 3} more'
+
+            self.message_user(
+                request,
+                f'Cannot approve requests without priority set. Please set priority first for: {titles_display}',
+                level=messages.ERROR
+            )
+            return
+
+        # Proceed with approval if all have priority
+        approved_count = 0
+        for maintenance_request in pending_requests:
             maintenance_request.status = 'approved'
             maintenance_request.approved_by_name = request.user.username
             maintenance_request.approved_at = timezone.now()
-            maintenance_request.save()  # Triggers signals
+            maintenance_request.save()
+            approved_count += 1
+
+        self.message_user(
+            request,
+            f'Successfully approved {approved_count} maintenance requests.',
+            level=messages.SUCCESS
+        )
 
     approve_requests.short_description = "✅ Approve selected requests"
 

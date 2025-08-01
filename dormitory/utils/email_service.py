@@ -41,20 +41,27 @@ class StudentEmailService(BaseEmailService):
     @staticmethod
     @shared_task(bind=True, max_retries=5, default_retry_delay=15)
     def send_verification_email(self, student_id, verification_url):
-        """Async task for sending verification email"""
+        """Async task for sending verification email - improved version"""
         try:
             from student.models import Student
+            from django.contrib.sites.models import Site
+
             student = Student.objects.select_related('user').get(id=student_id)
+
+            # Use sites framework for better URL building
+            current_site = Site.objects.get_current()
 
             context = {
                 'student': student,
                 'verification_url': verification_url,
+                'site_name': current_site.name,
+                'domain': current_site.domain,
             }
 
             message = render_to_string('emails/student/verification_email.txt', context)
 
             StudentEmailService._send_email(
-                subject='Verify Your Email - Dormitory Registration',
+                subject=f'Verify Your Email - {current_site.name}',
                 message=message,
                 recipient_list=[student.user.email]
             )
@@ -63,13 +70,11 @@ class StudentEmailService(BaseEmailService):
 
         except Exception as exc:
             if self.request.retries >= self.max_retries:
-                # All retries exhausted - log to file
                 with open('failed_emails.log', 'a') as f:
-                    f.write(
-                        f"{timezone.now()}: Failed to send verification email to student {student_id} ({student.user.email if 'student' in locals() else 'unknown'}): {exc}\n")
+                    f.write(f"{timezone.now()}: Failed to send verification email: {exc}\n")
                 return False
             else:
-                logger.warning(f"Verification email failed (attempt {self.request.retries + 1}), retrying: {exc}")
+                logger.warning(f"Verification email failed, retrying: {exc}")
                 raise self.retry(exc=exc)
 
     @staticmethod

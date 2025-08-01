@@ -1,10 +1,3 @@
-My project structure
-
-apps/
-├── student/           # Student registration, fix requests, reviews
-├── service/          # Service staff completing fixes
-├── maintenance/       # Fix request system (shared)
-└── donations/         # Donation system
 
     #abstraction
     email = models.EmailField(unique=True)

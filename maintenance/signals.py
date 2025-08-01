@@ -6,16 +6,6 @@ from maintenance.models import MaintenanceRequest
 from dormitory.utils.email_service import MaintenanceEmailService
 
 
-@receiver(pre_save, sender=MaintenanceRequest)
-def validate_priority_on_approval(sender, instance, **kwargs):
-    """Ensure priority is set when approving requests"""
-    if (instance.status == 'approved' and
-            instance.priority == 'not_decided'):
-        raise ValidationError(
-            'Priority must be set when approving a request.'
-        )
-
-
 @receiver(post_init, sender=MaintenanceRequest)
 def capture_maintenance_initial_state(sender, instance, **kwargs):
     """Capture initial status and assigned_expert for comparison"""

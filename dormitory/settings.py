@@ -41,8 +41,11 @@ INSTALLED_APPS = [
     'maintenance.apps.MaintenanceConfig',
     'ticket.apps.TicketConfig',
     'notification.apps.NotificationConfig',
+    'django.contrib.sites',
     'channels',
 ]
+
+SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = [
     'student.backends.StudentNumberBackend',
