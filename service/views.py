@@ -18,7 +18,7 @@ class ServiceExpertLoginView(LoginView):
     redirect_authenticated_user = False
 
     def get_success_url(self):
-        return reverse_lazy('service_dashboard')
+        return reverse_lazy('service:service_dashboard')
 
     def dispatch(self, request, *args, **kwargs):
         # If user is authenticated and is a service expert, redirect to dashboard
@@ -26,7 +26,7 @@ class ServiceExpertLoginView(LoginView):
                 hasattr(request.user, 'expert_profile') and
                 request.user.expert_profile.is_active and
                 request.user.user_type == 'expert'):
-            return redirect('service_dashboard')
+            return redirect('service:service_dashboard')
 
         # If user is authenticated but is not a service expert, show message
         if request.user.is_authenticated:
@@ -61,10 +61,10 @@ class ServiceExpertLoginView(LoginView):
         # Redirect to success URL
         return redirect(self.get_success_url())
 class ServiceExpertLogoutView(LoginRequiredMixin, LogoutView):
-    next_page = reverse_lazy('service_login')
+    next_page = reverse_lazy('service:service_login')
 
 
-@method_decorator(login_required(login_url='service_login'), name='dispatch')
+@method_decorator(login_required(login_url='service:service_login'), name='dispatch')
 class ServiceDashboardView(TemplateView):
     template_name = 'service/dashboard.html'
 
@@ -73,19 +73,19 @@ class ServiceDashboardView(TemplateView):
         if not hasattr(request.user, 'expert_profile'):
             messages.error(request, 'Access denied. Service expert account required.')
             logout(request)
-            return redirect('service_login')
+            return redirect('service:service_login')
 
         # Check if expert profile is active
         if not request.user.expert_profile.is_active:
             messages.error(request, 'Your service expert account is inactive.')
             logout(request)
-            return redirect('service_login')
+            return redirect('service:service_login')
 
         # Check if user type is expert
         if request.user.user_type != 'expert':
             messages.error(request, 'Access denied. Service expert account required.')
             logout(request)
-            return redirect('service_login')
+            return redirect('service:service_login')
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -95,7 +95,7 @@ class ServiceDashboardView(TemplateView):
         return context
 
 
-@login_required(login_url='service_login')
+@login_required(login_url='service:service_login')
 def claim_request(request, request_id):
     """Expert claims a maintenance request"""
     from maintenance.models import MaintenanceRequest
@@ -115,7 +115,7 @@ def claim_request(request, request_id):
         messages.error(request, str(e))
         print(f"ERROR: Failed to claim request {maintenance_request.id}: {e}")
 
-    return redirect('service_dashboard')
+    return redirect('service:service_dashboard')
 
 
 ##################decorator###################
@@ -124,25 +124,25 @@ def service_expert_required(view_func):
     Enhanced decorator to ensure user is an authenticated and active service expert
     """
     @wraps(view_func)
-    @login_required(login_url='service_login')
+    @login_required(login_url='service:service_login')
     def _wrapped_view(request, *args, **kwargs):
         # Check if user has expert_profile
         if not hasattr(request.user, 'expert_profile'):
             messages.error(request, 'Access denied. Service expert account required.')
             logout(request)
-            return redirect('service_login')
+            return redirect('service:service_login')
 
         # Check if expert profile is active
         if not request.user.expert_profile.is_active:
             messages.error(request, 'Your service expert account is inactive.')
             logout(request)
-            return redirect('service_login')
+            return redirect('service:service_login')
 
         # Check if user type is expert
         if request.user.user_type != 'expert':
             messages.error(request, 'Access denied. Service expert account required.')
             logout(request)
-            return redirect('service_login')
+            return redirect('service:service_login')
 
         return view_func(request, *args, **kwargs)
 
@@ -174,7 +174,7 @@ def start_work(request, request_id):
                     print(
                         f"DEBUG: Expert {request.user.expert_profile.user.username} started work on request {maintenance_request.id}")
 
-                return redirect('service_dashboard')
+                return redirect('service:service_dashboard')
             except ValueError as e:
                 messages.error(request, str(e))
                 print(f"ERROR: Failed to start work on request {maintenance_request.id}: {e}")
@@ -214,7 +214,7 @@ def complete_work(request, request_id):
                 print(
                     f"DEBUG: Expert {request.user.expert_profile.user.username} completed work on request {maintenance_request.id}")
 
-                return redirect('service_dashboard')
+                return redirect('service:service_dashboard')
             except ValueError as e:
                 messages.error(request, str(e))
                 print(f"ERROR: Failed to complete work on request {maintenance_request.id}: {e}")

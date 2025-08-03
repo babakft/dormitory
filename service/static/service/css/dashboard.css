@@ -110,13 +110,19 @@
   text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.student-id {
+.expert-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.specialization,
+.employee-id {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  margin: 0;
-  opacity: 0.95;
   font-size: var(--font-size-md);
+  opacity: 0.95;
 }
 
 .contact-info {
@@ -125,10 +131,29 @@
   text-align: right;
 }
 
-.room-info {
-  margin: 0 0 var(--spacing-md) 0;
+.rating-info {
+  margin-bottom: var(--spacing-md);
+}
+
+.rating-label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  opacity: 0.9;
+}
+
+.rating-display {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
   font-size: var(--font-size-lg);
   font-weight: 600;
+}
+
+.rated-expert {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 .email-info {
@@ -253,6 +278,60 @@
   background: linear-gradient(135deg, var(--secondary-color) 0%, #545b62 100%);
   color: var(--white);
   border-left: 4px solid #383d41;
+}
+
+/* ===== PERFORMANCE SECTION ===== */
+.performance-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.performance-card {
+  background: var(--white);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray-200);
+}
+
+.performance-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--gray-700);
+  font-size: var(--font-size-lg);
+}
+
+.performance-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.performance-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.performance-label {
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.performance-value {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.performance-description {
+  color: var(--gray-600);
+  font-size: var(--font-size-sm);
+}
+
+.performance-badge {
+  align-self: flex-start;
 }
 
 /* ===== REQUESTS SECTION ===== */
@@ -463,11 +542,6 @@
 .btn-sm {
   padding: var(--spacing-xs) var(--spacing-sm);
   font-size: var(--font-size-xs);
-}
-
-.btn-create {
-  font-size: var(--font-size-sm);
-  padding: var(--spacing-sm) var(--spacing-lg);
 }
 
 .action-btn {
@@ -712,7 +786,7 @@
     text-align: center;
   }
 
-  .email-info {
+  .rating-display {
     justify-content: center;
   }
 

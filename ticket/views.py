@@ -27,7 +27,7 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
         if hasattr(self.request.user, 'student_profile'):
             return reverse_lazy('student:student_login')
         elif hasattr(self.request.user, 'expert_profile'):
-            return reverse_lazy('service_login')
+            return reverse_lazy('service:service_login')
         return reverse_lazy('student:student_login')
 
     def form_valid(self, form):
@@ -51,7 +51,7 @@ class TicketListView(LoginRequiredMixin, ListView):
         if hasattr(self.request.user, 'student_profile'):
             return reverse_lazy('student:student_login')
         elif hasattr(self.request.user, 'expert_profile'):
-            return reverse_lazy('service_login')
+            return reverse_lazy('service:service_login')
         return reverse_lazy('student:student_login')
 
     def get_queryset(self):

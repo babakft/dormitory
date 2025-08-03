@@ -3,7 +3,7 @@ from service.views import (
     ServiceExpertLoginView, ServiceExpertLogoutView, ServiceDashboardView,
     claim_request, start_work, complete_work,completed_tasks
 )
-
+app_name = 'service'
 urlpatterns = [
     path('login/', ServiceExpertLoginView.as_view(), name='service_login'),
     path('logout/', ServiceExpertLogoutView.as_view(), name='service_logout'),
