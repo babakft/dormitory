@@ -1,319 +1,219 @@
-{% extends 'student/base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Student Dashboard{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'student/css/dashboard.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- Welcome Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="welcome-header dashboard-card card text-white">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h2 class="mb-1">Welcome back, {{ user.username }}!</h2>
-                            <p class="mb-0">
-                                <i class="fas fa-home"></i>
-                                {% if user.student_profile.room %}
-                                    {{ user.student_profile.room.building.name }} - Room {{ user.student_profile.room.number }}
-                                {% else %}
-                                    No room assigned yet
-                                {% endif %}
-                                <span class="ms-3">
-                                    <i class="fas fa-id-card"></i> {{ user.student_profile.student_number }}
-                                </span>
-                            </p>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <p class="mb-1">
-                                <strong>Status:</strong>
-                                <span class="status-badge status-{{ user.student_profile.registration_status }}">
-                                    {{ user.student_profile.get_registration_status_display }}
-                                </span>
-                            </p>
-                            <small class="opacity-75">{{ user.email }}</small>
-                        </div>
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <header class="dashboard-header">
+        <div class="student-info">
+            <h2 class="welcome-title">Welcome, {{ student.user.username }}!</h2>
+            <p class="student-id">Student ID: {{ student.student_number }}</p>
+        </div>
+        <div class="contact-info">
+            <p class="room-info"><strong>Room:</strong> {{ student.full_room_address }}</p>
+            <small class="email-info">{{ student.user.email }}</small>
+        </div>
+    </header>
+
+    <!-- Statistics Cards -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card stat-card--primary">
+                <div class="stat-content">
+                    <div class="stat-text">
+                        <h5 class="stat-title">Total Requests</h5>
+                        <h3 class="stat-number">{{ total_requests }}</h3>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-tools"></i>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Quick Stats -->
-    <div class="row mb-4">
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="stats-card dashboard-card card text-center">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="text-primary mb-0">{{ total_requests|default:0 }}</h3>
-                            <small class="text-muted">Total Requests</small>
-                        </div>
-                        <i class="fas fa-tools stats-icon text-primary"></i>
+            <div class="stat-card stat-card--warning">
+                <div class="stat-content">
+                    <div class="stat-text">
+                        <h5 class="stat-title">Pending</h5>
+                        <h3 class="stat-number">{{ pending_requests }}</h3>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="stats-card dashboard-card card text-center">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="text-warning mb-0">{{ pending_requests|default:0 }}</h3>
-                            <small class="text-muted">Pending</small>
-                        </div>
-                        <i class="fas fa-clock stats-icon text-warning"></i>
+
+            <div class="stat-card stat-card--success">
+                <div class="stat-content">
+                    <div class="stat-text">
+                        <h5 class="stat-title">Completed</h5>
+                        <h3 class="stat-number">{{ completed_requests }}</h3>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="stats-card dashboard-card card text-center">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="text-info mb-0">{{ in_progress_requests|default:0 }}</h3>
-                            <small class="text-muted">In Progress</small>
-                        </div>
-                        <i class="fas fa-wrench stats-icon text-info"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="stats-card dashboard-card card text-center">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="text-success mb-0">{{ completed_requests|default:0 }}</h3>
-                            <small class="text-muted">Completed</small>
-                        </div>
-                        <i class="fas fa-check-circle stats-icon text-success"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Quick Actions -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="dashboard-card card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-2">
-                            <a href="{% url 'maintenance:create' %}" class="quick-action-btn btn btn-primary btn-lg w-100">
-                                <i class="fas fa-plus"></i> New Maintenance Request
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <a href="{% url 'ticket:create' %}" class="quick-action-btn btn btn-info btn-lg w-100">
-                                <i class="fas fa-comments"></i> Create Support Ticket
-                            </a>
-                        </div>
-                        <div class="col-md-4 mb-2">
-                            <a href="#notifications" class="quick-action-btn btn btn-success btn-lg w-100">
-                                <i class="fas fa-bell"></i> View Notifications
-                                {% if unread_notifications_count %}
-                                <span class="notification-badge">{{ unread_notifications_count }}</span>
-                                {% endif %}
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Maintenance Requests -->
-    <div class="row">
-        <div class="col-12">
-            <div class="dashboard-card card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-list"></i> My Maintenance Requests</h5>
-                    {% if maintenance_requests %}
-                    <div class="btn-group btn-group-sm" role="group">
-                        <input type="radio" class="btn-check" name="statusFilter" id="all" autocomplete="off" checked>
-                        <label class="btn btn-outline-primary" for="all">All</label>
-
-                        <input type="radio" class="btn-check" name="statusFilter" id="pending" autocomplete="off">
-                        <label class="btn btn-outline-warning" for="pending">Pending</label>
-
-                        <input type="radio" class="btn-check" name="statusFilter" id="in_progress" autocomplete="off">
-                        <label class="btn btn-outline-info" for="in_progress">Active</label>
-
-                        <input type="radio" class="btn-check" name="statusFilter" id="completed" autocomplete="off">
-                        <label class="btn btn-outline-success" for="completed">Completed</label>
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="card-body">
-                    {% if maintenance_requests %}
-                        {% for request in maintenance_requests %}
-                        <div class="request-card card mb-3 request-{{ request.status }}" data-status="{{ request.status }}">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-md-6">
-                                        <h6 class="card-title mb-1">{{ request.title }}</h6>
-                                        <p class="card-text text-muted mb-2">{{ request.description|truncatechars:100 }}</p>
-                                        <div class="d-flex gap-2 flex-wrap">
-                                            <span class="badge bg-secondary">{{ request.get_service_type_display }}</span>
-                                            <span class="badge priority-{{ request.priority }}">
-                                                {{ request.get_priority_display }}
-                                            </span>
-                                            {% if request.status == 'completed' and not request.student_rating %}
-                                            <span class="badge bg-warning text-dark">Awaiting Review</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 text-center">
-                                        <span class="status-badge status-{{ request.status }} d-block mb-2">
-                                            {{ request.get_status_display }}
-                                        </span>
-                                        <small class="text-muted">
-                                            <i class="fas fa-calendar"></i> {{ request.created_at|date:"M d, Y" }}
-                                        </small>
-                                        {% if request.assigned_expert %}
-                                        <br>
-                                        <small class="text-info">
-                                            <i class="fas fa-user-cog"></i> {{ request.assigned_expert.user.username }}
-                                        </small>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-3 text-end">
-                                        <div class="btn-group-vertical btn-group-sm">
-                                            <a href="{% url 'maintenance:detail' request.id %}" class="btn btn-outline-primary btn-sm">
-                                                <i class="fas fa-eye"></i> View Details
-                                            </a>
-                                            {% if request.status == 'completed' and not request.student_rating %}
-                                            <a href="{% url 'maintenance:rate' request.id %}" class="btn btn-warning btn-sm">
-                                                <i class="fas fa-star"></i> Rate Service
-                                            </a>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Simple Progress Indicator -->
-                                {% if request.status != 'rejected' %}
-                                <div class="mt-3">
-                                    <div class="progress" style="height: 4px;">
-                                        {% if request.status == 'pending' %}
-                                        <div class="progress-bar bg-warning" style="width: 25%"></div>
-                                        {% elif request.status == 'approved' %}
-                                        <div class="progress-bar bg-info" style="width: 50%"></div>
-                                        {% elif request.status == 'in_progress' %}
-                                        <div class="progress-bar bg-primary" style="width: 75%"></div>
-                                        {% elif request.status == 'completed' %}
-                                        <div class="progress-bar bg-success" style="width: 100%"></div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="row mt-2">
-                                        <div class="col-3 text-center">
-                                            <small class="text-muted">Submitted</small>
-                                        </div>
-                                        <div class="col-3 text-center">
-                                            <small class="text-muted">Approved</small>
-                                        </div>
-                                        <div class="col-3 text-center">
-                                            <small class="text-muted">In Progress</small>
-                                        </div>
-                                        <div class="col-3 text-center">
-                                            <small class="text-muted">Completed</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endfor %}
-
-                        <!-- Load More Button (if needed) -->
-                        {% if maintenance_requests|length >= 10 %}
-                        <div class="text-center mt-3">
-                            <a href="#" class="btn btn-outline-primary">
-                                <i class="fas fa-list"></i> View All Requests
-                            </a>
-                        </div>
-                        {% endif %}
-
-                    {% else %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">No maintenance requests yet</h5>
-                            <p class="text-muted">Click the button above to submit your first maintenance request.</p>
-                            <a href="{% url 'maintenance:create' %}" class="btn btn-primary">
-                                <i class="fas fa-plus"></i> Create Your First Request
-                            </a>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Notifications (if any) -->
-    {% if notifications %}
-    <div class="row mt-4" id="notifications">
-        <div class="col-12">
-            <div class="dashboard-card card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bell"></i> Recent Notifications
-                        {% if unread_notifications_count %}
-                        <span class="notification-badge">{{ unread_notifications_count }}</span>
-                        {% endif %}
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% for notification in notifications|slice:":3" %}
-                    <div class="d-flex align-items-start mb-3 {% if not notification.is_read %}bg-light p-2 rounded{% endif %}">
-                        <div class="me-3">
-                            {% if notification.notification_type == 'maintenance_update' %}
-                            <i class="fas fa-tools text-primary"></i>
-                            {% elif notification.notification_type == 'system_announcement' %}
-                            <i class="fas fa-bullhorn text-info"></i>
+            <div class="stat-card stat-card--info">
+                <div class="stat-content">
+                    <div class="stat-text">
+                        <h5 class="stat-title">My Tickets</h5>
+                        <h3 class="stat-number">{{ total_tickets|default:0 }}</h3>
+                        <small class="stat-subtitle">
+                            {% if pending_tickets %}
+                                {{ pending_tickets }} pending
                             {% else %}
-                            <i class="fas fa-info-circle text-secondary"></i>
+                                All up to date
                             {% endif %}
-                        </div>
-                        <div class="flex-grow-1">
-                            <h6 class="mb-1">{{ notification.title }}</h6>
-                            <p class="mb-1 text-muted">{{ notification.message|truncatechars:100 }}</p>
-                            <small class="text-muted">
-                                <i class="fas fa-clock"></i> {{ notification.created_at|timesince }} ago
-                            </small>
-                        </div>
-                        {% if not notification.is_read %}
-                        <span class="badge bg-primary">New</span>
-                        {% endif %}
+                        </small>
                     </div>
-                    {% endfor %}
+                    <div class="stat-icon">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-                    {% if notifications|length > 3 %}
-                    <div class="text-center">
-                        <a href="#notifications" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-bell"></i> View All Notifications
+    <!-- Maintenance Requests Section -->
+    <section class="requests-section">
+        <div class="requests-card">
+            <div class="card-header">
+                <h5 class="card-title">Recent Maintenance Requests</h5>
+                <a href="{% url 'maintenance:create' %}" class="btn btn-primary btn-create">
+                    <i class="fas fa-plus"></i> New Request
+                </a>
+            </div>
+
+            <div class="card-body">
+                {% if maintenance_requests %}
+                    <div class="table-container">
+                        <table class="requests-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Service Type</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in maintenance_requests %}
+                                <tr class="table-row">
+                                    <td class="request-title">
+                                        <strong>{{ request.title }}</strong>
+                                        <br>
+                                        <small class="request-description">{{ request.description|truncatechars:50 }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-secondary">{{ request.get_service_type_display }}</span>
+                                    </td>
+                                    <td>
+                                        {% if request.priority == 'high' %}
+                                            <span class="badge badge-danger">High</span>
+                                        {% elif request.priority == 'medium' %}
+                                            <span class="badge badge-warning">Medium</span>
+                                        {% elif request.priority == 'low' %}
+                                            <span class="badge badge-success">Low</span>
+                                        {% elif request.priority == 'not_decided' %}
+                                            <span class="badge badge-secondary">Not Decided</span>
+                                        {% else %}
+                                            <span class="badge badge-light">{{ request.get_priority_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if request.status == 'pending' %}
+                                            <span class="badge badge-warning">Pending</span>
+                                        {% elif request.status == 'approved' %}
+                                            <span class="badge badge-info">Approved</span>
+                                        {% elif request.status == 'in_progress' %}
+                                            <span class="badge badge-primary">In Progress</span>
+                                        {% elif request.status == 'completed' %}
+                                            <span class="badge badge-success">Completed</span>
+                                        {% elif request.status == 'rejected' %}
+                                            <span class="badge badge-danger">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="date-info">
+                                        <small>
+                                            {{ request.created_at|date:"M d, Y" }}<br>
+                                            <span class="days-ago">{{ request.days_since_created }} days ago</span>
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'maintenance:detail' request.pk %}" class="btn btn-outline-primary btn-sm">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if total_requests > 5 %}
+                    <div class="more-info">
+                        <small class="text-muted">
+                            Showing 5 most recent requests. Total requests: {{ total_requests }}
+                        </small>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-tools empty-icon"></i>
+                        <h5 class="empty-title">No maintenance requests yet</h5>
+                        <p class="empty-description">Submit your first maintenance request to get started.</p>
+                        <a href="{% url 'maintenance:create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create Request
                         </a>
                     </div>
-                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Navigation -->
+    <section class="navigation-section">
+        <div class="nav-card">
+            <div class="card-header">
+                <h5 class="card-title">Quick Navigation</h5>
+            </div>
+            <div class="card-body">
+                <div class="nav-grid">
+                    <a href="{% url 'maintenance:create' %}" class="nav-btn nav-btn--primary">
+                        <i class="fas fa-plus"></i>
+                        <span>New Request</span>
+                    </a>
+                    <a href="{% url 'ticket:list' %}" class="nav-btn nav-btn--info">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>My Tickets</span>
+                    </a>
+                    <button type="button" class="nav-btn nav-btn--success" onclick="alert('Profile functionality coming soon!')">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </button>
+                    <form method="post" action="{% url 'student_logout' %}" class="logout-form">
+                        {% csrf_token %}
+                        <button type="submit" class="nav-btn nav-btn--danger">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
-    {% endif %}
+    </section>
 </div>
-{% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'student/js/dashboard.js' %}"></script>
+{% endblock %}
 {% endblock %}

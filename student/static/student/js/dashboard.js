@@ -1,7 +1,6 @@
-/* student/static/student/js/dashboard.js - FIXED STATUS FILTERING */
-
 /**
- * Student Dashboard Enhancements - WORKING VERSION
+ * Student Dashboard JavaScript
+ * Handles interactive features and enhancements for the student dashboard
  */
 
 class StudentDashboard {
@@ -10,371 +9,522 @@ class StudentDashboard {
     }
 
     init() {
-        console.log('🎓 Initializing Student Dashboard...');
-
-        // Initialize components
-        this.initializeCardAnimations();
-        this.initializeStatusFilters();  // ← FIXED THIS
-        this.initializeTooltips();
-        this.initializeFormEnhancements();
-
-        console.log('✅ Dashboard loaded successfully');
-    }
-
-    // =============================================================================
-    // FIXED Status Filter System
-    // =============================================================================
-    initializeStatusFilters() {
-        console.log('🔍 Setting up status filters...');
-
-        // Get all filter radio buttons
-        const filterButtons = document.querySelectorAll('input[name="statusFilter"]');
-        console.log(`Found ${filterButtons.length} filter buttons`);
-
-        // Add event listeners to each filter button
-        filterButtons.forEach(button => {
-            button.addEventListener('change', (e) => {
-                if (e.target.checked) {
-                    const filterValue = e.target.id;
-                    console.log(`🔄 Filtering by: ${filterValue}`);
-                    this.filterRequestsByStatus(filterValue);
-                }
-            });
-        });
-
-        // Add search functionality
-        this.addRequestSearch();
-    }
-
-    filterRequestsByStatus(status) {
-        // Get all request cards
-        const requestCards = document.querySelectorAll('.request-card');
-        console.log(`📋 Found ${requestCards.length} request cards`);
-
-        let visibleCount = 0;
-
-        requestCards.forEach(card => {
-            // Get the status from data attribute
-            const cardStatus = card.dataset.status;
-            console.log(`Card status: ${cardStatus}, Filter: ${status}`);
-
-            // Determine if card should be visible
-            let shouldShow = false;
-
-            if (status === 'all') {
-                shouldShow = true;
-            } else if (status === 'pending') {
-                shouldShow = cardStatus === 'pending';
-            } else if (status === 'in_progress') {
-                shouldShow = cardStatus === 'in_progress' || cardStatus === 'approved';
-            } else if (status === 'completed') {
-                shouldShow = cardStatus === 'completed';
-            } else if (status === 'rejected') {
-                shouldShow = cardStatus === 'rejected';
-            }
-
-            // Show/hide the card with animation
-            if (shouldShow) {
-                card.style.display = 'block';
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(10px)';
-
-                // Animate in
-                setTimeout(() => {
-                    card.style.transition = 'all 0.3s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, 50);
-
-                visibleCount++;
-            } else {
-                card.style.transition = 'all 0.3s ease';
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(-10px)';
-
-                // Hide after animation
-                setTimeout(() => {
-                    card.style.display = 'none';
-                }, 300);
-            }
-        });
-
-        // Update filter feedback
-        this.updateFilterFeedback(status, visibleCount);
-    }
-
-    updateFilterFeedback(status, count) {
-        // Create or update feedback element
-        let feedback = document.getElementById('filterFeedback');
-
-        if (!feedback) {
-            feedback = document.createElement('div');
-            feedback.id = 'filterFeedback';
-            feedback.className = 'alert alert-info mt-2';
-
-            // Insert after filter buttons
-            const filterContainer = document.querySelector('.btn-group');
-            if (filterContainer) {
-                filterContainer.parentNode.insertBefore(feedback, filterContainer.nextSibling);
-            }
-        }
-
-        // Update feedback text
-        const statusText = this.getStatusDisplayName(status);
-        feedback.innerHTML = `
-            <i class="fas fa-filter"></i>
-            Showing <strong>${count}</strong> ${statusText} request${count !== 1 ? 's' : ''}
-        `;
-
-        // Auto-hide feedback after 3 seconds
-        setTimeout(() => {
-            if (feedback && feedback.parentNode) {
-                feedback.style.opacity = '0.7';
-            }
-        }, 3000);
-    }
-
-    getStatusDisplayName(status) {
-        const statusNames = {
-            'all': 'total',
-            'pending': 'pending',
-            'in_progress': 'active',
-            'completed': 'completed',
-            'rejected': 'rejected'
-        };
-        return statusNames[status] || status;
-    }
-
-    addRequestSearch() {
-        // Add search input above the requests
-        const requestsCard = document.querySelector('.dashboard-card .card-header h5');
-        if (requestsCard && !document.getElementById('requestSearch')) {
-            const searchHTML = `
-                <div class="mt-3 mb-2">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text">
-                            <i class="fas fa-search"></i>
-                        </span>
-                        <input type="text" class="form-control" id="requestSearch"
-                               placeholder="Search requests by title or description...">
-                    </div>
-                </div>
-            `;
-
-            requestsCard.parentNode.insertAdjacentHTML('afterend', searchHTML);
-
-            // Add search functionality
-            const searchInput = document.getElementById('requestSearch');
-            searchInput.addEventListener('input', (e) => {
-                this.searchRequests(e.target.value);
-            });
-        }
-    }
-
-    searchRequests(searchTerm) {
-        const requestCards = document.querySelectorAll('.request-card');
-        const term = searchTerm.toLowerCase().trim();
-
-        let visibleCount = 0;
-
-        requestCards.forEach(card => {
-            const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
-            const description = card.querySelector('.card-text')?.textContent.toLowerCase() || '';
-            const searchText = title + ' ' + description;
-
-            const shouldShow = !term || searchText.includes(term);
-
-            if (shouldShow) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        // Update search feedback
-        this.updateSearchFeedback(term, visibleCount);
-    }
-
-    updateSearchFeedback(term, count) {
-        let feedback = document.getElementById('searchFeedback');
-
-        if (!feedback) {
-            feedback = document.createElement('small');
-            feedback.id = 'searchFeedback';
-            feedback.className = 'text-muted d-block mb-2';
-
-            const searchInput = document.getElementById('requestSearch');
-            if (searchInput) {
-                searchInput.parentNode.parentNode.insertAdjacentElement('afterend', feedback);
-            }
-        }
-
-        if (term) {
-            feedback.textContent = `Found ${count} request(s) matching "${term}"`;
-            feedback.style.display = 'block';
+        // Wait for DOM to be fully loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.setup());
         } else {
-            feedback.style.display = 'none';
+            this.setup();
         }
     }
 
-    // =============================================================================
-    // Card Animations
-    // =============================================================================
-    initializeCardAnimations() {
-        const cards = document.querySelectorAll('.dashboard-card, .stats-card, .request-card');
+    setup() {
+        this.setupEventListeners();
+        this.setupAnimations();
+        this.setupTooltips();
+        this.setupAutoRefresh();
+        this.setupKeyboardShortcuts();
+        this.setupFormValidation();
+    }
 
-        cards.forEach((card, index) => {
+    /**
+     * Setup event listeners for interactive elements
+     */
+    setupEventListeners() {
+        // Stat cards click effects
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach(card => {
+            card.addEventListener('click', this.handleStatCardClick.bind(this));
+        });
+
+        // Table row click handlers
+        const tableRows = document.querySelectorAll('.table-row');
+        tableRows.forEach(row => {
+            row.addEventListener('click', this.handleTableRowClick.bind(this));
+        });
+
+        // Navigation button enhancements
+        const navButtons = document.querySelectorAll('.nav-btn');
+        navButtons.forEach(btn => {
+            btn.addEventListener('mouseenter', this.handleNavButtonHover.bind(this));
+        });
+
+        // Logout confirmation
+        const logoutForm = document.querySelector('.logout-form');
+        if (logoutForm) {
+            logoutForm.addEventListener('submit', this.handleLogoutConfirmation.bind(this));
+        }
+
+        // Search functionality (if search input exists)
+        const searchInput = document.querySelector('#requestSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', this.debounce(this.handleSearch.bind(this), 300));
+        }
+    }
+
+    /**
+     * Setup smooth animations and transitions
+     */
+    setupAnimations() {
+        // Animate stat cards on load
+        this.animateStatCards();
+
+        // Setup intersection observer for scroll animations
+        this.setupScrollAnimations();
+    }
+
+    /**
+     * Animate stat cards with staggered effect
+     */
+    animateStatCards() {
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';
 
             setTimeout(() => {
-                card.style.transition = 'all 0.5s ease-out';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
                 card.style.opacity = '1';
                 card.style.transform = 'translateY(0)';
-            }, index * 100);
+            }, index * 150);
         });
     }
 
-    // =============================================================================
-    // Tooltips
-    // =============================================================================
-    initializeTooltips() {
-        // Initialize Bootstrap tooltips
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
-
-        tooltipTriggerList.forEach(element => {
-            if (!element.getAttribute('data-bs-toggle')) {
-                element.setAttribute('data-bs-toggle', 'tooltip');
-                new bootstrap.Tooltip(element);
-            }
-        });
-
-        // Add helpful tooltips to status badges
-        const statusBadges = document.querySelectorAll('[class*="status-"], .badge');
-        statusBadges.forEach(badge => {
-            if (!badge.hasAttribute('title')) {
-                const status = badge.textContent.trim().toLowerCase();
-                const tooltipText = this.getStatusTooltip(status);
-                if (tooltipText) {
-                    badge.setAttribute('title', tooltipText);
-                    badge.setAttribute('data-bs-toggle', 'tooltip');
-                    new bootstrap.Tooltip(badge);
-                }
-            }
-        });
-    }
-
-    getStatusTooltip(status) {
-        const tooltips = {
-            'pending': 'Request is waiting for admin review',
-            'approved': 'Request approved, awaiting expert assignment',
-            'in progress': 'Work is currently being done',
-            'completed': 'Request has been completed',
-            'rejected': 'Request was not approved'
+    /**
+     * Setup scroll-based animations
+     */
+    setupScrollAnimations() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
         };
 
-        return tooltips[status] || null;
-    }
-
-    // =============================================================================
-    // Form Enhancements
-    // =============================================================================
-    initializeFormEnhancements() {
-        // Add loading states to buttons
-        const buttons = document.querySelectorAll('a.btn, button.btn');
-        buttons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                // Only add loading for certain actions
-                if (button.href && (button.href.includes('create') || button.href.includes('detail'))) {
-                    this.addButtonLoading(button);
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
                 }
             });
+        }, observerOptions);
+
+        // Observe sections for animation
+        const sections = document.querySelectorAll('.requests-section, .navigation-section');
+        sections.forEach(section => {
+            observer.observe(section);
         });
     }
 
-    addButtonLoading(button) {
-        const originalText = button.textContent;
-        const icon = button.querySelector('i');
+    /**
+     * Setup tooltips for better UX
+     */
+    setupTooltips() {
+        // Add tooltips to badges and status indicators
+        const badges = document.querySelectorAll('.badge');
+        badges.forEach(badge => {
+            this.addTooltip(badge);
+        });
 
-        if (icon) {
-            icon.className = 'fas fa-spinner fa-spin';
-        }
-
-        // Restore after 2 seconds (navigation should happen before this)
-        setTimeout(() => {
-            if (icon) {
-                icon.className = icon.dataset.originalClass || 'fas fa-eye';
-            }
-            button.textContent = originalText;
-        }, 2000);
+        // Add tooltips to action buttons
+        const actionButtons = document.querySelectorAll('[title]');
+        actionButtons.forEach(btn => {
+            this.enhanceTooltip(btn);
+        });
     }
 
-    // =============================================================================
-    // Utility Functions
-    // =============================================================================
-    showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        toast.innerHTML = `
-            <div class="d-flex align-items-center">
-                <i class="fas fa-${this.getToastIcon(type)} me-2"></i>
-                <span>${message}</span>
-                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
-            </div>
+    /**
+     * Add tooltip functionality
+     */
+    addTooltip(element) {
+        const tooltipText = this.getTooltipText(element);
+        if (tooltipText) {
+            element.setAttribute('title', tooltipText);
+            element.setAttribute('data-toggle', 'tooltip');
+        }
+    }
+
+    /**
+     * Get tooltip text based on element content
+     */
+    getTooltipText(element) {
+        const text = element.textContent.trim().toLowerCase();
+        const tooltips = {
+            'pending': 'Request is waiting for admin approval',
+            'approved': 'Request has been approved and assigned',
+            'in progress': 'Maintenance team is working on this request',
+            'completed': 'Request has been completed successfully',
+            'rejected': 'Request was rejected - check details for reason',
+            'high': 'High priority - will be addressed urgently',
+            'medium': 'Medium priority - normal processing time',
+            'low': 'Low priority - may take longer to process'
+        };
+        return tooltips[text] || null;
+    }
+
+    /**
+     * Setup auto-refresh for real-time updates
+     */
+    setupAutoRefresh() {
+        // Only refresh if user is active (to save bandwidth)
+        let lastActivity = Date.now();
+        let refreshInterval;
+
+        // Track user activity
+        document.addEventListener('mousemove', () => {
+            lastActivity = Date.now();
+        });
+
+        document.addEventListener('keypress', () => {
+            lastActivity = Date.now();
+        });
+
+        // Auto-refresh every 5 minutes if user is active
+        refreshInterval = setInterval(() => {
+            const now = Date.now();
+            const timeSinceActivity = now - lastActivity;
+
+            // Refresh if user was active in the last 10 minutes
+            if (timeSinceActivity < 600000) {
+                this.refreshStatusCounts();
+            }
+        }, 300000); // 5 minutes
+
+        // Clear interval when page unloads
+        window.addEventListener('beforeunload', () => {
+            clearInterval(refreshInterval);
+        });
+    }
+
+    /**
+     * Refresh status counts via AJAX
+     */
+    async refreshStatusCounts() {
+        try {
+            // You can uncomment and adjust this when you have the endpoint
+            // const response = await fetch('/student/dashboard/status-counts/', {
+            //     headers: {
+            //         'X-Requested-With': 'XMLHttpRequest',
+            //         'X-CSRFToken': this.getCSRFToken()
+            //     }
+            // });
+
+            // if (response.ok) {
+            //     const data = await response.json();
+            //     this.updateStatusCounts(data);
+            // }
+
+            console.log('Auto-refresh placeholder - implement with your status endpoint');
+        } catch (error) {
+            console.log('Auto-refresh failed:', error);
+        }
+    }
+
+    /**
+     * Update status counts in the UI
+     */
+    updateStatusCounts(data) {
+        const counters = {
+            'total_requests': '.stat-card--primary .stat-number',
+            'pending_requests': '.stat-card--warning .stat-number',
+            'completed_requests': '.stat-card--success .stat-number',
+            'total_tickets': '.stat-card--info .stat-number'
+        };
+
+        Object.entries(counters).forEach(([key, selector]) => {
+            const element = document.querySelector(selector);
+            if (element && data[key] !== undefined) {
+                this.animateCounterUpdate(element, data[key]);
+            }
+        });
+    }
+
+    /**
+     * Animate counter updates
+     */
+    animateCounterUpdate(element, newValue) {
+        const currentValue = parseInt(element.textContent);
+        if (currentValue !== newValue) {
+            element.style.color = '#28a745'; // Flash green
+            setTimeout(() => {
+                element.style.color = '';
+            }, 1000);
+
+            // Animate the number change
+            this.animateNumber(element, currentValue, newValue, 500);
+        }
+    }
+
+    /**
+     * Animate number changes
+     */
+    animateNumber(element, start, end, duration) {
+        const startTime = performance.now();
+        const updateNumber = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const current = Math.round(start + (end - start) * this.easeOutCubic(progress));
+
+            element.textContent = current;
+
+            if (progress < 1) {
+                requestAnimationFrame(updateNumber);
+            }
+        };
+        requestAnimationFrame(updateNumber);
+    }
+
+    /**
+     * Easing function for smooth animations
+     */
+    easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+
+    /**
+     * Setup keyboard shortcuts
+     */
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + N = New Request
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                e.preventDefault();
+                const newRequestBtn = document.querySelector('a[href*="maintenance:create"]');
+                if (newRequestBtn) {
+                    newRequestBtn.click();
+                }
+            }
+
+            // Ctrl/Cmd + T = My Tickets
+            if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+                e.preventDefault();
+                const ticketsBtn = document.querySelector('a[href*="ticket:list"]');
+                if (ticketsBtn) {
+                    ticketsBtn.click();
+                }
+            }
+
+            // Escape = Close any open modals/dropdowns
+            if (e.key === 'Escape') {
+                this.closeOpenElements();
+            }
+        });
+    }
+
+    /**
+     * Setup form validation enhancements
+     */
+    setupFormValidation() {
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', this.handleFormSubmit.bind(this));
+        });
+    }
+
+    /**
+     * Handle stat card clicks
+     */
+    handleStatCardClick(e) {
+        const card = e.currentTarget;
+
+        // Add click effect
+        card.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+            card.style.transform = '';
+        }, 150);
+
+        // Navigate based on card type
+        if (card.classList.contains('stat-card--primary')) {
+            // Navigate to all requests (placeholder - adjust URL as needed)
+            alert('All requests view coming soon!');
+        } else if (card.classList.contains('stat-card--warning')) {
+            // Navigate to pending requests (placeholder - adjust URL as needed)
+            alert('Pending requests view coming soon!');
+        } else if (card.classList.contains('stat-card--success')) {
+            // Navigate to completed requests (placeholder - adjust URL as needed)
+            alert('Completed requests view coming soon!');
+        } else if (card.classList.contains('stat-card--info')) {
+            // Navigate to tickets
+            const ticketsBtn = document.querySelector('a[href*="ticket:list"]');
+            if (ticketsBtn) {
+                window.location.href = ticketsBtn.href;
+            }
+        }
+    }
+
+    /**
+     * Handle table row clicks
+     */
+    handleTableRowClick(e) {
+        // Don't trigger if clicking on a button
+        if (e.target.closest('.btn')) return;
+
+        const row = e.currentTarget;
+        const viewBtn = row.querySelector('a[href*="detail"]');
+        if (viewBtn) {
+            window.location.href = viewBtn.href;
+        }
+    }
+
+    /**
+     * Handle navigation button hover effects
+     */
+    handleNavButtonHover(e) {
+        const btn = e.currentTarget;
+        const icon = btn.querySelector('i');
+
+        if (icon) {
+            icon.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                icon.style.transform = '';
+            }, 200);
+        }
+    }
+
+    /**
+     * Handle logout confirmation
+     */
+    handleLogoutConfirmation(e) {
+        if (!confirm('Are you sure you want to logout?')) {
+            e.preventDefault();
+        }
+    }
+
+    /**
+     * Handle search functionality
+     */
+    handleSearch(e) {
+        const query = e.target.value.toLowerCase();
+        const tableRows = document.querySelectorAll('.table-row');
+
+        tableRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const shouldShow = text.includes(query);
+            row.style.display = shouldShow ? '' : 'none';
+        });
+
+        // Update results count
+        const visibleRows = document.querySelectorAll('.table-row:not([style*="display: none"])');
+        this.updateSearchResults(visibleRows.length, tableRows.length);
+    }
+
+    /**
+     * Update search results display
+     */
+    updateSearchResults(visible, total) {
+        let resultsEl = document.querySelector('.search-results');
+        if (!resultsEl) {
+            resultsEl = document.createElement('div');
+            resultsEl.className = 'search-results text-muted mt-2';
+            const searchInput = document.querySelector('#requestSearch');
+            if (searchInput) {
+                searchInput.parentNode.insertBefore(resultsEl, searchInput.nextSibling);
+            }
+        }
+
+        if (visible !== total) {
+            resultsEl.textContent = `Showing ${visible} of ${total} requests`;
+            resultsEl.style.display = 'block';
+        } else {
+            resultsEl.style.display = 'none';
+        }
+    }
+
+    /**
+     * Handle form submissions
+     */
+    handleFormSubmit(e) {
+        const form = e.currentTarget;
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Processing...';
+
+            // Re-enable after 3 seconds if form hasn't been submitted
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }, 3000);
+        }
+    }
+
+    /**
+     * Close any open elements (modals, dropdowns, etc.)
+     */
+    closeOpenElements() {
+        // Close any Bootstrap modals
+        const modals = document.querySelectorAll('.modal.show');
+        modals.forEach(modal => {
+            const modalInstance = bootstrap.Modal.getInstance(modal);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+        });
+
+        // Close any dropdowns
+        const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+        dropdowns.forEach(dropdown => {
+            dropdown.classList.remove('show');
+        });
+    }
+
+    /**
+     * Get CSRF token for AJAX requests
+     */
+    getCSRFToken() {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        return csrfToken ? csrfToken.value : '';
+    }
+
+    /**
+     * Debounce function to limit API calls
+     */
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    /**
+     * Enhance existing tooltips
+     */
+    enhanceTooltip(element) {
+        element.addEventListener('mouseenter', () => {
+            element.style.position = 'relative';
+        });
+    }
+
+    /**
+     * Utility method to show notifications
+     */
+    showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
 
-        document.body.appendChild(toast);
+        document.body.appendChild(notification);
 
+        // Auto-remove after 5 seconds
         setTimeout(() => {
-            if (toast.parentNode) {
-                toast.remove();
+            if (notification.parentNode) {
+                notification.remove();
             }
         }, 5000);
     }
-
-    getToastIcon(type) {
-        const icons = {
-            'success': 'check-circle',
-            'error': 'exclamation-triangle',
-            'warning': 'exclamation-circle',
-            'info': 'info-circle'
-        };
-        return icons[type] || 'info-circle';
-    }
 }
 
-// =============================================================================
-// Initialize Dashboard
-// =============================================================================
-document.addEventListener('DOMContentLoaded', () => {
-    // Create dashboard instance
-    window.studentDashboard = new StudentDashboard();
+// Initialize dashboard when DOM is ready
+const dashboard = new StudentDashboard();
 
-    // Test filter functionality
-    console.log('🧪 Testing filter buttons...');
-    const filterButtons = document.querySelectorAll('input[name="statusFilter"]');
-    console.log(`Filter buttons found: ${filterButtons.length}`);
-
-    filterButtons.forEach(button => {
-        console.log(`Button: ${button.id} - ${button.checked ? 'checked' : 'unchecked'}`);
-    });
-
-    console.log('🎓 Dashboard initialization complete');
-});
-
-// =============================================================================
-// Global Functions
-// =============================================================================
-function testStatusFilter(status) {
-    if (window.studentDashboard) {
-        window.studentDashboard.filterRequestsByStatus(status);
-    }
-}
-
-function showToast(message, type = 'info') {
-    if (window.studentDashboard) {
-        window.studentDashboard.showToast(message, type);
-    }
-}
+// Export for potential external use
+window.StudentDashboard = StudentDashboard;

@@ -191,7 +191,7 @@ class Student(models.Model):
 
     def get_dashboard_data(self):
         """Get all dashboard data for student"""
-        maintenance_requests = self.maintenance_requests.all()[:5]
+        maintenance_requests = self.maintenance_requests.all()
         return {
             'student': self,
             'maintenance_requests': maintenance_requests,
