@@ -7,52 +7,43 @@ from django.views.generic import FormView, TemplateView
 from django.urls import reverse_lazy
 from student.forms import StudentRegistrationForm, StudentLoginForm
 from django.contrib.auth.views import LoginView, LogoutView
-from student.models import Student, Building
+from student.models import Student, Building, Room
 from django.utils.decorators import method_decorator
 from django.db import transaction
 from dormitory.utils.email_service import StudentEmailService
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 
+
 class StudentRegisterView(FormView):
     form_class = StudentRegistrationForm
     template_name = 'student/register.html'
-    success_url = reverse_lazy('email_verification_sent')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Add buildings to context
-        context['buildings'] = Building.objects.all().order_by('name')
-        # If form has errors and room was selected, include available rooms
-        if self.request.method == 'POST' and 'room' in self.request.POST:
-            room_id = self.request.POST.get('room')
-            if room_id:
-                try:
-                    selected_room = Room.objects.get(id=room_id)
-                    context['available_rooms'] = Room.objects.filter(
-                        building=selected_room.building
-                    ).order_by('floor', 'number')
-                except Room.DoesNotExist:
-                    pass
-        return context
+    success_url = reverse_lazy('student:email_verification_sent')
 
     def form_valid(self, form):
         try:
             with transaction.atomic():
                 student = form.save()
-                # Build the verification URL properly
-                verification_path = reverse('verify_email', kwargs={'token': student.verification_token})
-                verification_url = self.request.build_absolute_uri(verification_path)
-                # Pass the URL string, not the request object
-                StudentEmailService.send_verification_email.delay(student.id, verification_url)
 
+                verification_path = reverse('student:verify_email', kwargs={'token': student.verification_token})
+                verification_url = self.request.build_absolute_uri(verification_path)
+
+                # Handle email service separately (don't let it break registration)
+                try:
+                    StudentEmailService.send_verification_email.delay(student.id, verification_url)
+                except Exception as email_error:
+                    # Log email error but don't fail the registration
+                    print(f"Email service error: {email_error}")
+
+            # Only add success message if everything worked
             messages.success(
                 self.request,
-                'Registration successful! Please check your email to verify your account. \n'
-                'NOTE THAT YOU ONLY HAVE 15 MINUTES TO VERIFY IT'
+                'Registration successful! Please check your email to verify your account.'
             )
             return super().form_valid(form)
+
         except Exception as e:
+            print(f"Registration error: {e}")  # Debug this
             messages.error(self.request, 'Registration failed. Please try again.')
             return self.form_invalid(form)
 
