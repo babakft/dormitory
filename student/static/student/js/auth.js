@@ -6,6 +6,16 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeFormValidation();
     initializePasswordStrength();
     initializeFormSubmission();
+    initializeDynamicRoomLoading();
+
+    // Debug: Check if password strength elements exist
+    const passwordField = document.getElementById('password');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthText = document.getElementById('strengthText');
+
+    console.log('Password field found:', !!passwordField);
+    console.log('Strength bar found:', !!strengthBar);
+    console.log('Strength text found:', !!strengthText);
 });
 
 // Password visibility toggle
@@ -95,11 +105,12 @@ function validateField(field) {
             }
             break;
 
-        case 'room_number':
-            if (value && !isValidRoomNumber(value)) {
-                errorMessage = 'Please enter a valid room number (e.g., 101, A205)';
-                isValid = false;
-            }
+        case 'building':
+            // Building is optional, so no validation needed
+            break;
+
+        case 'room':
+            // Room is optional, so no validation needed
             break;
     }
 
@@ -160,10 +171,20 @@ function initializePasswordStrength() {
             const strength = calculatePasswordStrength(password);
             updatePasswordStrengthUI(strength, strengthBar, strengthText);
         });
+
+        passwordField.addEventListener('keyup', function() {
+            const password = this.value;
+            const strength = calculatePasswordStrength(password);
+            updatePasswordStrengthUI(strength, strengthBar, strengthText);
+        });
     }
 }
 
 function calculatePasswordStrength(password) {
+    if (!password) {
+        return { score: 0, level: 'empty', checks: {} };
+    }
+
     let score = 0;
     const checks = {
         length: password.length >= 8,
@@ -180,6 +201,7 @@ function calculatePasswordStrength(password) {
 
     // Bonus for longer passwords
     if (password.length >= 12) score++;
+    if (password.length >= 16) score++;
 
     return {
         score: score,
@@ -191,32 +213,43 @@ function calculatePasswordStrength(password) {
 function getStrengthLevel(score) {
     if (score <= 2) return 'weak';
     if (score <= 4) return 'medium';
+    if (score <= 5) return 'good';
     return 'strong';
 }
 
 function updatePasswordStrengthUI(strength, strengthBar, strengthText) {
     const colors = {
+        empty: '#e2e8f0',
         weak: '#e53e3e',
         medium: '#dd6b20',
+        good: '#3182ce',
         strong: '#38a169'
     };
 
     const texts = {
+        empty: 'Enter password',
         weak: 'Weak password',
-        medium: 'Medium strength',
+        medium: 'Fair password',
+        good: 'Good password',
         strong: 'Strong password'
     };
 
     const widths = {
-        weak: '33%',
-        medium: '66%',
+        empty: '0%',
+        weak: '25%',
+        medium: '50%',
+        good: '75%',
         strong: '100%'
     };
 
+    // Update the visual elements
     strengthBar.style.backgroundColor = colors[strength.level];
     strengthBar.style.width = widths[strength.level];
     strengthText.textContent = texts[strength.level];
     strengthText.style.color = colors[strength.level];
+
+    // Add transition effect
+    strengthBar.style.transition = 'all 0.3s ease';
 }
 
 // Form submission
@@ -338,3 +371,53 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Dynamic room loading based on building selection
+function initializeDynamicRoomLoading() {
+    const buildingSelect = document.getElementById('building');
+    const roomSelect = document.getElementById('room');
+
+    if (buildingSelect && roomSelect) {
+        buildingSelect.addEventListener('change', function() {
+            const buildingId = this.value;
+            loadRoomsForBuilding(buildingId, roomSelect);
+        });
+    }
+}
+
+function loadRoomsForBuilding(buildingId, roomSelect) {
+    // Clear existing options
+    roomSelect.innerHTML = '<option value="">Loading rooms...</option>';
+
+    if (!buildingId) {
+        roomSelect.innerHTML = '<option value="">Select Building First</option>';
+        return;
+    }
+
+    // Make AJAX request to get rooms for the building
+    fetch(`/api/rooms-by-building/${buildingId}/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch rooms');
+            }
+            return response.json();
+        })
+        .then(data => {
+            roomSelect.innerHTML = '<option value="">Select Room (Optional)</option>';
+
+            if (data.rooms && data.rooms.length > 0) {
+                data.rooms.forEach(room => {
+                    const option = document.createElement('option');
+                    option.value = room.id;
+                    option.textContent = `Room ${room.number} - Floor ${room.floor}`;
+                    roomSelect.appendChild(option);
+                });
+            } else {
+                roomSelect.innerHTML = '<option value="">No rooms available</option>';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading rooms:', error);
+            roomSelect.innerHTML = '<option value="">Error loading rooms</option>';
+        });
+}
