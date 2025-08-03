@@ -7,26 +7,42 @@ from django.views.generic import FormView, TemplateView
 from django.urls import reverse_lazy
 from student.forms import StudentRegistrationForm, StudentLoginForm
 from django.contrib.auth.views import LoginView, LogoutView
-from student.models import Student
+from student.models import Student, Building
 from django.utils.decorators import method_decorator
 from django.db import transaction
 from dormitory.utils.email_service import StudentEmailService
-
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
 
 class StudentRegisterView(FormView):
     form_class = StudentRegistrationForm
     template_name = 'student/register.html'
     success_url = reverse_lazy('email_verification_sent')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Add buildings to context
+        context['buildings'] = Building.objects.all().order_by('name')
+        # If form has errors and room was selected, include available rooms
+        if self.request.method == 'POST' and 'room' in self.request.POST:
+            room_id = self.request.POST.get('room')
+            if room_id:
+                try:
+                    selected_room = Room.objects.get(id=room_id)
+                    context['available_rooms'] = Room.objects.filter(
+                        building=selected_room.building
+                    ).order_by('floor', 'number')
+                except Room.DoesNotExist:
+                    pass
+        return context
+
     def form_valid(self, form):
         try:
             with transaction.atomic():
                 student = form.save()
-
                 # Build the verification URL properly
                 verification_path = reverse('verify_email', kwargs={'token': student.verification_token})
                 verification_url = self.request.build_absolute_uri(verification_path)
-
                 # Pass the URL string, not the request object
                 StudentEmailService.send_verification_email.delay(student.id, verification_url)
 
@@ -64,6 +80,25 @@ class RegistrationSuccessView(TemplateView):
                 return redirect('student_register')
 
         return super().get(request)
+
+
+@require_http_methods(["GET"])
+def get_rooms_by_building(request, building_id):
+    """API endpoint to get rooms for a specific building"""
+    try:
+        rooms = Room.objects.filter(building_id=building_id).order_by('floor', 'number')
+        rooms_data = [
+            {
+                'id': room.id,
+                'number': room.number,
+                'floor': room.floor,
+                'capacity': room.capacity
+            }
+            for room in rooms
+        ]
+        return JsonResponse({'rooms': rooms_data})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
 
 class StudentLoginView(LoginView):

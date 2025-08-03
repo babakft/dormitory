@@ -1,6 +1,6 @@
 from django.urls import path
 from student.views import StudentRegisterView, RegistrationSuccessView, StudentLoginView, StudentLogoutView, \
-    StudentDashboardView, EmailVerificationSentView
+    StudentDashboardView, EmailVerificationSentView,get_rooms_by_building
 
 app_name = 'student'
 
@@ -11,4 +11,5 @@ urlpatterns = [
     path('dashboard/', StudentDashboardView.as_view(), name='student_dashboard'),
     path('email-verification-sent/', EmailVerificationSentView.as_view(), name='email_verification_sent'),
     path('verify-email/<uuid:token>/', RegistrationSuccessView.as_view(), name='verify_email'),
+    path('api/rooms-by-building/<int:building_id>/', get_rooms_by_building, name='rooms_by_building'),
 ]
