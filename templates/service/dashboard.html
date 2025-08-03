@@ -1,56 +1,53 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block title %}Service Expert Dashboard{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'service/css/dashboard.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-{% endblock %}
-
 {% block content %}
+
 <div class="dashboard-container">
     <!-- Header Section -->
     <div class="dashboard-header">
-        <div class="welcome-section">
-            <h1 class="welcome-title">Welcome, {{ expert.user.username }}!</h1>
-            <div class="expert-info">
-                <span class="specialization">
-                    <i class="fas fa-tools"></i>
-                    <strong>Specialization:</strong> {{ expert.get_specialization_display }}
-                </span>
-                <span class="employee-id">
-                    <i class="fas fa-id-badge"></i>
-                    <strong>Employee ID:</strong> {{ expert.employee_id }}
-                </span>
+        <div class="header-content">
+            <div class="welcome-section">
+                <h1 class="welcome-title">Welcome, {{ expert.user.username }}!</h1>
+                <div class="expert-info">
+                    <span class="specialization">
+                        <i class="fas fa-tools"></i>
+                        <strong>Specialization:</strong> {{ expert.get_specialization_display }}
+                    </span>
+                    <span class="employee-id">
+                        <i class="fas fa-id-card"></i>
+                        <strong>Employee ID:</strong> {{ expert.employee_id }}
+                    </span>
+                    <span class="email-info">
+                        <i class="fas fa-envelope"></i>
+                        {{ expert.user.email }}
+                    </span>
+                </div>
             </div>
-        </div>
-        <div class="contact-info">
+
             {% if expert.average_rating %}
-            <div class="rating-info">
-                <span class="rating-label">Your Rating:</span>
+            <div class="rating-section">
+                <div class="rating-badge">
+                    <i class="fas fa-star"></i>
+                    Rated Expert
+                </div>
                 <div class="rating-display">
-                    {{ expert.rating_display }}
-                    <i class="fas fa-star rated-expert"></i>
+                    <span class="rating-number">{{ expert.rating_display }}</span>
                 </div>
             </div>
             {% endif %}
-            <div class="email-info">
-                <i class="fas fa-envelope"></i>
-                {{ expert.user.email }}
-            </div>
         </div>
     </div>
 
     <!-- Statistics Section -->
     <div class="stats-section">
         <div class="stats-grid">
-            <div class="stat-card stat-card--primary">
+            <div class="stat-card stat-card--info">
                 <div class="stat-content">
                     <div class="stat-info">
                         <h3 class="stat-title">Available</h3>
                         <div class="stat-number">{{ total_available }}</div>
-                        <p class="stat-subtitle">Ready to claim</p>
+                        <p class="stat-subtitle">New requests to claim</p>
                     </div>
                     <div class="stat-icon">
                         <i class="fas fa-clipboard-list"></i>
@@ -61,30 +58,34 @@
             <div class="stat-card stat-card--warning">
                 <div class="stat-content">
                     <div class="stat-info">
-                        <h3 class="stat-title">My Assigned</h3>
+                        <h3 class="stat-title">Assigned to Me</h3>
                         <div class="stat-number">{{ total_assigned }}</div>
-                        <p class="stat-subtitle">In progress</p>
+                        <p class="stat-subtitle">Active assignments</p>
                     </div>
                     <div class="stat-icon">
-                        <i class="fas fa-user-clock"></i>
+                        <i class="fas fa-user-cog"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="stat-card stat-card--success">
+            <a href="{% url 'service:completed_tasks' %}" class="stat-card stat-card--success stat-card--clickable">
                 <div class="stat-content">
                     <div class="stat-info">
                         <h3 class="stat-title">Completed</h3>
                         <div class="stat-number">{{ total_completed }}</div>
-                        <p class="stat-subtitle">This month</p>
+                        <p class="stat-subtitle">Successfully finished</p>
                     </div>
                     <div class="stat-icon">
                         <i class="fas fa-check-circle"></i>
                     </div>
                 </div>
-            </div>
+                <div class="stat-overlay">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>View Details</span>
+                </div>
+            </a>
 
-            <div class="stat-card stat-card--info">
+            <div class="stat-card stat-card--primary">
                 <div class="stat-content">
                     <div class="stat-info">
                         <h3 class="stat-title">My Tickets</h3>
@@ -105,44 +106,37 @@
         </div>
     </div>
 
-    <!-- Performance Summary -->
     {% if expert.average_rating %}
-    <div class="performance-section">
-        <div class="performance-card">
-            <h3 class="performance-title">
-                <i class="fas fa-chart-line"></i>
-                Your Performance Summary
-            </h3>
-            <div class="performance-content">
-                <div class="performance-stat">
-                    <span class="performance-label">Current Rating:</span>
-                    <span class="performance-value">{{ expert.rating_display }}</span>
-                </div>
-                <div class="performance-description">
-                    Based on {{ total_completed }} completed requests with student feedback
-                </div>
-                <div class="performance-badge">
-                    {% if expert.average_rating >= 4.5 %}
-                        <span class="badge badge-success">
-                            <i class="fas fa-medal"></i>
-                            Excellent Service
-                        </span>
-                    {% elif expert.average_rating >= 4.0 %}
-                        <span class="badge badge-primary">
-                            <i class="fas fa-thumbs-up"></i>
-                            Great Service
-                        </span>
-                    {% elif expert.average_rating >= 3.5 %}
-                        <span class="badge badge-info">
-                            <i class="fas fa-smile"></i>
-                            Good Service
-                        </span>
-                    {% else %}
-                        <span class="badge badge-warning">
-                            <i class="fas fa-arrow-up"></i>
-                            Keep Improving
-                        </span>
-                    {% endif %}
+    <!-- Performance Summary -->
+    <div class="requests-section">
+        <div class="requests-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-chart-line"></i>
+                    Your Performance Summary
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="performance-grid">
+                    <div class="performance-item">
+                        <span class="performance-label">Current Rating:</span>
+                        <span class="performance-value">{{ expert.rating_display }}</span>
+                    </div>
+                    <div class="performance-item">
+                        <span class="performance-label">Based on:</span>
+                        <span class="performance-value">{{ total_completed }} completed requests</span>
+                    </div>
+                    <div class="performance-badge">
+                        {% if expert.average_rating >= 4.5 %}
+                            <span class="badge badge-excellent">Excellent Service</span>
+                        {% elif expert.average_rating >= 4.0 %}
+                            <span class="badge badge-great">Great Service</span>
+                        {% elif expert.average_rating >= 3.5 %}
+                            <span class="badge badge-good">Good Service</span>
+                        {% else %}
+                            <span class="badge badge-improve">Keep Improving</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -153,21 +147,18 @@
     <div class="requests-section">
         <div class="requests-card">
             <div class="card-header">
-                <h3 class="card-title">
+                <h2 class="card-title">
                     <i class="fas fa-tasks"></i>
                     My Assigned Requests
-                </h3>
-                <div class="card-actions">
-                    <input type="text" id="assignedSearch" class="search-input" placeholder="Search assigned requests...">
-                </div>
+                </h2>
             </div>
             <div class="card-body">
                 {% if assigned_requests %}
-                <div class="table-container">
+                <div class="table-responsive">
                     <table class="requests-table">
                         <thead>
                             <tr>
-                                <th>Request Details</th>
+                                <th>Title & Description</th>
                                 <th>Location</th>
                                 <th>Priority</th>
                                 <th>Status</th>
@@ -177,77 +168,65 @@
                         </thead>
                         <tbody>
                             {% for request in assigned_requests %}
-                            <tr class="table-row" data-request-id="{{ request.pk }}">
+                            <tr class="table-row">
                                 <td>
-                                    <div class="request-title">
-                                        <strong>{{ request.title }}</strong>
-                                    </div>
-                                    <div class="request-description">
-                                        {{ request.description|truncatechars:50 }}
+                                    <div class="request-info">
+                                        <strong class="request-title">{{ request.title }}</strong>
+                                        <p class="request-description">{{ request.description|truncatechars:50 }}</p>
                                     </div>
                                 </td>
-                                <td>{{ request.full_location }}</td>
+                                <td>
+                                    <div class="location-info">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ request.full_location }}
+                                    </div>
+                                </td>
                                 <td>
                                     {% if request.priority == 'high' %}
-                                        <span class="badge badge-danger">
-                                            <i class="fas fa-exclamation-triangle"></i>
-                                            High
+                                        <span class="priority-badge priority-high">
+                                            <i class="fas fa-exclamation-triangle"></i> High
                                         </span>
                                     {% elif request.priority == 'medium' %}
-                                        <span class="badge badge-warning">
-                                            <i class="fas fa-minus-circle"></i>
-                                            Medium
+                                        <span class="priority-badge priority-medium">
+                                            <i class="fas fa-exclamation-circle"></i> Medium
                                         </span>
                                     {% elif request.priority == 'low' %}
-                                        <span class="badge badge-info">
-                                            <i class="fas fa-arrow-down"></i>
-                                            Low
+                                        <span class="priority-badge priority-low">
+                                            <i class="fas fa-info-circle"></i> Low
                                         </span>
                                     {% else %}
-                                        <span class="badge badge-light">
+                                        <span class="priority-badge priority-default">
                                             {{ request.get_priority_display }}
                                         </span>
                                     {% endif %}
                                 </td>
                                 <td>
                                     {% if request.status == 'approved' %}
-                                        <span class="badge badge-primary">
-                                            <i class="fas fa-play"></i>
-                                            Ready to Start
+                                        <span class="status-badge status-approved">
+                                            <i class="fas fa-play"></i> Ready to Start
                                         </span>
                                     {% elif request.status == 'in_progress' %}
-                                        <span class="badge badge-warning">
-                                            <i class="fas fa-cog fa-spin"></i>
-                                            In Progress
+                                        <span class="status-badge status-progress">
+                                            <i class="fas fa-cog fa-spin"></i> In Progress
                                         </span>
                                     {% endif %}
                                 </td>
                                 <td>
                                     <div class="student-info">
                                         <strong>{{ request.student.user.username }}</strong>
-                                        <small>#{{ request.student.student_number }}</small>
+                                        <small class="student-number">#{{ request.student.student_number }}</small>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="action-buttons">
-                                        {% if request.status == 'approved' %}
-                                            <a href="{% url 'service:start_work' request.pk %}"
-                                               class="btn btn-primary btn-sm action-btn"
-                                               data-action="start-work"
-                                               title="Start working on this request">
-                                                <i class="fas fa-play"></i>
-                                                Start Work
-                                            </a>
-                                        {% elif request.status == 'in_progress' %}
-                                            <a href="{% url 'service:complete_work' request.pk %}"
-                                               class="btn btn-success btn-sm action-btn"
-                                               data-action="complete-work"
-                                               title="Mark this request as completed">
-                                                <i class="fas fa-check"></i>
-                                                Complete
-                                            </a>
-                                        {% endif %}
-                                    </div>
+                                    {% if request.status == 'approved' %}
+                                        <a href="{% url 'service:start_work' request.id %}" class="btn btn-success btn-sm">
+                                            <i class="fas fa-play"></i> Start Work
+                                        </a>
+                                    {% elif request.status == 'in_progress' %}
+                                        <a href="{% url 'service:complete_work' request.id %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-check"></i> Complete
+                                        </a>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
@@ -259,7 +238,7 @@
                     <div class="empty-icon">
                         <i class="fas fa-clipboard-check"></i>
                     </div>
-                    <h4 class="empty-title">No assigned requests</h4>
+                    <h3 class="empty-title">No assigned requests</h3>
                     <p class="empty-description">Check available requests below to claim new work.</p>
                 </div>
                 {% endif %}
@@ -271,21 +250,18 @@
     <div class="requests-section">
         <div class="requests-card">
             <div class="card-header">
-                <h3 class="card-title">
+                <h2 class="card-title">
                     <i class="fas fa-list"></i>
                     Available Requests ({{ expert.get_specialization_display }})
-                </h3>
-                <div class="card-actions">
-                    <input type="text" id="availableSearch" class="search-input" placeholder="Search available requests...">
-                </div>
+                </h2>
             </div>
             <div class="card-body">
                 {% if available_requests %}
-                <div class="table-container">
+                <div class="table-responsive">
                     <table class="requests-table">
                         <thead>
                             <tr>
-                                <th>Request Details</th>
+                                <th>Title & Description</th>
                                 <th>Location</th>
                                 <th>Priority</th>
                                 <th>Student</th>
@@ -295,34 +271,34 @@
                         </thead>
                         <tbody>
                             {% for request in available_requests %}
-                            <tr class="table-row" data-request-id="{{ request.pk }}">
+                            <tr class="table-row">
                                 <td>
-                                    <div class="request-title">
-                                        <strong>{{ request.title }}</strong>
-                                    </div>
-                                    <div class="request-description">
-                                        {{ request.description|truncatechars:50 }}
+                                    <div class="request-info">
+                                        <strong class="request-title">{{ request.title }}</strong>
+                                        <p class="request-description">{{ request.description|truncatechars:50 }}</p>
                                     </div>
                                 </td>
-                                <td>{{ request.full_location }}</td>
+                                <td>
+                                    <div class="location-info">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ request.full_location }}
+                                    </div>
+                                </td>
                                 <td>
                                     {% if request.priority == 'high' %}
-                                        <span class="badge badge-danger">
-                                            <i class="fas fa-exclamation-triangle"></i>
-                                            High
+                                        <span class="priority-badge priority-high">
+                                            <i class="fas fa-exclamation-triangle"></i> High
                                         </span>
                                     {% elif request.priority == 'medium' %}
-                                        <span class="badge badge-warning">
-                                            <i class="fas fa-minus-circle"></i>
-                                            Medium
+                                        <span class="priority-badge priority-medium">
+                                            <i class="fas fa-exclamation-circle"></i> Medium
                                         </span>
                                     {% elif request.priority == 'low' %}
-                                        <span class="badge badge-info">
-                                            <i class="fas fa-arrow-down"></i>
-                                            Low
+                                        <span class="priority-badge priority-low">
+                                            <i class="fas fa-info-circle"></i> Low
                                         </span>
                                     {% else %}
-                                        <span class="badge badge-light">
+                                        <span class="priority-badge priority-default">
                                             {{ request.get_priority_display }}
                                         </span>
                                     {% endif %}
@@ -330,24 +306,22 @@
                                 <td>
                                     <div class="student-info">
                                         <strong>{{ request.student.user.username }}</strong>
-                                        <small>#{{ request.student.student_number }}</small>
+                                        <small class="student-number">#{{ request.student.student_number }}</small>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="date-info">
-                                        <div>{{ request.created_at|date:"M d, Y" }}</div>
+                                        <div class="created-date">{{ request.created_at|date:"M d, Y" }}</div>
                                         <small class="days-ago">{{ request.days_since_created }} days ago</small>
                                     </div>
                                 </td>
                                 <td>
-                                    <form method="post" action="{% url 'service:claim_request' request.pk %}" class="claim-form">
+                                    <form method="post" action="{% url 'service:claim_request' request.id %}" style="display: inline;">
                                         {% csrf_token %}
-                                        <button type="submit"
-                                                class="btn btn-outline-primary btn-sm action-btn"
-                                                data-action="claim"
-                                                title="Claim this request">
-                                            <i class="fas fa-hand-paper"></i>
-                                            Claim
+                                        <input type="hidden" name="action" value="claim">
+                                        <input type="hidden" name="request_id" value="{{ request.id }}">
+                                        <button type="submit" class="btn btn-primary btn-sm btn-claim">
+                                            <i class="fas fa-hand-paper"></i> Claim
                                         </button>
                                     </form>
                                 </td>
@@ -356,8 +330,9 @@
                         </tbody>
                     </table>
                 </div>
+
                 {% if total_available > 5 %}
-                <div class="more-info">
+                <div class="table-footer">
                     <p class="text-muted">
                         <i class="fas fa-info-circle"></i>
                         Showing 5 most recent requests. Total available: {{ total_available }}
@@ -367,9 +342,9 @@
                 {% else %}
                 <div class="empty-state">
                     <div class="empty-icon">
-                        <i class="fas fa-check-circle"></i>
+                        <i class="fas fa-inbox"></i>
                     </div>
-                    <h4 class="empty-title">No available requests</h4>
+                    <h3 class="empty-title">No available requests</h3>
                     <p class="empty-description">No {{ expert.get_specialization_display|lower }} requests available at the moment.</p>
                 </div>
                 {% endif %}
@@ -377,59 +352,108 @@
         </div>
     </div>
 
-    <!-- Quick Navigation Section -->
-    <div class="navigation-section">
-        <div class="nav-card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <i class="fas fa-rocket"></i>
-                    Quick Actions
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="nav-grid">
-                    <a href="{% url 'ticket:list' %}" class="nav-btn nav-btn--primary">
-                        <i class="fas fa-ticket-alt"></i>
-                        <span>My Tickets</span>
-                        {% if pending_tickets %}
-                            <span class="nav-badge">{{ pending_tickets }}</span>
-                        {% endif %}
-                    </a>
-
-                    <a href="{% url 'ticket:create' %}" class="nav-btn nav-btn--success">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Create Ticket</span>
-                    </a>
-
-                    <a href="{% url 'service:completed_tasks' %}" class="nav-btn nav-btn--info">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Completed Tasks</span>
-                    </a>
-
-                    <button type="button" class="nav-btn nav-btn--secondary" onclick="location.reload()">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>Refresh Dashboard</span>
-                    </button>
-
-                    <a href="#" class="nav-btn nav-btn--warning">
-                        <i class="fas fa-user-cog"></i>
-                        <span>Profile Settings</span>
-                    </a>
-
-                    <form method="post" action="{% url 'service:service_logout' %}" class="logout-form">
-                        {% csrf_token %}
-                        <button type="submit" class="nav-btn nav-btn--danger">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </button>
-                    </form>
+    <!-- Quick Actions -->
+    <div class="nav-section">
+        <div class="nav-grid">
+            <a href="{% url 'ticket:list' %}" class="nav-btn">
+                <div class="nav-icon">
+                    <i class="fas fa-ticket-alt"></i>
                 </div>
-            </div>
+                <span class="nav-text">My Tickets</span>
+            </a>
+
+            <a href="{% url 'service:completed_tasks' %}" class="nav-btn">
+                <div class="nav-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <span class="nav-text">Completed Tasks</span>
+            </a>
+
+            <button onclick="location.reload()" class="nav-btn">
+                <div class="nav-icon">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                <span class="nav-text">Refresh Dashboard</span>
+            </button>
+
+            <form method="post" action="{% url 'service:service_logout' %}" style="display: contents;">
+                {% csrf_token %}
+                <button type="submit" class="nav-btn logout-btn" onclick="return confirm('Are you sure you want to logout?')">
+                    <div class="nav-icon">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <span class="nav-text">Logout</span>
+                </button>
+            </form>
         </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="{% static 'service/css/dashboard.css' %}">
+<style>
+/* Additional CSS for clickable stat card */
+.stat-card--clickable {
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.stat-card--clickable:hover {
+    color: inherit;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stat-card--clickable .stat-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(40, 167, 69, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: white;
+    font-weight: 600;
+}
+
+.stat-card--clickable:hover .stat-overlay {
+    opacity: 1;
+}
+
+.stat-card--clickable .stat-overlay i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+</style>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'service/js/dashboard.js' %}"></script>
+<script>
+// Add smooth hover effects for clickable cards
+document.addEventListener('DOMContentLoaded', function() {
+    const clickableCards = document.querySelectorAll('.stat-card--clickable');
+
+    clickableCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px) scale(1.02)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(-2px) scale(1)';
+        });
+    });
+});
+</script>
 {% endblock %}
