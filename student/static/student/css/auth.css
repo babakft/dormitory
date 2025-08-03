@@ -195,6 +195,7 @@ body {
 .icon-door::before { content: '🚪'; }
 .icon-id::before { content: '🆔'; }
 .icon-eye::before { content: '👁️'; }
+.icon-eye-off::before { content: '🙈'; }
 .icon-check::before { content: '✅'; }
 
 .toggle-password {
@@ -242,6 +243,71 @@ body {
     opacity: 1;
 }
 
+/* Password Strength Indicator */
+.password-strength {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.strength-meter {
+    width: 100%;
+    height: 6px;
+    background-color: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 3px;
+    background-color: #e5e7eb;
+}
+
+/* Strength Colors */
+.strength-fill.weak {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.strength-fill.fair {
+    background: linear-gradient(90deg, #f97316, #fb923c);
+}
+
+.strength-fill.good {
+    background: linear-gradient(90deg, #eab308, #facc15);
+}
+
+.strength-fill.strong {
+    background: linear-gradient(90deg, #22c55e, #4ade80);
+}
+
+.strength-text {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+/* Text colors for different strengths */
+.password-strength.weak .strength-text {
+    color: #ef4444;
+}
+
+.password-strength.fair .strength-text {
+    color: #f97316;
+}
+
+.password-strength.good .strength-text {
+    color: #eab308;
+}
+
+.password-strength.strong .strength-text {
+    color: #22c55e;
+}
+
 /* Messages */
 .messages {
     margin-bottom: 1.5rem;
@@ -253,6 +319,7 @@ body {
     margin-bottom: 0.75rem;
     font-weight: 500;
     font-size: 0.9375rem;
+    transition: opacity 0.3s ease;
 }
 
 .alert-error {
@@ -330,32 +397,6 @@ body {
 .forgot-link:hover {
     color: #553c9a;
     text-decoration: underline;
-}
-
-/* Password Strength */
-.password-strength {
-    margin-bottom: 1rem;
-}
-
-.strength-meter {
-    width: 100%;
-    height: 6px;
-    background: #e2e8f0;
-    border-radius: 3px;
-    overflow: hidden;
-    margin-bottom: 0.5rem;
-}
-
-.strength-bar {
-    height: 100%;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 3px;
-}
-
-.strength-text {
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: #718096;
 }
 
 /* Buttons */
@@ -553,8 +594,8 @@ body {
 }
 
 /* Validation States */
-.input-wrapper input.error,
-.input-wrapper select.error {
+.input-wrapper input.invalid,
+.input-wrapper select.invalid {
     border-color: #e53e3e;
     box-shadow: 0 0 0 4px rgba(229, 62, 62, 0.12);
 }
@@ -563,10 +604,6 @@ body {
 .input-wrapper select.valid {
     border-color: #38a169;
     box-shadow: 0 0 0 4px rgba(56, 161, 105, 0.12);
-}
-
-.alert {
-    transition: opacity 0.3s ease;
 }
 
 /* Responsive Design */
@@ -621,7 +658,7 @@ body {
 
     .input-wrapper input,
     .input-wrapper select {
-        padding: 0.875rem 0.875rem 0.875rem 2.75rem;
+        padding: 0.75rem 0.75rem 0.75rem 2.5rem;
         font-size: 0.9375rem;
     }
 
@@ -633,47 +670,17 @@ body {
         padding: 1rem 1.25rem;
         font-size: 1rem;
     }
-    .password-strength {
-    margin-top: 0.5rem;
-}
 
-.strength-meter {
-    height: 4px;
-    background-color: #e5e7eb;
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: 0.25rem;
-}
+    .stats {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
 
-.strength-fill {
-    height: 100%;
-    width: 0%;
-    transition: width 0.3s ease, background-color 0.3s ease;
-    border-radius: 2px;
-}
+    .auth-header h2 {
+        font-size: 1.875rem;
+    }
 
-.strength-fill.weak {
-    width: 20%;
-    background-color: #ef4444;
-}
-
-.strength-fill.fair {
-    width: 40%;
-    background-color: #f97316;
-}
-
-.strength-fill.good {
-    width: 70%;
-    background-color: #eab308;
-}
-
-.strength-fill.strong {
-    width: 100%;
-    background-color: #22c55e;
-}
-
-.strength-text {
-    font-size: 0.75rem;
-    color: #6b7280;
-}
+    .sidebar-content h3 {
+        font-size: 1.5rem;
+    }
 }

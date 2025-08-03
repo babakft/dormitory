@@ -1,11 +1,10 @@
-<!-- templates/student/register.html -->
-{% load static %}
+{%  load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Registration - Dormitory Management</title>
+    <title>Student Registration - Dormitory System</title>
     <link rel="stylesheet" href="{% static 'student/css/auth.css' %}">
 </head>
 <body>
@@ -20,152 +19,132 @@
                 <p>Create your dormitory account</p>
             </div>
 
-            <form class="auth-form" method="post" id="registerForm">
+            <form method="post" class="auth-form" id="registerForm">
                 {% csrf_token %}
-                
                 {% if messages %}
-                    <div class="messages">
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
                     </div>
+                    {% endfor %}
+                </div>
                 {% endif %}
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="first_name">First Name</label>
+                        <label for="{{ form.student_number.id_for_label }}">Student ID</label>
                         <div class="input-wrapper">
-                            <i class="icon-user"></i>
-                            <input type="text" id="first_name" name="first_name" required>
+                            <i class="icon-id"></i>
+                            {{ form.student_number }}
                         </div>
-                        <span class="error-message" id="firstNameError"></span>
+                        {% if form.student_number.errors %}
+                        <span class="error-message" id="student_numberError">{{ form.student_number.errors.0 }}</span>
+                        {% endif %}
                     </div>
 
                     <div class="form-group">
-                        <label for="last_name">Last Name</label>
+                        <label for="{{ form.email.id_for_label }}">Email Address</label>
                         <div class="input-wrapper">
-                            <i class="icon-user"></i>
-                            <input type="text" id="last_name" name="last_name" required>
+                            <i class="icon-mail"></i>
+                            {{ form.email }}
                         </div>
-                        <span class="error-message" id="lastNameError"></span>
+                        {% if form.email.errors %}
+                        <span class="error-message" id="emailError">{{ form.email.errors.0 }}</span>
+                        {% endif %}
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="{{ form.student_number.id_for_label }}">Student ID</label>
-                    <div class="input-wrapper">
-                        <i class="icon-id"></i>
-                        {{ form.student_number }}
-                    </div>
-                    {% if form.student_number.errors %}
-                        <span class="error-message">{{ form.student_number.errors.0 }}</span>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="{{ form.email.id_for_label }}">Email Address</label>
-                    <div class="input-wrapper">
-                        <i class="icon-mail"></i>
-                        {{ form.email }}
-                    </div>
-                    {% if form.email.errors %}
-                        <span class="error-message">{{ form.email.errors.0 }}</span>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="{{ form.username.id_for_label }}">Username</label>
-                    <div class="input-wrapper">
-                        <i class="icon-user"></i>
-                        {{ form.username }}
-                    </div>
-                    {% if form.username.errors %}
-                        <span class="error-message">{{ form.username.errors.0 }}</span>
-                    {% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="{{ form.phone.id_for_label }}">Phone Number</label>
-                    <div class="input-wrapper">
-                        <i class="icon-phone"></i>
-                        {{ form.phone }}
-                    </div>
-                    {% if form.phone.errors %}
-                        <span class="error-message">{{ form.phone.errors.0 }}</span>
-                    {% endif %}
-                </div>
-
-                <!-- Combined Building + Room Selection -->
-                <div class="form-group">
-                    <label for="{{ form.room.id_for_label }}">Room Selection</label>
-                    <div class="input-wrapper">
-                        <i class="icon-building"></i>
-                        {{ form.room }}
-                    </div>
-                    {% if form.room.errors %}
-                        <span class="error-message">{{ form.room.errors.0 }}</span>
-                    {% endif %}
-                    <small class="form-text text-muted">Select your building and room (optional)</small>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="id_password1">Password</label>
+                        <label for="{{ form.username.id_for_label }}">Username</label>
                         <div class="input-wrapper">
-                            <i class="icon-lock"></i>
-                            <input type="password" id="id_password1" name="password1" class="form-control" placeholder="Create strong password" required>
-                            <button type="button" class="toggle-password" onclick="togglePassword('id_password1')">
-                                <i class="icon-eye" id="toggleIcon1"></i>
-                            </button>
+                            <i class="icon-user"></i>
+                            {{ form.username }}
                         </div>
-                        {% if form.password1.errors %}
-                            <span class="error-message">{{ form.password1.errors.0 }}</span>
+                        {% if form.username.errors %}
+                        <span class="error-message" id="usernameError">{{ form.username.errors.0 }}</span>
                         {% endif %}
-                        <span class="error-message" id="password1Error" style="display: none;"></span>
                     </div>
 
                     <div class="form-group">
-                        <label for="id_password2">Confirm Password</label>
+                        <label for="{{ form.phone.id_for_label }}">Phone Number</label>
                         <div class="input-wrapper">
+                            <i class="icon-phone"></i>
+                            {{ form.phone }}
+                        </div>
+                        {% if form.phone.errors %}
+                        <span class="error-message" id="phoneError">{{ form.phone.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.room.id_for_label }}">Room Selection</label>
+                    <div class="input-wrapper">
+                        <i class="icon-door"></i>
+                        {{ form.room }}
+                    </div>
+                    {% if form.room.errors %}
+                    <span class="error-message" id="roomError">{{ form.room.errors.0 }}</span>
+                    {% endif %}
+                    <small style="color: #718096; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                        Select your building and room (optional)
+                    </small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.password1.id_for_label }}">Password</label>
+                        <div class="input-wrapper password-input">
                             <i class="icon-lock"></i>
-                            <input type="password" id="id_password2" name="password2" class="form-control" placeholder="Confirm your password" required>
-                            <button type="button" class="toggle-password" onclick="togglePassword('id_password2')">
-                                <i class="icon-eye" id="toggleIcon2"></i>
+                            {{ form.password1 }}
+                            <button type="button" class="toggle-password" onclick="togglePassword('id_password1')">
+                                <i id="toggleIcon1" class="icon-eye"></i>
                             </button>
                         </div>
-                        {% if form.password2.errors %}
-                            <span class="error-message">{{ form.password2.errors.0 }}</span>
+                        {% if form.password1.errors %}
+                        <span class="error-message" id="password1Error">{{ form.password1.errors.0 }}</span>
                         {% endif %}
-                        <span class="error-message" id="password2Error" style="display: none;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                        <div class="input-wrapper password-input">
+                            <i class="icon-lock"></i>
+                            {{ form.password2 }}
+                        </div>
+                        {% if form.password2.errors %}
+                        <span class="error-message" id="password2Error">{{ form.password2.errors.0 }}</span>
+                        {% endif %}
                     </div>
                 </div>
 
                 <div class="password-strength">
                     <div class="strength-meter">
-                        <div class="strength-fill" id="strengthFill"></div>
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
                     </div>
                     <span class="strength-text" id="strengthText">Password strength</span>
                 </div>
 
                 <div class="form-options">
                     <label class="checkbox-wrapper">
-                        <input type="checkbox" name="terms_accepted" required>
+                        <input type="checkbox" required>
                         <span class="checkmark"></span>
-                        I agree to the <a href="#" target="_blank">Terms and Conditions</a>
+                        I agree to the Terms and Conditions
                     </label>
                 </div>
 
-                <button type="submit" class="btn-primary" id="registerBtn">
-                    <span class="btn-text">Create Account</span>
-                    <div class="spinner" id="registerSpinner"></div>
+                <button type="submit" class="btn btn-primary" id="registerBtn">
+                    Create Account
                 </button>
-
-                <div class="auth-footer">
-                    <p>Already have an account? <a href="{% url 'student:student_login' %}">Login here</a></p>
-                </div>
             </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="{% url 'student:student_login' %}">Login here</a></p>
+            </div>
         </div>
 
         <div class="auth-sidebar">
@@ -177,17 +156,20 @@
                     <li><i class="icon-check"></i> 24/7 support available</li>
                     <li><i class="icon-check"></i> Secure and reliable</li>
                 </ul>
+
                 <div class="stats">
-                    <div class="stat-item">
-                        <span class="stat-number">500+</span>
-                        <span class="stat-label">Active Students</span>
+                    <div class="stat-card">
+                        <div class="stat-number" data-count="500">500</div>
+                        <div class="stat-label">Active Students</div>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-number">98%</span>
-                        <span class="stat-label">Satisfaction Rate</span>
+                    <div class="stat-card">
+                        <div class="stat-number" data-count="98">98</div>
+                        <div class="stat-label">Satisfaction Rate</div>
                     </div>
                 </div>
             </div>
+
+            <div id="particles"></div>
         </div>
     </div>
 

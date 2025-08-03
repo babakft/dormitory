@@ -51,6 +51,7 @@ class RegistrationSystem {
         this.animateCounters();
         this.createParticles();
         this.addFormClasses();
+        this.injectRequiredStyles();
 
         // Close any Django messages after 5 seconds
         setTimeout(() => {
@@ -343,6 +344,7 @@ class RegistrationSystem {
         const password = e.target.value;
         const strengthFill = document.getElementById('strengthFill');
         const strengthText = document.getElementById('strengthText');
+        const strengthContainer = document.querySelector('.password-strength');
 
         if (!strengthFill || !strengthText) return;
 
@@ -359,49 +361,59 @@ class RegistrationSystem {
 
         // Reset all classes
         strengthFill.className = 'strength-fill';
-
-        // Update UI based on strength
-        switch (strength) {
-            case 0:
-                strengthWidth = '0%';
-                strengthLabel = '';
-                break;
-            case 1:
-                strengthFill.classList.add('weak');
-                strengthWidth = '20%';
-                strengthLabel = 'Weak';
-                break;
-            case 2:
-                strengthFill.classList.add('fair');
-                strengthWidth = '40%';
-                strengthLabel = 'Fair';
-                break;
-            case 3:
-                strengthFill.classList.add('good');
-                strengthWidth = '60%';
-                strengthLabel = 'Good';
-                break;
-            case 4:
-                strengthFill.classList.add('good');
-                strengthWidth = '80%';
-                strengthLabel = 'Good';
-                break;
-            case 5:
-                strengthFill.classList.add('strong');
-                strengthWidth = '100%';
-                strengthLabel = 'Strong';
-                break;
+        if (strengthContainer) {
+            strengthContainer.className = 'password-strength';
         }
 
-        // Apply the width
+        // Update UI based on strength
+        if (password.length === 0) {
+            strengthWidth = '0%';
+            strengthLabel = 'Password strength';
+        } else {
+            switch (strength) {
+                case 1:
+                    strengthFill.classList.add('weak');
+                    strengthContainer?.classList.add('weak');
+                    strengthWidth = '20%';
+                    strengthLabel = 'Weak';
+                    break;
+                case 2:
+                    strengthFill.classList.add('fair');
+                    strengthContainer?.classList.add('fair');
+                    strengthWidth = '40%';
+                    strengthLabel = 'Fair';
+                    break;
+                case 3:
+                    strengthFill.classList.add('good');
+                    strengthContainer?.classList.add('good');
+                    strengthWidth = '60%';
+                    strengthLabel = 'Good';
+                    break;
+                case 4:
+                    strengthFill.classList.add('good');
+                    strengthContainer?.classList.add('good');
+                    strengthWidth = '80%';
+                    strengthLabel = 'Good';
+                    break;
+                case 5:
+                    strengthFill.classList.add('strong');
+                    strengthContainer?.classList.add('strong');
+                    strengthWidth = '100%';
+                    strengthLabel = 'Strong';
+                    break;
+                default:
+                    strengthWidth = '10%';
+                    strengthLabel = 'Too weak';
+                    strengthFill.classList.add('weak');
+                    strengthContainer?.classList.add('weak');
+            }
+        }
+
+        // Apply the width with animation
         strengthFill.style.width = strengthWidth;
 
         // Update text
-        if (password.length === 0) {
-            strengthText.textContent = 'Password strength';
-        } else {
-            strengthText.textContent = `Password strength: ${strengthLabel}`;
-        }
+        strengthText.textContent = password.length === 0 ? 'Password strength' : `Password strength: ${strengthLabel}`;
     }
 
     togglePassword(fieldId) {
@@ -418,7 +430,7 @@ class RegistrationSystem {
         if (field && icon) {
             if (field.type === 'password') {
                 field.type = 'text';
-                icon.className = 'icon-eye-off'; // or whatever your "hide" icon class is
+                icon.className = 'icon-eye-off';
             } else {
                 field.type = 'password';
                 icon.className = 'icon-eye';
@@ -571,25 +583,57 @@ class RegistrationSystem {
             `;
             particleContainer.appendChild(particle);
         }
-
-        // Add CSS animation for particles
-        if (!document.getElementById('particle-styles')) {
-            const style = document.createElement('style');
-            style.id = 'particle-styles';
-            style.textContent = `
-                @keyframes particleFloat {
-                    0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.5; }
-                    25% { transform: translateY(-20px) translateX(10px); opacity: 1; }
-                    50% { transform: translateY(-40px) translateX(-10px); opacity: 0.7; }
-                    75% { transform: translateY(-20px) translateX(5px); opacity: 1; }
-                }
-            `;
-            document.head.appendChild(style);
-        }
     }
 
+    injectRequiredStyles() {
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes particleFloat {
+                0%, 100% {
+                    transform: translateY(0px) translateX(0px);
+                    opacity: 0.5;
+                }
+                50% {
+                    transform: translateY(-20px) translateX(10px);
+                    opacity: 1;
+                }
+            }
+
+            @keyframes slideUp {
+                to {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                    max-height: 0;
+                    padding: 0;
+                    margin: 0;
+                }
+            }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .auth-form {
+                animation: fadeInUp 0.6s ease-out;
+            }
+
+            .alert.closing {
+                animation: slideUp 0.3s ease-in-out forwards;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Navigation Effects
     handleNavbarScroll() {
-        const navbar = document.getElementById('navbar');
+        const navbar = document.querySelector('.navbar');
         if (navbar) {
             if (window.scrollY > 50) {
                 navbar.classList.add('scrolled');
@@ -600,79 +644,83 @@ class RegistrationSystem {
     }
 
     toggleMobileMenu() {
-        const toggle = document.getElementById('mobileToggle');
+        const mobileToggle = document.getElementById('mobileToggle');
         const navLinks = document.querySelector('.nav-links');
 
-        if (toggle) {
-            toggle.classList.toggle('active');
-        }
-
-        if (navLinks) {
+        if (mobileToggle && navLinks) {
+            mobileToggle.classList.toggle('active');
             navLinks.classList.toggle('active');
         }
     }
 
-    // Message and Alert Methods
+    // Message System
     showMessage(message, type = 'info') {
-        const messageContainer = document.getElementById('messageContainer');
-        if (!messageContainer) return;
+        const messagesContainer = document.querySelector('.messages') || this.createMessagesContainer();
 
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type}`;
-        alertDiv.innerHTML = `
-            <i class="fas fa-${this.getIconForType(type)}"></i>
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.innerHTML = `
+            <i class="${this.getIconForType(type)}"></i>
             <span>${message}</span>
-            <button type="button" class="close-alert" onclick="closeAlert(this.parentElement)">&times;</button>
+            <button class="close-alert" onclick="window.closeAlert(this.parentElement)">×</button>
         `;
 
-        messageContainer.appendChild(alertDiv);
-
-        // Add event listener to close button
-        alertDiv.querySelector('.close-alert').addEventListener('click', () => {
-            this.closeAlert(alertDiv);
-        });
+        messagesContainer.appendChild(alert);
 
         // Auto-close after 5 seconds
         setTimeout(() => {
-            this.closeAlert(alertDiv);
+            this.closeAlert(alert);
         }, 5000);
     }
 
+    createMessagesContainer() {
+        const container = document.createElement('div');
+        container.className = 'messages';
+        const form = document.querySelector('.auth-form');
+        if (form) {
+            form.insertBefore(container, form.firstChild);
+        }
+        return container;
+    }
+
     getIconForType(type) {
-        const iconMap = {
-            success: 'check-circle',
-            error: 'exclamation-triangle',
-            warning: 'exclamation-circle',
-            info: 'info-circle'
+        const icons = {
+            success: 'icon-check',
+            error: 'icon-x',
+            warning: 'icon-warning',
+            info: 'icon-info'
         };
-        return iconMap[type] || 'info-circle';
+        return icons[type] || 'icon-info';
     }
 
     closeAlert(alertElement) {
         if (alertElement) {
-            alertElement.style.animation = 'slideUp 0.3s ease-out';
+            alertElement.classList.add('closing');
             setTimeout(() => {
-                if (alertElement.parentNode) {
-                    alertElement.parentNode.removeChild(alertElement);
-                }
+                alertElement.remove();
             }, 300);
         }
     }
 
     closeDjangoMessages() {
-        const djangoMessage = document.getElementById('djangoMessage');
-        if (djangoMessage) {
-            this.closeAlert(djangoMessage);
+        const djangoMessages = document.getElementById('django-messages');
+        if (djangoMessages) {
+            this.closeAlert(djangoMessages);
         }
     }
 
-    // Utility Methods
+    // Utility method for delays
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 }
 
-// Global Functions (for onclick handlers)
+// Initialize the registration system when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.registrationSystem = new RegistrationSystem();
+});
+
+// Global functions for HTML onclick handlers
 window.togglePassword = function(fieldId) {
     if (window.registrationSystem) {
         window.registrationSystem.togglePassword(fieldId);
@@ -685,96 +733,7 @@ window.closeAlert = function(element) {
     }
 };
 
-// Initialize the registration system when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    window.registrationSystem = new RegistrationSystem();
-
-    // Add additional CSS animations and password strength styles
-    const additionalStyles = `
-        <style>
-            @keyframes slideUp {
-                from {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                to {
-                    opacity: 0;
-                    transform: translateY(-20px);
-                }
-            }
-
-            .form-content {
-                animation: fadeInUp 0.6s ease-out;
-            }
-
-            .form-actions {
-                margin-top: 2rem;
-                padding-top: 1.5rem;
-                border-top: 1px solid #e5e7eb;
-            }
-
-            .form-actions .btn {
-                width: 100%;
-            }
-
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(30px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            /* Password Strength Styles */
-            .password-strength {
-                margin-top: 0.5rem;
-            }
-
-            .strength-meter {
-                height: 4px;
-                background-color: #e5e7eb;
-                border-radius: 2px;
-                overflow: hidden;
-                margin-bottom: 0.25rem;
-            }
-
-            .strength-fill {
-                height: 100%;
-                width: 0%;
-                transition: width 0.3s ease, background-color 0.3s ease;
-                border-radius: 2px;
-            }
-
-            .strength-fill.weak {
-                background-color: #ef4444;
-            }
-
-            .strength-fill.fair {
-                background-color: #f97316;
-            }
-
-            .strength-fill.good {
-                background-color: #eab308;
-            }
-
-            .strength-fill.strong {
-                background-color: #22c55e;
-            }
-
-            .strength-text {
-                font-size: 0.75rem;
-                color: #6b7280;
-            }
-        </style>
-    `;
-
-    document.head.insertAdjacentHTML('beforeend', additionalStyles);
-});
-
-// Export for module usage (if needed)
+// Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = RegistrationSystem;
 }
