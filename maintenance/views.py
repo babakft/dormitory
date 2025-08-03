@@ -15,8 +15,8 @@ class MaintenanceRequestCreateView(LoginRequiredMixin, CreateView):
     model = MaintenanceRequest
     form_class = MaintenanceRequestForm
     template_name = 'maintenance/request_create.html'
-    login_url = 'student_login'
-    success_url = reverse_lazy('student_dashboard')
+    login_url = 'student:student_login'
+    success_url = reverse_lazy('student:student_dashboard')
 
     def get_form_kwargs(self):
         """Pass the student to the form"""
@@ -46,7 +46,7 @@ class MaintenanceRequestCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-@login_required(login_url='student_login')
+@login_required(login_url='student:student_login')
 def maintenance_request_detail(request, pk):
     """View individual maintenance request details"""
 
@@ -75,7 +75,7 @@ def maintenance_request_detail(request, pk):
     return render(request, 'maintenance/request_detail.html', context)
 
 
-@login_required(login_url='student_login')
+@login_required(login_url='student:student_login')
 def rate_maintenance_request(request, pk):
     """Allow students to rate completed maintenance work"""
     maintenance_request = get_object_or_404(

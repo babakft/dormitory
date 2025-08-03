@@ -1,48 +1,92 @@
-{% extends 'base.html' %}
-
-{% block title %}Student Login{% endblock %}
-
-{% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="text-center">Student Login</h3>
+<!-- templates/student/login.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login - Dormitory Management</title>
+    <link rel="stylesheet" href="{% static 'student/css/auth.css' %}">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">
+                    <i class="icon-home"></i>
+                    <h1>Dormitory System</h1>
                 </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        {% if form.errors %}
-                        <div class="alert alert-danger">
-                            {% for field, errors in form.errors.items %}
-                            {% for error in errors %}
-                            <div>{{ error }}</div>
-                            {% endfor %}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
+                <h2>Student Login</h2>
+                <p>Access your dormitory dashboard</p>
+            </div>
 
-                        <div class="mb-3">
-                            {{ form.username.label_tag }}
-                            {{ form.username }}
-                            <small class="form-text text-muted">Enter your student number</small>
-                        </div>
-
-                        <div class="mb-3">
-                            {{ form.password.label_tag }}
-                            {{ form.password }}
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
-                    </form>
-
-                    <div class="text-center mt-3">
-                        <p>Don't have an account? <a href="{% url 'student_register' %}">Register here</a></p>
+            <form class="auth-form" method="post" id="loginForm">
+                {% csrf_token %}
+                
+                {% if messages %}
+                    <div class="messages">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
                     </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="username">Username or Student ID</label>
+                    <div class="input-wrapper">
+                        <i class="icon-user"></i>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <span class="error-message" id="usernameError"></span>
                 </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="icon-lock"></i>
+                        <input type="password" id="password" name="password" required>
+                        <button type="button" class="toggle-password" id="togglePassword">
+                            <i class="icon-eye"></i>
+                        </button>
+                    </div>
+                    <span class="error-message" id="passwordError"></span>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-wrapper">
+                        <input type="checkbox" name="remember_me">
+                        <span class="checkmark"></span>
+                        Remember me
+                    </label>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-primary" id="loginBtn">
+                    <span class="btn-text">Login</span>
+                    <div class="spinner" id="loginSpinner"></div>
+                </button>
+
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="{% url 'student:student_register' %}">Register here</a></p>
+                </div>
+            </form>
+        </div>
+
+        <div class="auth-sidebar">
+            <div class="sidebar-content">
+                <h3>Welcome to Dormitory Management</h3>
+                <ul class="feature-list">
+                    <li><i class="icon-check"></i> Submit maintenance requests</li>
+                    <li><i class="icon-check"></i> Track request status</li>
+                    <li><i class="icon-check"></i> Rate service quality</li>
+                    <li><i class="icon-check"></i> Receive notifications</li>
+                </ul>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+
+    <script src="{% static 'student/auth.js' %}"></script>
+</body>
+</html>

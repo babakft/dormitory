@@ -200,7 +200,7 @@
                         <i class="fas fa-user"></i>
                         <span>Profile</span>
                     </button>
-                    <form method="post" action="{% url 'student_logout' %}" class="logout-form">
+                    <form method="post" action="{% url 'student:student_logout' %}" class="logout-form">
                         {% csrf_token %}
                         <button type="submit" class="nav-btn nav-btn--danger">
                             <i class="fas fa-sign-out-alt"></i>

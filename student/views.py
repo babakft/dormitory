@@ -72,11 +72,11 @@ class StudentLoginView(LoginView):
     redirect_authenticated_user = False
 
     def get_success_url(self):
-        return reverse_lazy('student_dashboard')
+        return reverse_lazy('student:student_dashboard')
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated and request.user.is_approved_student():
-            return redirect('student_dashboard')
+            return redirect('student:student_dashboard')
         elif request.user.is_authenticated:
             logout(request)
             messages.warning(request, 'Please login with a valid student account.')
@@ -105,7 +105,7 @@ class StudentLoginView(LoginView):
 
 
 class StudentLogoutView(LoginRequiredMixin, LogoutView):
-    next_page = reverse_lazy('student_login')
+    next_page = reverse_lazy('student:student_login')
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -113,7 +113,7 @@ class StudentLogoutView(LoginRequiredMixin, LogoutView):
         return super().dispatch(request, *args, **kwargs)
 
 
-@method_decorator(login_required(login_url='student_login'), name='dispatch')
+@method_decorator(login_required(login_url='student:student_login'), name='dispatch')
 class StudentDashboardView(TemplateView):
     template_name = 'student/dashboard.html'
 
@@ -121,7 +121,7 @@ class StudentDashboardView(TemplateView):
         if not request.user.is_approved_student():
             messages.error(request, 'Access denied. Valid student profile required.')
             logout(request)
-            return redirect('student_login')
+            return redirect('student:student_login')
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
