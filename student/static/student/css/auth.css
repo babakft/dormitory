@@ -633,4 +633,47 @@ body {
         padding: 1rem 1.25rem;
         font-size: 1rem;
     }
+    .password-strength {
+    margin-top: 0.5rem;
+}
+
+.strength-meter {
+    height: 4px;
+    background-color: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 2px;
+}
+
+.strength-fill.weak {
+    width: 20%;
+    background-color: #ef4444;
+}
+
+.strength-fill.fair {
+    width: 40%;
+    background-color: #f97316;
+}
+
+.strength-fill.good {
+    width: 70%;
+    background-color: #eab308;
+}
+
+.strength-fill.strong {
+    width: 100%;
+    background-color: #22c55e;
+}
+
+.strength-text {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
 }

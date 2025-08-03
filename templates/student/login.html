@@ -1,12 +1,12 @@
-<!-- templates/student/login.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Login - Dormitory Management</title>
+    <title>Student Login - Dormitory System</title>
     <link rel="stylesheet" href="{% static 'student/css/auth.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="auth-container">
@@ -20,73 +20,111 @@
                 <p>Access your dormitory dashboard</p>
             </div>
 
-            <form class="auth-form" method="post" id="loginForm">
+            <form method="post" class="auth-form" id="loginForm">
                 {% csrf_token %}
-                
+
                 {% if messages %}
                     <div class="messages">
                         {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">
-                                {{ message }}
+                            <div class="alert alert-{{ message.tags }}" id="djangoMessage">
+                                <span>{{ message }}</span>
                             </div>
                         {% endfor %}
                     </div>
                 {% endif %}
 
+                <!-- Student Number Field -->
                 <div class="form-group">
-                    <label for="username">Username or Student ID</label>
+                    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
                     <div class="input-wrapper">
-                        <i class="icon-user"></i>
-                        <input type="text" id="username" name="username" required>
+                        <i class="icon-id"></i>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="error-message">{{ form.username.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                    <span class="error-message" id="usernameError"></span>
                 </div>
 
+                <!-- Password Field -->
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <div class="input-wrapper">
+                    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                    <div class="input-wrapper password-input">
                         <i class="icon-lock"></i>
-                        <input type="password" id="password" name="password" required>
-                        <button type="button" class="toggle-password" id="togglePassword">
-                            <i class="icon-eye"></i>
+                        {{ form.password }}
+                        <button type="button" class="toggle-password" onclick="togglePassword('{{ form.password.id_for_label }}')">
+                            <i class="icon-eye" id="toggleIcon"></i>
                         </button>
+                        {% if form.password.errors %}
+                            <div class="error-message">{{ form.password.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                    <span class="error-message" id="passwordError"></span>
                 </div>
 
+                <!-- Non-field errors (from form.clean()) -->
+                {% if form.non_field_errors %}
+                    <div class="form-group">
+                        <div class="error-message">{{ form.non_field_errors.0 }}</div>
+                    </div>
+                {% endif %}
+
+                <!-- Form Options -->
                 <div class="form-options">
                     <label class="checkbox-wrapper">
                         <input type="checkbox" name="remember_me">
                         <span class="checkmark"></span>
                         Remember me
                     </label>
-                    <a href="#" class="forgot-link">Forgot password?</a>
+                    <a href="#" class="forgot-password">Forgot password?</a>
                 </div>
 
-                <button type="submit" class="btn-primary" id="loginBtn">
-                    <span class="btn-text">Login</span>
-                    <div class="spinner" id="loginSpinner"></div>
-                </button>
+                <!-- Submit Button -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="loginBtn">
+                        <span class="btn-text">Login</span>
+                        <div class="btn-loader">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
+                </div>
 
+                <!-- Register Link -->
                 <div class="auth-footer">
                     <p>Don't have an account? <a href="{% url 'student:student_register' %}">Register here</a></p>
                 </div>
             </form>
         </div>
 
+        <!-- Sidebar -->
         <div class="auth-sidebar">
             <div class="sidebar-content">
                 <h3>Welcome to Dormitory Management</h3>
-                <ul class="feature-list">
-                    <li><i class="icon-check"></i> Submit maintenance requests</li>
-                    <li><i class="icon-check"></i> Track request status</li>
-                    <li><i class="icon-check"></i> Rate service quality</li>
-                    <li><i class="icon-check"></i> Receive notifications</li>
-                </ul>
+                <div class="features">
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>Submit maintenance requests</span>
+                    </div>
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>Track request status</span>
+                    </div>
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>Rate service quality</span>
+                    </div>
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>Receive notifications</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="{% static 'student/auth.js' %}"></script>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script src="{% static 'student/js/auth.js' %}"></script>
 </body>
 </html>

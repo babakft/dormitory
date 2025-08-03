@@ -82,7 +82,7 @@ class RegistrationSystem {
                         field.placeholder = 'e.g., 1401234567';
                         break;
                     case 'id_password1':
-                        field.placeholder = 'Create a strong password';
+                        field.placeholder = 'Create strong password';
                         break;
                     case 'id_password2':
                         field.placeholder = 'Confirm your password';
