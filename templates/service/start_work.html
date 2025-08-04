@@ -1,54 +1,141 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}Start Work - Service Expert{% endblock %}
 
-{% block title %}Start Work{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'service/css/start_work.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Start Work on Request</h4>
-                    <p class="mb-0 text-muted">{{ maintenance_request.title }}</p>
+<div class="start-work-container">
+    <!-- Header Section -->
+    <div class="start-work-header">
+        <div class="header-content">
+            <div class="header-info">
+                <div class="breadcrumb">
+                    <a href="{% url 'service:service_dashboard' %}" class="breadcrumb-link">
+                        <i class="fas fa-arrow-left"></i>
+                        Dashboard
+                    </a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span class="breadcrumb-current">Start Work</span>
                 </div>
-                <div class="card-body">
-                    <!-- Request Details -->
-                    <div class="mb-4 p-3 bg-light rounded">
-                        <h6>Request Details:</h6>
-                        <p><strong>Student:</strong> {{ maintenance_request.student.user.username }}</p>
-                        <p><strong>Location:</strong> {{ maintenance_request.full_location }}</p>
-                        <p><strong>Description:</strong> {{ maintenance_request.description }}</p>
-                        <p><strong>Service Type:</strong> {{ maintenance_request.get_service_type_display }}</p>
-                    </div>
-
-                    <form method="post">
-                        {% csrf_token %}
-                        {% if form.errors %}
-                            <div class="alert alert-danger">
-                                {{ form.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="mb-3">
-                            {{ form.expert_notes.label_tag }}
-                            {{ form.expert_notes }}
-                            {% if form.expert_notes.help_text %}
-                                <small class="form-text text-muted">{{ form.expert_notes.help_text }}</small>
-                            {% endif %}
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                <i class="fas fa-play"></i> Start Work
-                            </button>
-                            <a href="{% url 'service:service_dashboard' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left"></i> Back to Dashboard
-                            </a>
-                        </div>
-                    </form>
+                <h1 class="page-title">
+                    <i class="fas fa-play-circle"></i>
+                    Start Work on Request
+                </h1>
+            </div>
+            <div class="header-status">
+                <div class="status-badge status-ready">
+                    <i class="fas fa-clock"></i>
+                    Ready to Start
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Request Details Card -->
+    <div class="request-details-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-info-circle"></i>
+                Request Details
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="request-info-grid">
+                <div class="info-item">
+                    <label class="info-label">
+                        <i class="fas fa-tools"></i>
+                        Request Title
+                    </label>
+                    <div class="info-value request-title">{{ maintenance_request.title }}</div>
+                </div>
+
+                <div class="info-item">
+                    <label class="info-label">
+                        <i class="fas fa-user-graduate"></i>
+                        Student
+                    </label>
+                    <div class="info-value">{{ maintenance_request.student.user.username }}</div>
+                </div>
+
+                <div class="info-item">
+                    <label class="info-label">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Location
+                    </label>
+                    <div class="info-value">{{ maintenance_request.full_location }}</div>
+                </div>
+
+                <div class="info-item">
+                    <label class="info-label">
+                        <i class="fas fa-cog"></i>
+                        Service Type
+                    </label>
+                    <div class="info-value">{{ maintenance_request.get_service_type_display }}</div>
+                </div>
+            </div>
+
+            <div class="description-section">
+                <label class="info-label">
+                    <i class="fas fa-file-alt"></i>
+                    Description
+                </label>
+                <div class="description-content">{{ maintenance_request.description }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Work Form -->
+    <div class="start-work-form-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-edit"></i>
+                Work Notes
+            </h2>
+        </div>
+        <div class="card-body">
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="alert-content">
+                    <strong>Please correct the following errors:</strong>
+                    {{ form.errors }}
+                </div>
+            </div>
+            {% endif %}
+
+            <form method="post" class="start-work-form" id="startWorkForm">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    {{ form.expert_notes.label_tag }}
+                    {{ form.expert_notes }}
+                    {% if form.expert_notes.help_text %}
+                    <div class="form-help">
+                        <i class="fas fa-info-circle"></i>
+                        {{ form.expert_notes.help_text }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-start-work" id="startWorkBtn">
+                        <i class="fas fa-play"></i>
+                        <span class="btn-text">Start Work</span>
+                    </button>
+                    <a href="{% url 'service:service_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'service/js/start_work.js' %}"></script>
 {% endblock %}
