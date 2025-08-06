@@ -1,162 +1,230 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Maintenance Request Details{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'maintenance/css/request_detail.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2>{{ request.title }}</h2>
-            <p class="text-muted mb-0">Request #{{ request.id }} - {{ request.get_service_type_display }}</p>
-        </div>
-        <div>
-            {% if request.status == 'pending' %}
-            <span class="badge bg-warning fs-6">Pending</span>
-            {% elif request.status == 'approved' %}
-            <span class="badge bg-info fs-6">Approved</span>
-            {% elif request.status == 'in_progress' %}
-            <span class="badge bg-primary fs-6">In Progress</span>
-            {% elif request.status == 'completed' %}
-            <span class="badge bg-success fs-6">Completed</span>
-            {% elif request.status == 'rejected' %}
-            <span class="badge bg-danger fs-6">Rejected</span>
-            {% endif %}
+<div class="request-detail-container">
+    <!-- Header Section -->
+    <div class="request-header">
+        <div class="header-main">
+            <div class="request-title-section">
+                <h1 class="request-title">{{ request.title }}</h1>
+                <div class="request-meta">
+                    <span class="request-id">Request #{{ request.id }}</span>
+                    <span class="service-type">{{ request.get_service_type_display }}</span>
+                </div>
+            </div>
+            <div class="status-section">
+                <div class="status-badge status-{{ request.status }}">
+                    <i class="fas fa-circle status-icon"></i>
+                    {% if request.status == 'pending' %}
+                        Pending
+                    {% elif request.status == 'approved' %}
+                        Approved
+                    {% elif request.status == 'in_progress' %}
+                        In Progress
+                    {% elif request.status == 'completed' %}
+                        Completed
+                    {% elif request.status == 'rejected' %}
+                        Rejected
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Main Content -->
-        <div class="col-md-8">
-            <!-- Request Information -->
-            <div class="card mb-4">
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+        <!-- Left Column - Main Details -->
+        <div class="main-content">
+            <!-- Request Details Card -->
+            <div class="detail-card animate-in">
                 <div class="card-header">
-                    <h5 class="mb-0">Request Details</h5>
+                    <h3 class="card-title">
+                        <i class="fas fa-info-circle"></i>
+                        Request Details
+                    </h3>
                 </div>
                 <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-sm-3"><strong>Description:</strong></div>
-                        <div class="col-sm-9">{{ request.description }}</div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-sm-3"><strong>Location:</strong></div>
-                        <div class="col-sm-9">{{ request.full_location }}</div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-sm-3"><strong>Priority:</strong></div>
-                        <div class="col-sm-9">
-                            {% if request.priority == 'high' %}
-                            <span class="badge bg-danger">High Priority</span>
-                            {% elif request.priority == 'medium' %}
-                            <span class="badge bg-warning">Medium Priority</span>
-                            {% elif request.priority == 'low' %}
-                            <span class="badge bg-success">Low Priority</span>
-                            {% elif request.priority == 'not_decided' %}
-                            <span class="badge bg-secondary">Priority Not Decided</span>
-                            {% else %}
-                            <span class="badge bg-light text-dark">{{ request.get_priority_display }}</span>
-                            {% endif %}
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Description</label>
+                            <div class="detail-content">{{ request.description }}</div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <div class="col-sm-3"><strong>Created:</strong></div>
-                        <div class="col-sm-9">{{ request.created_at|date:"F d, Y at H:i" }} ({{ request.days_since_created }} days ago)</div>
+                        <div class="detail-item">
+                            <label>Location</label>
+                            <div class="detail-content">
+                                <i class="fas fa-map-marker-alt"></i>
+                                {{ request.full_location }}
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <label>Priority</label>
+                            <div class="detail-content">
+                                <span class="priority-badge priority-{{ request.priority }}">
+                                    {% if request.priority == 'high' %}
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        High Priority
+                                    {% elif request.priority == 'medium' %}
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        Medium Priority
+                                    {% elif request.priority == 'low' %}
+                                        <i class="fas fa-info-circle"></i>
+                                        Low Priority
+                                    {% elif request.priority == 'not_decided' %}
+                                        <i class="fas fa-question-circle"></i>
+                                        Priority Not Decided
+                                    {% else %}
+                                        {{ request.get_priority_display }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="detail-item">
+                            <label>Created</label>
+                            <div class="detail-content">
+                                <i class="fas fa-calendar-alt"></i>
+                                {{ request.created_at|date:"F d, Y at H:i" }}
+                                <span class="time-ago">({{ request.days_since_created }} days ago)</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Issue Image -->
+            <!-- Issue Images -->
             {% if issue_images %}
-            <div class="card mb-4">
+            <div class="detail-card animate-in">
                 <div class="card-header">
-                    <h5 class="mb-0">Issue Images</h5>
+                    <h3 class="card-title">
+                        <i class="fas fa-images"></i>
+                        Issue Images
+                    </h3>
                 </div>
                 <div class="card-body">
-                    {% for image in issue_images %}
-                    <img src="{{ image.image.url }}" class="img-fluid rounded mb-2" alt="Issue Image" style="max-height: 400px;">
-                    {% endfor %}
+                    <div class="image-gallery">
+                        {% for image in issue_images %}
+                        <div class="image-item">
+                            <img src="{{ image.image.url }}" alt="Issue Image" class="gallery-image" data-bs-toggle="modal" data-bs-target="#imageModal{{ forloop.counter }}">
+                            <div class="image-overlay">
+                                <i class="fas fa-expand"></i>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
             {% endif %}
 
             <!-- Expert Notes -->
             {% if request.expert_notes %}
-            <div class="card mb-4">
+            <div class="detail-card animate-in">
                 <div class="card-header">
-                    <h5 class="mb-0">Expert Notes</h5>
+                    <h3 class="card-title">
+                        <i class="fas fa-clipboard-list"></i>
+                        Expert Notes
+                    </h3>
                 </div>
                 <div class="card-body">
-                    <p>{{ request.expert_notes }}</p>
-                    {% if request.work_started_at %}
-                    <small class="text-muted">Work started: {{ request.work_started_at|date:"F d, Y at H:i" }}</small>
-                    {% endif %}
+                    <div class="expert-notes">
+                        <p>{{ request.expert_notes }}</p>
+                        {% if request.work_started_at %}
+                        <div class="work-started-info">
+                            <i class="fas fa-play-circle"></i>
+                            Work started: {{ request.work_started_at|date:"F d, Y at H:i" }}
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% endif %}
 
             <!-- Completion Details -->
             {% if request.status == 'completed' %}
-            <div class="card mb-4">
+            <div class="detail-card animate-in completion-card">
                 <div class="card-header">
-                    <h5 class="mb-0">Completion Details</h5>
+                    <h3 class="card-title">
+                        <i class="fas fa-check-circle"></i>
+                        Completion Details
+                    </h3>
                 </div>
                 <div class="card-body">
                     {% if request.completion_notes %}
-                    <p><strong>Completion Notes:</strong></p>
-                    <p>{{ request.completion_notes }}</p>
+                    <div class="completion-notes">
+                        <label>Completion Notes</label>
+                        <p>{{ request.completion_notes }}</p>
+                    </div>
                     {% endif %}
 
                     {% if completion_images %}
-                    <p><strong>Completion Images:</strong></p>
-                    {% for image in completion_images %}
-                    <img src="{{ image.image.url }}" class="img-fluid rounded mb-3" alt="Completion Image" style="max-height: 400px;">
-                    {% endfor %}
+                    <div class="completion-images">
+                        <label>Completion Images</label>
+                        <div class="image-gallery">
+                            {% for image in completion_images %}
+                            <div class="image-item">
+                                <img src="{{ image.image.url }}" alt="Completion Image" class="gallery-image">
+                                <div class="image-overlay">
+                                    <i class="fas fa-expand"></i>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                     {% endif %}
 
-                    <small class="text-muted">Completed: {{ request.completed_at|date:"F d, Y at H:i" }}</small>
+                    <div class="completed-info">
+                        <i class="fas fa-calendar-check"></i>
+                        Completed: {{ request.completed_at|date:"F d, Y at H:i" }}
+                    </div>
                 </div>
             </div>
             {% endif %}
 
             <!-- Student Feedback -->
             {% if request.student_rating or request.student_feedback %}
-            <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Your Feedback</h5>
+            <div class="detail-card animate-in feedback-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-star"></i>
+                        Your Feedback
+                    </h3>
                 </div>
                 <div class="card-body">
                     {% if request.student_rating %}
-                    <div class="mb-3">
-                        <strong>Rating:</strong>
-                        <div class="rating-display mt-1">
+                    <div class="rating-display">
+                        <label>Rating</label>
+                        <div class="star-rating">
                             {% for i in "12345" %}
                                 {% if forloop.counter <= request.student_rating %}
-                                    <i class="fas fa-star text-warning"></i>
+                                    <i class="fas fa-star star-filled"></i>
                                 {% else %}
-                                    <i class="far fa-star text-warning"></i>
+                                    <i class="far fa-star star-empty"></i>
                                 {% endif %}
                             {% endfor %}
-                            <span class="ms-2 fw-bold">({{ request.student_rating }}/5)</span>
+                            <span class="rating-text">({{ request.student_rating }}/5)</span>
                         </div>
                     </div>
                     {% endif %}
 
                     {% if request.student_feedback %}
-                    <div class="mb-3">
-                        <strong>Your Comments:</strong>
-                        <div class="mt-2 p-3 bg-light rounded">
-                            <em>"{{ request.student_feedback }}"</em>
-                        </div>
+                    <div class="feedback-text">
+                        <label>Your Comments</label>
+                        <blockquote>"{{ request.student_feedback }}"</blockquote>
                     </div>
                     {% endif %}
 
                     {% if request.feedback_at %}
-                    <small class="text-muted">
-                        <i class="fas fa-clock"></i> Feedback given: {{ request.feedback_at|date:"F d, Y at H:i" }}
-                    </small>
+                    <div class="feedback-date">
+                        <i class="fas fa-clock"></i>
+                        Feedback given: {{ request.feedback_at|date:"F d, Y at H:i" }}
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -164,35 +232,36 @@
 
             <!-- Rejection Reason -->
             {% if request.status == 'rejected' and request.rejection_reason %}
-            <div class="card mb-4">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">Rejection Reason</h5>
+            <div class="detail-card animate-in rejection-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-times-circle"></i>
+                        Rejection Reason
+                    </h3>
                 </div>
                 <div class="card-body">
                     <p>{{ request.rejection_reason }}</p>
                     {% if request.approved_at %}
-                    <small class="text-muted">Processed: {{ request.approved_at|date:"F d, Y at H:i" }}</small>
+                    <div class="rejection-date">
+                        <i class="fas fa-calendar-times"></i>
+                        Processed: {{ request.approved_at|date:"F d, Y at H:i" }}
+                    </div>
                     {% endif %}
                 </div>
             </div>
             {% endif %}
 
-            <!-- Rating Call-to-Action for Completed Requests -->
+            <!-- Rate Service CTA -->
             {% if can_provide_feedback %}
-            <div class="alert alert-success">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h6 class="alert-heading mb-2">
-                            <i class="fas fa-star text-warning"></i> Rate This Service
-                        </h6>
-                        <p class="mb-0">
-                            Help us improve our maintenance services by rating the work completed by
-                            <strong>{{ request.assigned_expert.user.username }}</strong>.
-                        </p>
-                    </div>
-                    <div class="col-md-4 text-end">
-                        <a href="{% url 'maintenance:rate' request.pk %}" class="btn btn-warning btn-lg">
-                            <i class="fas fa-star"></i> Rate Service
+            <div class="detail-card animate-in rate-service-card">
+                <div class="card-body text-center">
+                    <div class="rate-service-content">
+                        <i class="fas fa-star rate-icon"></i>
+                        <h4>Rate This Service</h4>
+                        <p>Help us improve our maintenance services by rating the work completed by <strong>{{ request.assigned_expert.user.username }}</strong>.</p>
+                        <a href="{% url 'maintenance:rate' request.pk %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-star"></i>
+                            Rate Service
                         </a>
                     </div>
                 </div>
@@ -200,110 +269,161 @@
             {% endif %}
         </div>
 
-        <!-- Sidebar -->
-        <div class="col-md-4">
+        <!-- Right Sidebar -->
+        <div class="sidebar-content">
             <!-- Status Timeline -->
-            <div class="card mb-4">
+            <div class="detail-card timeline-card animate-in">
                 <div class="card-header">
-                    <h5 class="mb-0">Status Timeline</h5>
+                    <h3 class="card-title">
+                        <i class="fas fa-history"></i>
+                        Status Timeline
+                    </h3>
                 </div>
                 <div class="card-body">
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success"></i>
-                            <strong>Submitted</strong><br>
-                            <small class="text-muted">{{ request.created_at|date:"M d, Y H:i" }}</small>
-                        </li>
+                    <div class="timeline">
+                        <div class="timeline-item active">
+                            <div class="timeline-marker">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h5>Submitted</h5>
+                                <span class="timeline-date">{{ request.created_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                        </div>
 
                         {% if request.approved_at %}
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle {% if request.status == 'rejected' %}text-danger{% else %}text-success{% endif %}"></i>
-                            <strong>{% if request.status == 'rejected' %}Rejected{% else %}Approved{% endif %}</strong><br>
-                            <small class="text-muted">{{ request.approved_at|date:"M d, Y H:i" }}</small>
-                            {% if request.approved_by_name %}
-                            <br><small class="text-muted">by {{ request.approved_by_name }}</small>
-                            {% endif %}
-                        </li>
+                        <div class="timeline-item {% if request.status != 'rejected' %}active{% endif %}">
+                            <div class="timeline-marker">
+                                {% if request.status == 'rejected' %}
+                                    <i class="fas fa-times"></i>
+                                {% else %}
+                                    <i class="fas fa-check"></i>
+                                {% endif %}
+                            </div>
+                            <div class="timeline-content">
+                                <h5>{% if request.status == 'rejected' %}Rejected{% else %}Approved{% endif %}</h5>
+                                <span class="timeline-date">{{ request.approved_at|date:"M d, Y H:i" }}</span>
+                                {% if request.approved_by_name %}
+                                <span class="timeline-by">by {{ request.approved_by_name }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
                         {% endif %}
 
                         {% if request.assigned_at %}
-                        <li class="mb-2">
-                            <i class="fas fa-user-cog text-success"></i>
-                            <strong>Assigned to Expert</strong><br>
-                            <small class="text-muted">{{ request.assigned_at|date:"M d, Y H:i" }}</small>
-                        </li>
+                        <div class="timeline-item active">
+                            <div class="timeline-marker">
+                                <i class="fas fa-user-cog"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h5>Assigned to Expert</h5>
+                                <span class="timeline-date">{{ request.assigned_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                        </div>
                         {% endif %}
 
                         {% if request.work_started_at %}
-                        <li class="mb-2">
-                            <i class="fas fa-play-circle text-success"></i>
-                            <strong>Work Started</strong><br>
-                            <small class="text-muted">{{ request.work_started_at|date:"M d, Y H:i" }}</small>
-                        </li>
+                        <div class="timeline-item active">
+                            <div class="timeline-marker">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h5>Work Started</h5>
+                                <span class="timeline-date">{{ request.work_started_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                        </div>
                         {% endif %}
 
                         {% if request.completed_at %}
-                        <li class="mb-2">
-                            <i class="fas fa-check-circle text-success"></i>
-                            <strong>Completed</strong><br>
-                            <small class="text-muted">{{ request.completed_at|date:"M d, Y H:i" }}</small>
-                        </li>
+                        <div class="timeline-item active">
+                            <div class="timeline-marker">
+                                <i class="fas fa-flag-checkered"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h5>Completed</h5>
+                                <span class="timeline-date">{{ request.completed_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                        </div>
                         {% endif %}
 
                         {% if request.student_rating %}
-                        <li class="mb-2">
-                            <i class="fas fa-star text-warning"></i>
-                            <strong>Rated by Student</strong><br>
-                            <small class="text-muted">{{ request.feedback_at|date:"M d, Y H:i" }}</small>
-                        </li>
+                        <div class="timeline-item active">
+                            <div class="timeline-marker">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h5>Rated by Student</h5>
+                                <span class="timeline-date">{{ request.feedback_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                        </div>
                         {% endif %}
-                    </ul>
+                    </div>
                 </div>
             </div>
 
             <!-- Assigned Expert -->
             {% if request.assigned_expert %}
-            <div class="card mb-4">
+            <div class="detail-card expert-card animate-in">
                 <div class="card-header">
-                    <h5 class="mb-0">Assigned Expert</h5>
+                    <h3 class="card-title">
+                        <i class="fas fa-user-cog"></i>
+                        Assigned Expert
+                    </h3>
                 </div>
                 <div class="card-body">
-                    <p><strong>{{ request.assigned_expert.user.username }}</strong></p>
-                    <p><small class="text-muted">{{ request.assigned_expert.get_specialization_display }}</small></p>
+                    <div class="expert-info">
+                        <div class="expert-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="expert-details">
+                            <h4>{{ request.assigned_expert.user.username }}</h4>
+                            <p class="expert-specialization">{{ request.assigned_expert.get_specialization_display }}</p>
 
-                    <!-- Show Expert's Rating -->
-                    {% if request.assigned_expert.average_rating %}
-                    <div class="mb-2">
-                        <small class="text-muted">Expert Rating:</small><br>
-                        <span class="expert-rating">{{ request.assigned_expert.rating_display }}</span>
+                            {% if request.assigned_expert.average_rating %}
+                            <div class="expert-rating">
+                                <span class="rating-label">Expert Rating:</span>
+                                <div class="rating-stars">
+                                    {{ request.assigned_expert.rating_display }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if request.assigned_at %}
+                            <div class="assignment-date">
+                                <i class="fas fa-calendar"></i>
+                                Assigned: {{ request.assigned_at|date:"M d, Y H:i" }}
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
-                    {% endif %}
-
-                    {% if request.assigned_at %}
-                    <small class="text-muted">Assigned: {{ request.assigned_at|date:"M d, Y H:i" }}</small>
-                    {% endif %}
                 </div>
             </div>
             {% endif %}
 
             <!-- Actions -->
-            <div class="card">
+            <div class="detail-card actions-card animate-in">
                 <div class="card-header">
-                    <h5 class="mb-0">Actions</h5>
+                    <h3 class="card-title">
+                        <i class="fas fa-cog"></i>
+                        Actions
+                    </h3>
                 </div>
                 <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'student:student_dashboard' %}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    <div class="action-buttons">
+                        <a href="{% url 'student:student_dashboard' %}" class="btn btn-outline-primary btn-block">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Dashboard
                         </a>
 
                         {% if can_provide_feedback %}
-                        <a href="{% url 'maintenance:rate' request.pk %}" class="btn btn-success">
-                            <i class="fas fa-star"></i> Rate Service
+                        <a href="{% url 'maintenance:rate' request.pk %}" class="btn btn-primary btn-block">
+                            <i class="fas fa-star"></i>
+                            Rate Service
                         </a>
                         {% elif request.student_rating %}
-                        <div class="alert alert-info mb-0">
-                            <small><i class="fas fa-check-circle"></i> You have rated this service</small>
+                        <div class="feedback-status">
+                            <i class="fas fa-check-circle"></i>
+                            You have rated this service
                         </div>
                         {% endif %}
                     </div>
@@ -312,44 +432,8 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<style>
-.rating-display {
-    font-size: 1.2em;
-}
-
-.rating-display .fas,
-.rating-display .far {
-    margin-right: 2px;
-}
-
-.expert-rating {
-    color: #ffc107;
-    font-weight: 500;
-}
-
-.card {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.alert-success {
-    border-left: 4px solid #28a745;
-}
-
-.timeline-item {
-    border-left: 2px solid #e9ecef;
-    padding-left: 1rem;
-}
-
-@media (max-width: 768px) {
-    .container {
-        padding: 0 15px;
-    }
-}
-</style>
+{% block extra_js %}
+<script src="{% static 'maintenance/js/request_detail.js' %}"></script>
 {% endblock %}
