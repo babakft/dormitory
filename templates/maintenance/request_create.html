@@ -1,236 +1,256 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Submit Maintenance Request{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'maintenance/css/request_create.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h4>Submit Maintenance Request</h4>
-                    <p class="mb-0 text-muted">Report an issue anywhere in the dormitory</p>
+<div class="request-create-container">
+    <!-- Header Section -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-info">
+                <h1 class="page-title">
+                    <i class="fas fa-tools"></i>
+                    Submit Maintenance Request
+                </h1>
+                <p class="page-description">Report an issue anywhere in the dormitory</p>
+                <div class="breadcrumb">
+                    <a href="{% url 'student:student_dashboard' %}" class="breadcrumb-link">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span class="breadcrumb-current">New Request</span>
                 </div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-
-                        <!-- Display non-field errors -->
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {{ form.non_field_errors }}
-                            </div>
-                        {% endif %}
-
-                        <!-- Title Field -->
-                        <div class="mb-3">
-                            {{ form.title.label_tag }}
-                            {{ form.title }}
-                            {% if form.title.errors %}
-                                <div class="text-danger small">{{ form.title.errors }}</div>
-                            {% endif %}
-                            {% if form.title.help_text %}
-                                <small class="form-text text-muted">{{ form.title.help_text }}</small>
-                            {% endif %}
-                        </div>
-
-                        <!-- Service Type Field -->
-                        <div class="mb-3">
-                            {{ form.service_type.label_tag }}
-                            {{ form.service_type }}
-                            {% if form.service_type.errors %}
-                                <div class="text-danger small">{{ form.service_type.errors }}</div>
-                            {% endif %}
-                            {% if form.service_type.help_text %}
-                                <small class="form-text text-muted">{{ form.service_type.help_text }}</small>
-                            {% endif %}
-                        </div>
-
-                        <!-- Room/Location Field -->
-                        <div class="mb-3">
-                            {{ form.room.label_tag }}
-                            {{ form.room }}
-                            {% if form.room.errors %}
-                                <div class="text-danger small">{{ form.room.errors }}</div>
-                            {% endif %}
-                            {% if form.room.help_text %}
-                                <small class="form-text text-muted">{{ form.room.help_text }}</small>
-                            {% endif %}
-                            {% if student.room %}
-                                <div class="mt-2">
-                                    <small class="text-info">
-                                        <i class="fas fa-info-circle"></i>
-                                        Your assigned room: {{ student.full_room_address }}
-                                    </small>
-                                    <button type="button" class="btn btn-sm btn-outline-info ms-2" id="useMyRoom">
-                                        Use My Room
-                                    </button>
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Description Field -->
-                        <div class="mb-3">
-                            {{ form.description.label_tag }}
-                            {{ form.description }}
-                            {% if form.description.errors %}
-                                <div class="text-danger small">{{ form.description.errors }}</div>
-                            {% endif %}
-                            {% if form.description.help_text %}
-                                <small class="form-text text-muted">{{ form.description.help_text }}</small>
-                            {% endif %}
-                        </div>
-
-                        <!-- Image Field -->
-                        <div class="mb-3">
-                            {{ form.issue_image.label_tag }}
-                            {{ form.issue_image }}
-                            {% if form.issue_image.errors %}
-                                <div class="text-danger small">{{ form.issue_image.errors }}</div>
-                            {% endif %}
-                            {% if form.issue_image.help_text %}
-                                <small class="form-text text-muted">{{ form.issue_image.help_text }}</small>
-                            {% endif %}
-                            <div class="mt-2">
-                                <small class="text-muted">
-                                    <i class="fas fa-camera"></i>
-                                    Accepted formats: JPG, PNG, GIF (Max size: 5MB)
-                                </small>
-                            </div>
-                        </div>
-
-                        <!-- Location Preview -->
-                        <div class="mb-3" id="locationPreview" style="display: none;">
-                            <div class="alert alert-success">
-                                <strong><i class="fas fa-map-marker-alt"></i> Selected Location:</strong>
-                                <span id="selectedLocation"></span>
-                            </div>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-paper-plane"></i> Submit Request
-                            </button>
-                            <a href="{% url 'student:student_dashboard' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left"></i> Back to Dashboard
-                            </a>
-                        </div>
-                    </form>
+            </div>
+            <div class="header-status">
+                <div class="student-card">
+                    <div class="student-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="student-info">
+                        <span class="student-name">{{ student.user.username }}</span>
+                        <span class="student-room">{{ student.full_room_address }}</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const roomSelect = document.getElementById('id_room');
-    const useMyRoomBtn = document.getElementById('useMyRoom');
-    const locationPreview = document.getElementById('locationPreview');
-    const selectedLocation = document.getElementById('selectedLocation');
+    <!-- Main Form Card -->
+    <div class="form-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-edit"></i>
+                Request Details
+            </h2>
+            <div class="form-progress">
+                <div class="progress-indicator">
+                    <i class="fas fa-info-circle"></i>
+                    All fields are required
+                </div>
+            </div>
+        </div>
 
-    // Show location preview when room is selected
-    if (roomSelect) {
-        roomSelect.addEventListener('change', function() {
-            if (this.value) {
-                const selectedText = this.options[this.selectedIndex].text;
-                selectedLocation.textContent = selectedText;
-                locationPreview.style.display = 'block';
-            } else {
-                locationPreview.style.display = 'none';
-            }
-        });
-
-        // Trigger on initial load if there's a selected value
-        if (roomSelect.value) {
-            roomSelect.dispatchEvent(new Event('change'));
-        }
-    }
-
-    // Use My Room button functionality
-    if (useMyRoomBtn && roomSelect) {
-        useMyRoomBtn.addEventListener('click', function() {
-            // Find the option that contains the student's room
-            {% if student.room %}
-            const studentRoomValue = '{{ student.room.pk }}';
-            roomSelect.value = studentRoomValue;
-            roomSelect.dispatchEvent(new Event('change'));
-
-            // Visual feedback
-            this.innerHTML = '<i class="fas fa-check"></i> Selected';
-            this.classList.remove('btn-outline-info');
-            this.classList.add('btn-success');
-
-            setTimeout(() => {
-                this.innerHTML = 'Use My Room';
-                this.classList.remove('btn-success');
-                this.classList.add('btn-outline-info');
-            }, 2000);
+        <div class="card-body">
+            <!-- Django Messages -->
+            {% if form.errors %}
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="alert-content">
+                    <h4>Please correct the following errors:</h4>
+                    <ul class="error-list">
+                        {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
             {% endif %}
-        });
-    }
 
-    // Image preview functionality
-    const imageInput = document.getElementById('id_issue_image');
-    if (imageInput) {
-        imageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                // Remove any existing preview
-                const existingPreview = document.getElementById('imagePreview');
-                if (existingPreview) {
-                    existingPreview.remove();
-                }
+            <form method="post" enctype="multipart/form-data" class="maintenance-form" id="maintenanceForm">
+                {% csrf_token %}
 
-                // Create image preview
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.createElement('div');
-                    preview.id = 'imagePreview';
-                    preview.className = 'mt-2';
-                    preview.innerHTML = `
-                        <small class="text-muted d-block mb-2">Preview:</small>
-                        <img src="${e.target.result}" class="img-thumbnail" style="max-height: 200px; max-width: 100%;">
-                    `;
-                    imageInput.parentNode.appendChild(preview);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-});
-</script>
+                <div class="form-grid">
+                    <!-- Left Column -->
+                    <div class="form-column">
+                        <!-- Title Field -->
+                        <div class="form-group">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                <i class="fas fa-heading"></i>
+                                {{ form.title.label }}
+                                <span class="required">*</span>
+                            </label>
+                            {{ form.title }}
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                {{ form.title.help_text }}
+                            </div>
+                            <div class="char-counter">
+                                <span id="titleCount">0</span>/200 characters
+                            </div>
+                        </div>
 
-<style>
-.form-control:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
+                        <!-- Service Type Field -->
+                        <div class="form-group">
+                            <label for="{{ form.service_type.id_for_label }}" class="form-label">
+                                <i class="fas fa-cogs"></i>
+                                {{ form.service_type.label }}
+                                <span class="required">*</span>
+                            </label>
+                            {{ form.service_type }}
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                {{ form.service_type.help_text }}
+                            </div>
+                        </div>
 
-.text-danger.small {
-    margin-top: 0.25rem;
-}
+                        <!-- Location Field -->
+                        <div class="form-group">
+                            <label for="{{ form.room.id_for_label }}" class="form-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                {{ form.room.label }}
+                                <span class="required">*</span>
+                            </label>
+                            {{ form.room }}
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                {{ form.room.help_text }}
+                            </div>
 
-.alert-success {
-    border-left: 4px solid #198754;
-}
+                            {% if student.room %}
+                            <div class="quick-action">
+                                <button type="button"
+                                        class="btn btn-quick-fill"
+                                        id="useMyRoom"
+                                        data-room-id="{{ student.room.pk }}"
+                                        data-original-text="Use My Room: {{ student.full_room_address }}">
+                                    <i class="fas fa-home"></i>
+                                    Use My Room: {{ student.full_room_address }}
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
 
-.alert-info {
-    border-left: 4px solid #0dcaf0;
-}
+                    <!-- Right Column -->
+                    <div class="form-column">
+                        <!-- Description Field -->
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="fas fa-file-alt"></i>
+                                {{ form.description.label }}
+                                <span class="required">*</span>
+                            </label>
+                            {{ form.description }}
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                {{ form.description.help_text }}
+                            </div>
+                            <div class="char-counter">
+                                <span id="descCount">0</span> characters (minimum 10)
+                            </div>
+                        </div>
 
-#useMyRoom {
-    transition: all 0.3s ease;
-}
+                        <!-- Image Upload Field -->
+                        <div class="form-group">
+                            <label for="{{ form.issue_image.id_for_label }}" class="form-label">
+                                <i class="fas fa-camera"></i>
+                                {{ form.issue_image.label }}
+                                <span class="required">*</span>
+                            </label>
 
-#locationPreview {
-    animation: fadeIn 0.3s ease-in;
-}
+                            <div class="file-upload-area" id="fileUploadArea">
+                                {{ form.issue_image }}
+                                <div class="upload-placeholder" id="uploadPlaceholder">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="upload-text">
+                                        <strong>Click to browse</strong> or drag and drop your image here
+                                    </div>
+                                    <div class="upload-formats">
+                                        JPG, PNG, GIF up to 5MB
+                                    </div>
+                                </div>
+                                <div class="file-preview" id="filePreview" style="display: none;">
+                                    <div class="preview-image">
+                                        <img id="previewImg" src="" alt="Preview">
+                                    </div>
+                                    <div class="file-info">
+                                        <div class="file-name" id="fileName"></div>
+                                        <div class="file-size" id="fileSize"></div>
+                                    </div>
+                                    <button type="button" class="btn-remove-file" id="removeFile">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>
+                            <div class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                {{ form.issue_image.help_text }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="history.back()">
+                        <i class="fas fa-arrow-left"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        <span class="btn-text">Submit Request</span>
+                        <div class="btn-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            Submitting...
+                        </div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="help-card">
+        <div class="help-header">
+            <h3>
+                <i class="fas fa-question-circle"></i>
+                Need Help?
+            </h3>
+        </div>
+        <div class="help-content">
+            <div class="help-tips">
+                <div class="tip-item">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Be specific about the problem location and symptoms</span>
+                </div>
+                <div class="tip-item">
+                    <i class="fas fa-camera"></i>
+                    <span>Include a clear photo showing the issue</span>
+                </div>
+                <div class="tip-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Urgent issues will be prioritized automatically</span>
+                </div>
+            </div>
+            <div class="contact-info">
+                <p>For emergency maintenance, call: <strong>(555) 123-4567</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'maintenance/js/request_create.js' %}"></script>
 {% endblock %}
