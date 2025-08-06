@@ -1,131 +1,253 @@
-<!-- templates/ticket/ticket_list.html -->
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}My Tickets{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ticket/css/ticket_list.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid mt-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2><i class="fas fa-ticket-alt text-primary"></i> My Tickets</h2>
-                    <p class="text-muted mb-0">Real-time chat with administration</p>
+<div class="ticket-container">
+    <!-- Header Section -->
+    <div class="ticket-header">
+        <div class="welcome-section">
+            <h1 class="welcome-title">
+                <i class="fas fa-ticket-alt"></i>
+                My Tickets
+            </h1>
+            <p class="subtitle">Real-time chat with administration</p>
+        </div>
+
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card stat-card--info" data-stat="total">
+                <div class="stat-content">
+                    <div class="stat-info">
+                        <h4 class="stat-title">Total Tickets</h4>
+                        <div class="stat-number">{{ total_tickets|default:0 }}</div>
+                        <p class="stat-subtitle">All time</p>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
                 </div>
-                <div>
-                    <a href="{% url 'ticket:create' %}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> New Ticket
+            </div>
+
+            <div class="stat-card stat-card--warning" data-stat="pending">
+                <div class="stat-content">
+                    <div class="stat-info">
+                        <h4 class="stat-title">Pending</h4>
+                        <div class="stat-number">{{ pending_tickets|default:0 }}</div>
+                        <p class="stat-subtitle">Awaiting response</p>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card stat-card--success" data-stat="answered">
+                <div class="stat-content">
+                    <div class="stat-info">
+                        <h4 class="stat-title">Answered</h4>
+                        <div class="stat-number">{{ answered_tickets|default:0 }}</div>
+                        <p class="stat-subtitle">Admin replied</p>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card stat-card--secondary" data-stat="closed">
+                <div class="stat-content">
+                    <div class="stat-info">
+                        <h4 class="stat-title">Closed</h4>
+                        <div class="stat-number">{{ closed_tickets|default:0 }}</div>
+                        <p class="stat-subtitle">Resolved</p>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-archive"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tickets Section -->
+    <div class="tickets-section">
+        <div class="tickets-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-list"></i>
+                    My Tickets
+                </h2>
+                <div class="card-actions">
+                    <div class="search-container">
+                        <input type="text" 
+                               id="ticketSearch" 
+                               class="search-input" 
+                               placeholder="Search tickets...">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <div class="filter-container">
+                        <select id="statusFilter" class="filter-select">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="answered">Answered</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                {% if tickets %}
+                    <div class="table-container">
+                        <table class="tickets-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Last Activity</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ticket in tickets %}
+                                <tr class="table-row" data-ticket-id="{{ ticket.id }}" data-status="{{ ticket.status }}">
+                                    <td>
+                                        <div class="ticket-id">
+                                            <strong>#{{ ticket.id }}</strong>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="ticket-title">
+                                            <strong>{{ ticket.title }}</strong>
+                                            <div class="ticket-description">
+                                                {{ ticket.description|truncatechars:50 }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if ticket.status == 'pending' %}
+                                            <span class="badge badge-warning" title="Waiting for admin response">
+                                                <i class="fas fa-clock"></i>
+                                                Pending
+                                            </span>
+                                        {% elif ticket.status == 'answered' %}
+                                            <span class="badge badge-success" title="Admin has responded">
+                                                <i class="fas fa-check-circle"></i>
+                                                Answered
+                                            </span>
+                                        {% elif ticket.status == 'closed' %}
+                                            <span class="badge badge-secondary" title="Ticket is closed">
+                                                <i class="fas fa-archive"></i>
+                                                Closed
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="date-info">
+                                            {{ ticket.created_at|date:"M d, Y" }}
+                                            <div class="days-ago">
+                                                {{ ticket.days_since_created }} days ago
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="date-info">
+                                            {% if ticket.updated_at %}
+                                                {{ ticket.updated_at|date:"M d, Y" }}
+                                                <div class="days-ago">
+                                                    {{ ticket.days_since_updated }} days ago
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">No activity</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="{% url 'ticket:detail' ticket.pk %}" 
+                                               class="btn btn-outline-primary btn-sm action-btn"
+                                               title="Open chat">
+                                                <i class="fas fa-comments"></i>
+                                                Chat
+                                            </a>
+                                            {% if ticket.status != 'closed' %}
+                                                <button class="btn btn-outline-secondary btn-sm action-btn close-ticket-btn"
+                                                        data-ticket-id="{{ ticket.id }}"
+                                                        title="Close ticket">
+                                                    <i class="fas fa-times"></i>
+                                                    Close
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-info">
+                        <span id="showingCount">Showing {{ tickets|length }} of {{ total_tickets }} tickets</span>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <h3 class="empty-title">No tickets yet</h3>
+                        <p class="empty-description">
+                            Create your first ticket to start chatting with administration.
+                        </p>
+                        <a href="{% url 'ticket:create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Create Your First Ticket
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Section -->
+    <div class="navigation-section">
+        <div class="nav-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-bolt"></i>
+                    Quick Actions
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="nav-grid">
+                    <a href="{% url 'ticket:create' %}" class="nav-btn nav-btn--primary">
+                        <i class="fas fa-plus"></i>
+                        <span>New Ticket</span>
                     </a>
+                    <a href="{% url 'maintenance:create' %}" class="nav-btn nav-btn--success">
+                        <i class="fas fa-tools"></i>
+                        <span>Maintenance</span>
+                    </a>
+                    <button class="nav-btn nav-btn--secondary" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh</span>
+                    </button>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Stats Cards -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5>Total Tickets</h5>
-                            <h3>{{ total_tickets }}</h3>
-                        </div>
-                        <i class="fas fa-ticket-alt fa-2x"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5>Pending</h5>
-                            <h3>{{ pending_tickets }}</h3>
-                        </div>
-                        <i class="fas fa-clock fa-2x"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h5>Answered</h5>
-                            <h3>{{ answered_tickets }}</h3>
-                        </div>
-                        <i class="fas fa-reply fa-2x"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tickets Table -->
-    <div class="card">
-        <div class="card-header">
-            <h5 class="mb-0">My Tickets</h5>
-        </div>
-        <div class="card-body">
-            {% if tickets %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for ticket in tickets %}
-                        <tr>
-                            <td><strong>#{{ ticket.id }}</strong></td>
-                            <td>
-                                <strong>{{ ticket.title }}</strong><br>
-                                <small class="text-muted">{{ ticket.description|truncatechars:50 }}</small>
-                            </td>
-                            <td>
-                                {% if ticket.status == 'pending' %}
-                                <span class="badge bg-warning">Pending</span>
-                                {% elif ticket.status == 'answered' %}
-                                <span class="badge bg-success">Answered</span>
-                                {% elif ticket.status == 'closed' %}
-                                <span class="badge bg-secondary">Closed</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <small>
-                                    {{ ticket.created_at|date:"M d, Y" }}<br>
-                                    <span class="text-muted">{{ ticket.days_since_created }} days ago</span>
-                                </small>
-                            </td>
-                            <td>
-                                <a href="{% url 'ticket:detail' ticket.pk %}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-comments"></i> Chat
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="text-center py-5">
-                <i class="fas fa-ticket-alt fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No tickets yet</h5>
-                <p class="text-muted">Create your first ticket to start chatting with admin.</p>
-                <a href="{% url 'ticket:create' %}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Create Ticket
-                </a>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'ticket/js/ticket_list.js' %}"></script>
 {% endblock %}
