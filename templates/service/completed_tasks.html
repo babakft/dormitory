@@ -1,202 +1,286 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Completed Tasks{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'service/css/completed_tasks.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid mt-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2>
-                        <i class="fas fa-check-circle text-success"></i> 
-                        Completed Tasks
-                    </h2>
-                    <p class="text-muted mb-0">
-                        <strong>Expert:</strong> {{ expert.user.username }} 
-                        <span class="mx-2">|</span>
-                        <strong>Total Completed:</strong> {{ total_completed }}
-                    </p>
+<div class="completed-tasks-container">
+    <!-- Header Section -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-info">
+                <h1 class="page-title">
+                    <i class="fas fa-check-circle"></i>
+                    Completed Tasks
+                </h1>
+                <div class="expert-info">
+                    <span class="expert-name">{{ expert.user.username }}</span>
+                    <span class="separator">|</span>
+                    <span class="task-count">Total Completed: {{ total_completed }}</span>
                 </div>
-                <div>
-                    <a href="{% url 'service:service_dashboard' %}" class="btn btn-primary">
-                        <i class="fas fa-arrow-left"></i> Back to Dashboard
-                    </a>
-                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'service:service_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Completed Tasks Table -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-tasks"></i> My Completed Work
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if completed_requests %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Student</th>
-                                <th>Location</th>
-                                <th>Priority</th>
-                                <th>Completed Date</th>
-                                <th>Student Rating</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for request in completed_requests %}
-                            <tr>
-                                <td>
-                                    <strong>{{ request.title }}</strong>
-                                    <br>
-                                    <small class="text-muted">{{ request.description|truncatechars:50 }}</small>
-                                </td>
-                                <td>
-                                    <strong>{{ request.student.user.username }}</strong><br>
-                                    <small class="text-muted">#{{ request.student.student_number }}</small>
-                                </td>
-                                <td>{{ request.full_location }}</td>
-                                <td>
+    <!-- Search and Filter Section -->
+    <div class="search-section">
+        <div class="search-container">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="taskSearch" class="form-control search-input" placeholder="Search completed tasks...">
+            </div>
+        </div>
+        <div class="results-summary">
+            <span id="resultsCount">{{ completed_requests|length }}</span> task{{ completed_requests|length|pluralize }} found
+        </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="content-section">
+        <div class="section-header">
+            <h2 class="section-title">My Completed Work</h2>
+        </div>
+
+        {% if completed_requests %}
+            <!-- Tasks Table -->
+            <div class="table-responsive">
+                <table class="table completed-tasks-table">
+                    <thead>
+                        <tr>
+                            <th>Task Details</th>
+                            <th>Student</th>
+                            <th>Location</th>
+                            <th>Priority</th>
+                            <th>Completed</th>
+                            <th>Rating</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in completed_requests %}
+                        <tr class="task-row" data-task-id="{{ request.id }}">
+                            <td class="task-details-cell">
+                                <div class="task-title">{{ request.title }}</div>
+                                <div class="task-description">{{ request.description|truncatechars:50 }}</div>
+                            </td>
+                            <td class="student-cell">
+                                <div class="student-name">{{ request.student.user.username }}</div>
+                                <div class="student-number">#{{ request.student.student_number }}</div>
+                            </td>
+                            <td class="location-cell">{{ request.full_location }}</td>
+                            <td class="priority-cell">
+                                <span class="priority-badge priority-{{ request.priority }}">
                                     {% if request.priority == 'high' %}
-                                    <span class="badge bg-danger">High</span>
+                                        <i class="fas fa-exclamation-circle"></i> High
                                     {% elif request.priority == 'medium' %}
-                                    <span class="badge bg-warning">Medium</span>
+                                        <i class="fas fa-minus-circle"></i> Medium
                                     {% elif request.priority == 'low' %}
-                                    <span class="badge bg-success">Low</span>
+                                        <i class="fas fa-circle"></i> Low
                                     {% else %}
-                                    <span class="badge bg-secondary">{{ request.get_priority_display }}</span>
+                                        {{ request.get_priority_display }}
                                     {% endif %}
-                                </td>
-                                <td>
-                                    <small>
-                                        {{ request.completed_at|date:"M d, Y H:i" }}
-                                        <br>
-                                        <span class="text-muted">
-                                            {% with days_ago=request.completed_at|timesince %}
-                                                {{ days_ago }} ago
-                                            {% endwith %}
-                                        </span>
-                                    </small>
-                                </td>
-                                <td>
-                                    {% if request.student_rating %}
-                                        <div class="text-warning">
-                                            {% for i in "12345" %}
-                                                {% if forloop.counter <= request.student_rating %}
-                                                    <i class="fas fa-star"></i>
-                                                {% else %}
-                                                    <i class="far fa-star"></i>
-                                                {% endif %}
-                                            {% endfor %}
-                                        </div>
-                                        <small class="text-muted">{{ request.student_rating }}/5</small>
-                                    {% else %}
-                                        <span class="badge bg-secondary">No Rating</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-info" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#detailModal{{ request.id }}">
-                                        <i class="fas fa-eye"></i> View Details
-                                    </button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="text-center py-5">
-                        <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
-                        <h5 class="text-muted">No completed tasks yet</h5>
-                        <p class="text-muted">Complete some maintenance requests to see them here.</p>
-                        <a href="{% url 'service:service_dashboard' %}" class="btn btn-primary">
-                            <i class="fas fa-arrow-left"></i> Back to Dashboard
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
+                                </span>
+                            </td>
+                            <td class="completed-date-cell">
+                                <div class="date">{{ request.completed_at|date:"M d, Y" }}</div>
+                                <div class="time">{{ request.completed_at|date:"H:i" }}</div>
+                                <div class="ago">
+                                    {% with days_ago=request.completed_at|timesince %}
+                                        {{ days_ago }} ago
+                                    {% endwith %}
+                                </div>
+                            </td>
+                            <td class="rating-cell">
+                                {% if request.student_rating %}
+                                    <div class="rating-stars">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= request.student_rating %}
+                                                <i class="fas fa-star star-filled"></i>
+                                            {% else %}
+                                                <i class="far fa-star star-empty"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <div class="rating-value">{{ request.student_rating }}/5</div>
+                                {% else %}
+                                    <span class="no-rating">No Rating</span>
+                                {% endif %}
+                            </td>
+                            <td class="actions-cell">
+                                <button class="btn btn-sm btn-primary view-details-btn" data-task-id="{{ request.id }}">
+                                    <i class="fas fa-eye"></i>
+                                    View Details
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- Detail Modals -->
-{% for request in completed_requests %}
-<div class="modal fade" id="detailModal{{ request.id }}" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">{{ request.title }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Student:</strong> {{ request.student.user.username }}</p>
-                        <p><strong>Location:</strong> {{ request.full_location }}</p>
-                        <p><strong>Service Type:</strong> {{ request.get_service_type_display }}</p>
-                        <p><strong>Completed:</strong> {{ request.completed_at|date:"F d, Y H:i" }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Work Duration:</strong> 
-                            {% if request.work_started_at and request.completed_at %}
-                                {{ request.work_started_at|timesince:request.completed_at }}
-                            {% else %}
-                                N/A
+            <!-- Task Detail Modals -->
+            {% for request in completed_requests %}
+            <div class="modal" id="taskModal{{ request.id }}">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title">
+                                <i class="fas fa-clipboard-check"></i>
+                                {{ request.title }}
+                            </h3>
+                            <button type="button" class="close-btn" aria-label="Close">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="task-details-grid">
+                                <div class="detail-item">
+                                    <div class="detail-label">
+                                        <i class="fas fa-user"></i>
+                                        Student
+                                    </div>
+                                    <div class="detail-value">{{ request.student.user.username }}</div>
+                                </div>
+
+                                <div class="detail-item">
+                                    <div class="detail-label">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        Location
+                                    </div>
+                                    <div class="detail-value">{{ request.full_location }}</div>
+                                </div>
+
+                                <div class="detail-item">
+                                    <div class="detail-label">
+                                        <i class="fas fa-cogs"></i>
+                                        Service Type
+                                    </div>
+                                    <div class="detail-value">{{ request.get_service_type_display }}</div>
+                                </div>
+
+                                <div class="detail-item">
+                                    <div class="detail-label">
+                                        <i class="fas fa-calendar-check"></i>
+                                        Completed
+                                    </div>
+                                    <div class="detail-value">{{ request.completed_at|date:"F d, Y H:i" }}</div>
+                                </div>
+
+                                <div class="detail-item">
+                                    <div class="detail-label">
+                                        <i class="fas fa-clock"></i>
+                                        Work Duration
+                                    </div>
+                                    <div class="detail-value">
+                                        {% if request.work_started_at and request.completed_at %}
+                                            {{ request.work_started_at|timesince:request.completed_at }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="detail-item">
+                                    <div class="detail-label">
+                                        <i class="fas fa-star"></i>
+                                        Student Rating
+                                    </div>
+                                    <div class="detail-value">
+                                        {% if request.student_rating %}
+                                            <div class="rating-stars">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= request.student_rating %}
+                                                        <i class="fas fa-star star-filled"></i>
+                                                    {% else %}
+                                                        <i class="far fa-star star-empty"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <span class="rating-text">{{ request.student_rating }}/5</span>
+                                        {% else %}
+                                            <span class="no-rating">No rating provided</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if request.description %}
+                            <div class="detail-section">
+                                <div class="section-label">
+                                    <i class="fas fa-align-left"></i>
+                                    Description
+                                </div>
+                                <div class="section-content">
+                                    {{ request.description }}
+                                </div>
+                            </div>
                             {% endif %}
-                        </p>
-                        {% if request.completion_notes %}
-                        <p><strong>Completion Notes:</strong></p>
-                        <p class="text-muted">{{ request.completion_notes }}</p>
-                        {% endif %}
+
+                            {% if request.completion_notes %}
+                            <div class="detail-section">
+                                <div class="section-label">
+                                    <i class="fas fa-sticky-note"></i>
+                                    Completion Notes
+                                </div>
+                                <div class="section-content">
+                                    {{ request.completion_notes }}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if request.student_feedback %}
+                            <div class="detail-section feedback-section">
+                                <div class="section-label">
+                                    <i class="fas fa-comment"></i>
+                                    Student Feedback
+                                </div>
+                                <div class="section-content feedback-content">
+                                    {{ request.student_feedback }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary close-btn">
+                                <i class="fas fa-times"></i>
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
-                
-                {% if request.student_feedback %}
-                <hr>
-                <h6>Student Feedback:</h6>
-                <p class="text-muted">{{ request.student_feedback }}</p>
-                {% endif %}
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            {% endfor %}
+
+        {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h3 class="empty-title">No completed tasks yet</h3>
+                <p class="empty-description">
+                    Complete some maintenance requests to see them here.
+                </p>
+                <a href="{% url 'service:service_dashboard' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
             </div>
-        </div>
+        {% endif %}
     </div>
 </div>
-{% endfor %}
+{% endblock %}
 
-<style>
-.card:hover {
-    transform: translateY(-2px);
-    transition: transform 0.2s ease-in-out;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.table th {
-    border-top: none;
-    font-weight: 600;
-}
-
-.badge {
-    font-size: 0.75em;
-}
-
-@media (max-width: 768px) {
-    .table-responsive {
-        font-size: 0.9em;
-    }
-}
-</style>
+{% block extra_js %}
+<script src="{% static 'service/js/completed_tasks.js' %}"></script>
 {% endblock %}
