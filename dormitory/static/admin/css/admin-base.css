@@ -1,0 +1,507 @@
+/* ===== DORMITORY ADMIN BASE STYLES ===== */
+/* Inheriting the complete design system from your existing apps */
+
+/* ===== CSS VARIABLES (Matching Your Design System) ===== */
+:root {
+  /* Colors - Matching your exact color palette */
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --success-hover: #1e7e34;
+  --warning-color: #ffc107;
+  --warning-hover: #d39e00;
+  --danger-color: #dc3545;
+  --danger-hover: #c82333;
+  --info-color: #17a2b8;
+  --info-hover: #138496;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --white: #ffffff;
+
+  /* Grayscale - Your exact system */
+  --gray-100: #f8f9fa;
+  --gray-200: #e9ecef;
+  --gray-300: #dee2e6;
+  --gray-400: #ced4da;
+  --gray-500: #adb5bd;
+  --gray-600: #6c757d;
+  --gray-700: #495057;
+  --gray-800: #343a40;
+  --gray-900: #212529;
+
+  /* Spacing - Your exact spacing system */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+
+  /* Border radius - Your exact system */
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-xl: 1rem;
+
+  /* Shadows - Your exact shadow system */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+  --shadow-hover: 0 10px 25px rgba(0, 0, 0, 0.2), 0 6px 10px rgba(0, 0, 0, 0.15);
+
+  /* Transitions - Your exact system */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  /* Font sizes - Your exact system */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+
+  /* Line heights - Your exact system */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Your signature gradient */
+  --admin-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* ===== BASE ADMIN STYLING ===== */
+/* Apply your exact font system to admin */
+#container,
+.module,
+.form-row,
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  line-height: var(--line-height-normal);
+  color: var(--gray-800);
+}
+
+/* Admin container improvements */
+#container {
+  min-width: 1200px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+/* ===== ADMIN HEADER (Your Signature Style) ===== */
+#header {
+  background: var(--admin-gradient) !important;
+  color: var(--white) !important;
+  padding: var(--spacing-xl) !important;
+  border-radius: var(--border-radius-lg);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+  border: none;
+}
+
+/* Add the subtle overlay effect like your other headers */
+#header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  pointer-events: none;
+}
+
+#branding {
+  position: relative;
+  z-index: 2;
+}
+
+#branding h1 {
+  color: var(--white) !important;
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  margin: 0 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#branding h1 a:link,
+#branding h1 a:visited {
+  color: var(--white) !important;
+  text-decoration: none;
+}
+
+#user-tools {
+  position: relative;
+  z-index: 2;
+  float: right;
+  text-align: right;
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+#user-tools a {
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-decoration: none;
+  transition: var(--transition-normal);
+}
+
+#user-tools a:hover {
+  color: var(--white) !important;
+  text-decoration: underline;
+}
+
+/* ===== NAVIGATION BREADCRUMBS ===== */
+.breadcrumbs {
+  background: var(--white);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
+}
+
+.breadcrumbs a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: var(--transition-normal);
+}
+
+.breadcrumbs a:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+/* ===== MODULE STYLING (Cards) ===== */
+.module {
+  background: var(--white) !important;
+  border: 1px solid var(--gray-200) !important;
+  border-radius: var(--border-radius-lg) !important;
+  box-shadow: var(--shadow-md) !important;
+  margin-bottom: var(--spacing-lg);
+  overflow: hidden;
+  transition: var(--transition-normal);
+}
+
+.module:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.module h2,
+.module caption {
+  background: var(--gray-50) !important;
+  color: var(--gray-800) !important;
+  padding: var(--spacing-md) var(--spacing-lg) !important;
+  margin: 0 !important;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+/* ===== BUTTONS (Your Button System) ===== */
+.button,
+input[type=submit],
+input[type=button],
+.submit-row input,
+a.button {
+  background: var(--primary-color) !important;
+  color: var(--white) !important;
+  border: none !important;
+  border-radius: var(--border-radius-md) !important;
+  padding: var(--spacing-sm) var(--spacing-lg) !important;
+  font-size: var(--font-size-sm) !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-normal) !important;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.button:hover,
+input[type=submit]:hover,
+input[type=button]:hover,
+.submit-row input:hover,
+a.button:hover {
+  background: var(--primary-hover) !important;
+  color: var(--white) !important;
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-1px);
+}
+
+/* Secondary buttons */
+.button.default,
+.default {
+  background: var(--gray-500) !important;
+}
+
+.button.default:hover,
+.default:hover {
+  background: var(--gray-600) !important;
+}
+
+/* Danger buttons */
+.deletelink,
+.deletelink:hover {
+  background: var(--danger-color) !important;
+  color: var(--white) !important;
+}
+
+.deletelink:hover {
+  background: var(--danger-hover) !important;
+}
+
+/* ===== FORMS (Matching Your Form Style) ===== */
+.form-row {
+  background: var(--white);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--gray-200);
+}
+
+.form-row:hover {
+  border-color: var(--gray-300);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-row label {
+  font-weight: 500;
+  color: var(--gray-700);
+  margin-bottom: var(--spacing-xs);
+  display: block;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  border: 2px solid var(--gray-300) !important;
+  border-radius: var(--border-radius-md) !important;
+  padding: var(--spacing-sm) var(--spacing-md) !important;
+  font-size: var(--font-size-md) !important;
+  transition: var(--transition-normal) !important;
+  background: var(--white) !important;
+  color: var(--gray-800) !important;
+  width: 100%;
+  max-width: 500px;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+  border-color: var(--primary-color) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+  outline: none !important;
+}
+
+/* ===== TABLES (Matching Your Table Style) ===== */
+#changelist table,
+.results {
+  background: var(--white);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--gray-200);
+}
+
+#changelist table thead th {
+  background: var(--gray-50) !important;
+  color: var(--gray-700) !important;
+  padding: var(--spacing-md) var(--spacing-lg) !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid var(--gray-200) !important;
+  font-size: var(--font-size-sm) !important;
+}
+
+#changelist table tbody td {
+  padding: var(--spacing-md) var(--spacing-lg) !important;
+  border-bottom: 1px solid var(--gray-200) !important;
+  transition: var(--transition-normal);
+}
+
+#changelist table tbody tr:hover {
+  background: var(--gray-50) !important;
+}
+
+#changelist table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+/* ===== ADMIN INDEX PAGE ===== */
+.app-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+}
+
+.app-list .section {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  transition: var(--transition-normal);
+}
+
+.app-list .section:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.app-list .section h2 {
+  background: var(--admin-gradient) !important;
+  color: var(--white) !important;
+  padding: var(--spacing-lg) !important;
+  margin: 0 !important;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.app-list .section ul {
+  padding: var(--spacing-md) 0;
+  margin: 0;
+  list-style: none;
+}
+
+.app-list .section ul li {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.app-list .section ul li:last-child {
+  border-bottom: none;
+}
+
+.app-list .section ul li a {
+  color: var(--gray-700);
+  text-decoration: none;
+  font-weight: 500;
+  display: block;
+  transition: var(--transition-normal);
+}
+
+.app-list .section ul li a:hover {
+  color: var(--primary-color);
+  background: var(--gray-50);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  margin: calc(-1 * var(--spacing-xs)) calc(-1 * var(--spacing-sm));
+}
+
+/* ===== MESSAGES (Notifications) ===== */
+.messagelist {
+  margin-bottom: var(--spacing-lg);
+}
+
+.messagelist li {
+  background: var(--white);
+  border-left: 4px solid var(--primary-color);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.messagelist .success {
+  border-left-color: var(--success-color);
+}
+
+.messagelist .warning {
+  border-left-color: var(--warning-color);
+}
+
+.messagelist .error {
+  border-left-color: var(--danger-color);
+}
+
+/* ===== PAGINATION ===== */
+.paginator {
+  background: var(--white);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-200);
+}
+
+.paginator a {
+  color: var(--primary-color);
+  text-decoration: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-normal);
+}
+
+.paginator a:hover {
+  background: var(--gray-100);
+  color: var(--primary-hover);
+}
+
+/* ===== RESPONSIVE IMPROVEMENTS ===== */
+@media (max-width: 768px) {
+  #container {
+    min-width: auto;
+    padding: var(--spacing-md);
+  }
+
+  .app-list {
+    grid-template-columns: 1fr;
+  }
+
+  #user-tools {
+    float: none;
+    text-align: left;
+    margin-top: var(--spacing-sm);
+  }
+}
+
+/* ===== CUSTOM ADMIN ENHANCEMENTS ===== */
+/* Loading animation for better UX */
+.admin-loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--gray-300);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Success states */
+.admin-success {
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--success-color);
+  border: 1px solid rgba(40, 167, 69, 0.2);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+/* Print styles */
+@media print {
+  #header,
+  .breadcrumbs,
+  .paginator,
+  .button,
+  input[type=submit] {
+    display: none !important;
+  }
+
+  .module {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
