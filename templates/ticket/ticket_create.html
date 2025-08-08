@@ -1,60 +1,173 @@
-<!-- templates/ticket/ticket_create.html -->
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Create New Ticket{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ticket/css/ticket_create.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
+<div class="ticket-container">
+    <!-- Header Section -->
+    <div class="ticket-header">
+        <div class="header-content">
+            <div class="title-section">
+                <h1 class="page-title">Create New Ticket</h1>
+                <p class="page-subtitle">Start a real-time conversation with administration</p>
+            </div>
+            <div class="breadcrumb-section">
+                <a href="{% url 'ticket:list' %}" class="breadcrumb-link">
+                    <i class="fas fa-arrow-left"></i>
+                    My Tickets
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Info Card -->
+    <div class="user-info-card">
+        <div class="user-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="user-details">
+            <h3 class="user-name">{{ user.username }}</h3>
+            <p class="user-role">
+                {% if user.student_profile %}
+                    <span class="badge badge--primary">Student</span>
+                {% elif user.expert_profile %}
+                    <span class="badge badge--success">Service Expert</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="alert alert--{{ message.tags }}">
+            <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+            <button type="button" class="alert-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <div class="content-grid">
+        <!-- Ticket Form -->
+        <div class="form-section">
+            <div class="form-card">
                 <div class="card-header">
-                    <h4>Create New Ticket</h4>
-                    <p class="mb-0 text-muted">Start a real-time chat with administration</p>
+                    <h2 class="card-title">
+                        <i class="fas fa-ticket-alt"></i>
+                        Ticket Information
+                    </h2>
+                    <p class="card-subtitle">Start your conversation with admin</p>
                 </div>
-                <div class="card-body">
-                    <form method="post">
+
+                <div class="card-content">
+                    {% if form.errors %}
+                    <div class="form-errors">
+                        <h4 class="error-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Please correct the following errors:
+                        </h4>
+                        <ul class="error-list">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <form method="post" class="ticket-form" id="ticketForm">
                         {% csrf_token %}
 
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {{ form.non_field_errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="mb-3">
-                            {{ form.title.label_tag }}
+                        <div class="form-group">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                {{ form.title.label }}
+                                <span class="required-indicator">*</span>
+                            </label>
                             {{ form.title }}
-                            {% if form.title.errors %}
-                                <div class="text-danger small">{{ form.title.errors }}</div>
-                            {% endif %}
+                            <div class="form-help">Brief summary of your issue or question</div>
                         </div>
 
-                        <div class="mb-3">
-                            {{ form.description.label_tag }}
+                        <div class="form-group">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                {{ form.description.label }}
+                                <span class="required-indicator">*</span>
+                            </label>
                             {{ form.description }}
-                            {% if form.description.errors %}
-                                <div class="text-danger small">{{ form.description.errors }}</div>
-                            {% endif %}
+                            <div class="form-help">Provide detailed information about your issue or question</div>
                         </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-comments"></i> Create Ticket & Start Chat
-                            </button>
-                            <a href="{% url 'ticket:list' %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left"></i> Back to My Tickets
+                        <div class="form-actions">
+                            <a href="{% url 'ticket:list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i>
+                                Back to Tickets
                             </a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="fas fa-paper-plane"></i>
+                                Create Ticket & Start Chat
+                                <span class="btn-loader" id="btnLoader">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Creating...
+                                </span>
+                            </button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
 
-                    <div class="alert alert-info mt-4">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Note:</strong> After creating your ticket, you'll be able to chat with admin in real-time.
+        <!-- Process Steps -->
+        <div class="steps-section">
+            <div class="steps-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-list-ol"></i>
+                        What Happens Next?
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <div class="process-steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4 class="step-title">Ticket Created</h4>
+                                <p class="step-description">Your ticket will be created and assigned a unique ID</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4 class="step-title">Real-time Chat</h4>
+                                <p class="step-description">Start chatting with admin immediately</p>
+                            </div>
+                        </div>
+
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4 class="step-title">Get Help</h4>
+                                <p class="step-description">Receive assistance and resolve your issue</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'ticket/js/ticket_create.js' %}"></script>
 {% endblock %}
