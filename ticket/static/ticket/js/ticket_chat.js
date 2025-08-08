@@ -1,159 +1,3 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Chat - Ticket #{{ ticket.id }}{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'ticket/css/ticket_chat.css' %}">
-{% endblock %}
-
-{% block content %}
-<div class="chat-container">
-    <!-- Chat Header -->
-    <div class="chat-header">
-        <div class="header-content">
-            <div class="header-info">
-                <div class="breadcrumb">
-                    <a href="{% url 'ticket:list' %}" class="breadcrumb-link">
-                        <i class="fas fa-arrow-left"></i>
-                        My Tickets
-                    </a>
-                    <i class="fas fa-chevron-right"></i>
-                    <span class="breadcrumb-current">Chat</span>
-                </div>
-                <h1 class="chat-title">
-                    <i class="fas fa-ticket-alt"></i>
-                    Ticket #{{ ticket.id }}: {{ ticket.title }}
-                </h1>
-                <p class="chat-subtitle">Real-time chat with administration</p>
-            </div>
-            <div class="header-status">
-                <div class="status-info">
-                    <div class="status-badge status-{{ ticket.status }}">
-                        <i class="fas fa-circle status-icon"></i>
-                        {% if ticket.status == 'pending' %}
-                            Pending
-                        {% elif ticket.status == 'answered' %}
-                            Answered
-                        {% elif ticket.status == 'closed' %}
-                            Closed
-                        {% endif %}
-                    </div>
-                    <div class="user-info">
-                        <span class="user-name">{{ user.username }}</span>
-                        {% if user.student_profile %}
-                            <span class="user-role">Student</span>
-                        {% elif user.expert_profile %}
-                            <span class="user-role">Expert</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Chat Main Content -->
-    <div class="chat-main">
-        <!-- Connection Status -->
-        <div id="connectionStatus" class="connection-status connecting">
-            <div class="status-content">
-                <div class="status-indicator"></div>
-                <span class="status-text">Connecting...</span>
-            </div>
-        </div>
-
-        <!-- Chat Messages -->
-        <div class="chat-messages-container">
-            <div id="chatMessages" class="chat-messages">
-                <div class="loading-state">
-                    <div class="loading-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <div class="loading-text">Loading chat history...</div>
-                    <div class="loading-spinner">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Chat Input -->
-        {% if ticket.status != 'closed' %}
-        <div class="chat-input-section">
-            <div class="chat-input-container">
-                <div class="input-wrapper">
-                    <input type="text"
-                           id="messageInput"
-                           class="message-input"
-                           placeholder="Type your message..."
-                           maxlength="1000"
-                           autocomplete="off">
-                    <button id="sendButton" class="send-button" type="button">
-                        <i class="fas fa-paper-plane"></i>
-                        <span class="btn-text">Send</span>
-                    </button>
-                </div>
-                <div class="input-help">
-                    <div class="help-text">
-                        <i class="fas fa-info-circle"></i>
-                        Press Enter to send • Messages are delivered in real-time
-                    </div>
-                    <div class="char-counter">
-                        <span id="charCount">0</span>/1000
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <div class="chat-closed-notice">
-            <div class="closed-content">
-                <i class="fas fa-lock"></i>
-                <h3>This ticket is closed</h3>
-                <p>No more messages can be sent on this ticket.</p>
-                <a href="{% url 'ticket:list' %}" class="btn btn-primary">
-                    <i class="fas fa-list"></i>
-                    View All Tickets
-                </a>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- Chat Actions -->
-    <div class="chat-actions">
-        <div class="actions-content">
-            <div class="action-buttons">
-                <a href="{% url 'ticket:list' %}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i>
-                    Back to Tickets
-                </a>
-                {% if ticket.status != 'closed' %}
-                <button type="button" class="btn btn-outline-warning" id="closeTicketBtn" data-ticket-id="{{ ticket.id }}">
-                    <i class="fas fa-times"></i>
-                    Close Ticket
-                </button>
-                {% endif %}
-                <button type="button" class="btn btn-outline-secondary" onclick="location.reload()">
-                    <i class="fas fa-sync-alt"></i>
-                    Refresh
-                </button>
-            </div>
-            <div class="chat-info">
-                <small class="text-muted">
-                    <i class="fas fa-shield-alt"></i>
-                    Secure encrypted chat • Created {{ ticket.created_at|date:"M d, Y" }}
-                </small>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- CSRF Token for JavaScript -->
-<meta name="csrf-token" content="{{ csrf_token }}">
-{% endblock %}
-
-{% block extra_js %}
-<script>
 /**
  * Ticket Chat JavaScript
  * Enhanced real-time chat functionality with WebSocket integration
@@ -923,6 +767,11 @@ class TicketChat {
     }
 }
 
+// Export for potential module usage
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = TicketChat;
+}
+
 // Additional utility styles for notifications
 const notificationStyles = `
 .notification-toast {
@@ -981,14 +830,3 @@ const notificationStyles = `
 const style = document.createElement('style');
 style.textContent = notificationStyles;
 document.head.appendChild(style);
-
-// Initialize chat when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    const ticketId = {{ ticket.id }};
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-    console.log('🚀 Initializing chat for ticket #' + ticketId);
-    window.ticketChat = new TicketChat(ticketId, csrfToken);
-});
-</script>
-{% endblock %}
