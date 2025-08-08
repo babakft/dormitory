@@ -17,7 +17,6 @@
             </h1>
             <p class="subtitle">Real-time chat with administration</p>
         </div>
-
     </div>
 
     <!-- Statistics Section -->
@@ -87,9 +86,9 @@
                 </h2>
                 <div class="card-actions">
                     <div class="search-container">
-                        <input type="text" 
-                               id="ticketSearch" 
-                               class="search-input" 
+                        <input type="text"
+                               id="ticketSearch"
+                               class="search-input"
                                placeholder="Search tickets...">
                         <i class="fas fa-search search-icon"></i>
                     </div>
@@ -103,116 +102,138 @@
                     </div>
                 </div>
             </div>
-
             <div class="card-body">
                 {% if tickets %}
-                    <div class="table-container">
-                        <table class="tickets-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Title</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Last Activity</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for ticket in tickets %}
-                                <tr class="table-row" data-ticket-id="{{ ticket.id }}" data-status="{{ ticket.status }}">
-                                    <td>
-                                        <div class="ticket-id">
-                                            <strong>#{{ ticket.id }}</strong>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="ticket-title">
-                                            <strong>{{ ticket.title }}</strong>
-                                            <div class="ticket-description">
-                                                {{ ticket.description|truncatechars:50 }}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
+                <div class="table-container">
+                    <table class="tickets-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ticket in tickets %}
+                            <tr class="table-row" data-status="{{ ticket.status }}">
+                                <td class="ticket-id">
+                                    <strong>#{{ ticket.id }}</strong>
+                                </td>
+                                <td class="ticket-title">
+                                    <strong>{{ ticket.title|truncatechars:40 }}</strong>
+                                    {% if ticket.description %}
+                                    <div class="ticket-description">
+                                        {{ ticket.description|truncatechars:60 }}
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="status-badge status-badge--{{ ticket.status }}">
                                         {% if ticket.status == 'pending' %}
-                                            <span class="badge badge-warning" title="Waiting for admin response">
-                                                <i class="fas fa-clock"></i>
-                                                Pending
-                                            </span>
+                                        <i class="fas fa-clock"></i>
                                         {% elif ticket.status == 'answered' %}
-                                            <span class="badge badge-success" title="Admin has responded">
-                                                <i class="fas fa-check-circle"></i>
-                                                Answered
-                                            </span>
+                                        <i class="fas fa-check-circle"></i>
                                         {% elif ticket.status == 'closed' %}
-                                            <span class="badge badge-secondary" title="Ticket is closed">
-                                                <i class="fas fa-archive"></i>
-                                                Closed
-                                            </span>
+                                        <i class="fas fa-archive"></i>
                                         {% endif %}
-                                    </td>
-                                    <td>
-                                        <div class="date-info">
-                                            {{ ticket.created_at|date:"M d, Y" }}
-                                            <div class="days-ago">
-                                                {{ ticket.days_since_created }} days ago
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="date-info">
-                                            {% if ticket.updated_at %}
-                                                {{ ticket.updated_at|date:"M d, Y" }}
-                                                <div class="days-ago">
-                                                    {{ ticket.days_since_updated }} days ago
-                                                </div>
-                                            {% else %}
-                                                <span class="text-muted">No activity</span>
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a href="{% url 'ticket:detail' ticket.pk %}" 
-                                               class="btn btn-outline-primary btn-sm action-btn"
-                                               title="Open chat">
-                                                <i class="fas fa-comments"></i>
-                                                Chat
-                                            </a>
-                                            {% if ticket.status != 'closed' %}
-                                                <button class="btn btn-outline-secondary btn-sm action-btn close-ticket-btn"
-                                                        data-ticket-id="{{ ticket.id }}"
-                                                        title="Close ticket">
-                                                    <i class="fas fa-times"></i>
-                                                    Close
-                                                </button>
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                        {{ ticket.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="priority-badge priority-badge--{{ ticket.priority }}">
+                                        {% if ticket.priority == 'high' %}
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        {% elif ticket.priority == 'medium' %}
+                                        <i class="fas fa-minus-circle"></i>
+                                        {% else %}
+                                        <i class="fas fa-circle"></i>
+                                        {% endif %}
+                                        {{ ticket.get_priority_display }}
+                                    </span>
+                                </td>
+                                <td class="date-info">
+                                    <span class="date-primary">{{ ticket.created_at|date:"M d, Y" }}</span>
+                                    <div class="days-ago">{{ ticket.created_at|timesince }} ago</div>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{% url 'ticket:detail' ticket.pk %}"
+                                           class="btn btn--primary btn--small">
+                                            <i class="fas fa-comments"></i>
+                                            Chat
+                                        </a>
+                                        {% if ticket.status != 'closed' %}
+                                        <span class="btn btn--secondary btn--small"
+                                              title="Only admins can close tickets">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="table-info">
+                                    <i class="fas fa-inbox"></i>
+                                    No tickets found matching your criteria
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-                    <div class="table-info">
-                        <span id="showingCount">Showing {{ tickets|length }} of {{ total_tickets }} tickets</span>
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="pagination-section">
+                    <div class="pagination-info">
+                        <span class="pagination-text">
+                            Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ paginator.count }} tickets
+                        </span>
                     </div>
-                {% else %}
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-ticket-alt"></i>
-                        </div>
-                        <h3 class="empty-title">No tickets yet</h3>
-                        <p class="empty-description">
-                            Create your first ticket to start chatting with administration.
-                        </p>
-                        <a href="{% url 'ticket:create' %}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Create Your First Ticket
+                    <div class="pagination-controls">
+                        {% if page_obj.has_previous %}
+                        <a href="?page=1" class="btn btn--secondary btn--small">
+                            <i class="fas fa-angle-double-left"></i>
                         </a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn--secondary btn--small">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                        {% endif %}
+
+                        <span class="pagination-current">
+                            Page {{ page_obj.number }} of {{ paginator.num_pages }}
+                        </span>
+
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn--secondary btn--small">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                        <a href="?page={{ paginator.num_pages }}" class="btn btn--secondary btn--small">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                        {% endif %}
                     </div>
+                </div>
+                {% endif %}
+
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <h3 class="empty-title">No tickets yet</h3>
+                    <p class="empty-description">
+                        You haven't created any tickets yet. Start a conversation with the administration team.
+                    </p>
+                    <a href="{% url 'ticket:create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Create Your First Ticket
+                    </a>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -233,10 +254,15 @@
                         <i class="fas fa-plus"></i>
                         <span>New Ticket</span>
                     </a>
+
+                    <!-- Only show Maintenance button to students, not to service experts -->
+                    {% if user.user_type == 'student' %}
                     <a href="{% url 'maintenance:create' %}" class="nav-btn nav-btn--success">
                         <i class="fas fa-tools"></i>
                         <span>Maintenance</span>
                     </a>
+                    {% endif %}
+
                     <button class="nav-btn nav-btn--secondary" id="refreshBtn">
                         <i class="fas fa-sync-alt"></i>
                         <span>Refresh</span>
