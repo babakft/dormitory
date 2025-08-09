@@ -7,7 +7,7 @@ from django.views.generic import FormView, TemplateView
 from django.urls import reverse_lazy
 from student.forms import StudentRegistrationForm, StudentLoginForm
 from django.contrib.auth.views import LoginView, LogoutView
-from student.models import Student, Building, Room
+from student.models import Student,Room
 from django.utils.decorators import method_decorator
 from django.db import transaction
 from dormitory.utils.email_service import StudentEmailService

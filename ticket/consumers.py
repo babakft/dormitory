@@ -96,6 +96,11 @@ class TicketChatConsumer(AsyncWebsocketConsumer):
         )
 
     async def chat_message(self, event):
+        # Check if this message is from the current user
+        sender_user_id = event.get('sender_user_id')
+        if sender_user_id and sender_user_id == self.user.id:
+            return  # Don't echo back to sender
+
         await self.send(text_data=json.dumps({
             'type': 'message',
             'message': event['message']
