@@ -8,15 +8,100 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <!-- Add Bootstrap CSS if not already included -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
 <style>
-    #notification-container {
-        display: inline-block;
-        margin-right: 20px;
-        vertical-align: middle;
+    /* Remove underlines from admin panel links */
+    .admin a,
+    .admin a:link,
+    .admin a:visited,
+    #content a,
+    #content a:link,
+    #content a:visited,
+    .module a,
+    .module a:link,
+    .module a:visited,
+    .dashboard a,
+    .dashboard a:link,
+    .dashboard a:visited,
+    .breadcrumbs a,
+    .breadcrumbs a:link,
+    .breadcrumbs a:visited,
+    .object-tools a,
+    .object-tools a:link,
+    .object-tools a:visited,
+    .sidebar a,
+    .sidebar a:link,
+    .sidebar a:visited,
+    .nav-sidebar a,
+    .nav-sidebar a:link,
+    .nav-sidebar a:visited {
+        text-decoration: none !important;
     }
 
-    .dropdown-menu {
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    /* Add hover effect to maintain usability */
+    .admin a:hover,
+    #content a:hover,
+    .module a:hover,
+    .dashboard a:hover,
+    .breadcrumbs a:hover,
+    .object-tools a:hover,
+    .sidebar a:hover,
+    .nav-sidebar a:hover {
+        text-decoration: none !important;
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+    }
+
+    /* Adapt your existing notification system for top navbar */
+    .notification-in-navbar {
+        display: inline-block;
+        margin-left: 15px;
+    }
+
+    /* Make notification dropdown work better in top navbar */
+    .notification-in-navbar .dropdown-menu {
+        right: 0 !important;
+        left: auto !important;
+        top: 100% !important;
+        margin-top: 8px;
+        border: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        z-index: 1050;
+    }
+
+    /* Style the notification button for navbar */
+    .notification-in-navbar .btn {
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        transition: all 0.3s ease;
+    }
+
+    .notification-in-navbar .btn:hover {
+        background-color: rgba(255,255,255,0.1) !important;
+        border-color: rgba(255,255,255,0.3) !important;
+        transform: translateY(-1px);
+    }
+
+    /* Remove underlines from notification dropdown links */
+    .notification-in-navbar a,
+    .notification-in-navbar a:link,
+    .notification-in-navbar a:visited,
+    .dropdown-menu a,
+    .dropdown-menu a:link,
+    .dropdown-menu a:visited {
+        text-decoration: none !important;
+    }
+
+    /* Responsive positioning */
+    @media (max-width: 768px) {
+        .notification-in-navbar .dropdown-menu {
+            right: -20px !important;
+            width: 320px;
+        }
+    }
+
+    /* Ensure notification badge appears above other elements */
+    .notification-in-navbar .position-absolute {
+        z-index: 1051;
     }
 </style>
 
@@ -28,22 +113,64 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.addEventListener('htmx:configRequest', function(evt) {
         evt.detail.headers['X-CSRFToken'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     });
+
+    // Inject notification system into Jazzmin's navbar
+    function injectNotificationSystem() {
+        // Find Jazzmin's top navbar - try multiple selectors
+        const navbar = document.querySelector('.navbar .navbar-nav:last-child') ||
+                       document.querySelector('.main-header .navbar-nav') ||
+                       document.querySelector('nav .navbar-nav') ||
+                       document.querySelector('.navbar-nav');
+
+        if (navbar && !document.getElementById('notification-system-container')) {
+            console.log('✅ Found navbar, injecting notification system:', navbar);
+
+            // Create container for your existing notification system
+            const notificationContainer = document.createElement('li');
+            notificationContainer.className = 'nav-item notification-in-navbar';
+            notificationContainer.id = 'notification-system-container';
+
+            // Insert your existing notification badge HTML
+            notificationContainer.innerHTML = `
+                <div id="notification-badge"
+                     hx-get="{% url 'notification:badge' %}"
+                     hx-trigger="load, every 10s"
+                     hx-swap="outerHTML"
+                     style="display: inline-block;">
+                    <!-- Your notification system will load here -->
+                    <button class="btn btn-sm position-relative"
+                            type="button"
+                            disabled
+                            style="background-color: #6c757d; color: #fff; border: none;">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                </div>
+            `;
+
+            // Insert into navbar
+            navbar.appendChild(notificationContainer);
+
+            // Process HTMX for the new element
+            if (typeof htmx !== 'undefined') {
+                htmx.process(notificationContainer);
+            }
+
+            console.log('✅ Notification system injected into navbar');
+        } else if (!navbar) {
+            console.log('❌ Could not find navbar. Available elements:');
+            document.querySelectorAll('[class*="nav"]').forEach((el, i) => {
+                console.log(`  ${i}: ${el.className}`, el);
+            });
+        }
+    }
+
+    // Try injection multiple times to account for theme loading
+    injectNotificationSystem();
+    setTimeout(injectNotificationSystem, 300);
+    setTimeout(injectNotificationSystem, 800);
+    setTimeout(injectNotificationSystem, 1500);
 });
 </script>
-{% endblock %}
-
-{% block usertools %}
-{% if user.is_active and user.is_staff %}
-    <span id="notification-container">
-        <div id="notification-badge"
-             hx-get="{% url 'notification:badge' %}"
-             hx-trigger="load, every 10s"
-             hx-swap="outerHTML">
-            <!-- Loading badge... -->
-        </div>
-    </span>
-{% endif %}
-{{ block.super }}
 {% endblock %}
 
 {% block footer %}
