@@ -6,6 +6,6 @@ app_name = 'notification'
 
 urlpatterns = [
     path('badge/', views.notification_badge, name='badge'),
-    path('dropdown/', views.notification_dropdown, name='dropdown'),
+    path('dropdown/', views.notification_dropdown, name='dropdown'),  # You already have this
     path('mark-viewed/<str:activity_type>/', views.mark_as_viewed, name='mark_viewed'),
 ]
