@@ -1,0 +1,85 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+/* Custom styling for maintenance request table */
+#result_list .title-column {
+    max-width: 300px;
+}
+
+#result_list .title-with-image {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#result_list .request-thumbnail {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 2px solid #e9ecef;
+}
+
+#result_list .student-info-cell {
+    min-width: 150px;
+}
+
+#result_list .expert-info-cell {
+    min-width: 140px;
+}
+
+#result_list .priority-cell {
+    text-align: center;
+    min-width: 100px;
+}
+
+#result_list .status-cell {
+    text-align: center;
+    min-width: 120px;
+}
+
+#result_list .rating-cell {
+    text-align: center;
+    min-width: 100px;
+}
+
+#result_list .date-cell {
+    min-width: 140px;
+}
+
+/* Enhanced mobile responsiveness */
+@media (max-width: 768px) {
+    #result_list .mobile-hidden {
+        display: none;
+    }
+    
+    #result_list .title-column {
+        max-width: 200px;
+    }
+    
+    #result_list .title-with-image {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block result_list %}
+{% if cl.result_count %}
+    {{ block.super }}
+{% else %}
+    <div class="empty-changelist">
+        <i class="fas fa-tools"></i>
+        <h3>No Maintenance Requests Found</h3>
+        <p>No requests match your current filters. Try adjusting your search criteria or add a new maintenance request.</p>
+        <a href="{% url 'admin:maintenance_maintenancerequest_add' %}" class="btn">
+            <i class="fas fa-plus"></i> Add New Request
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

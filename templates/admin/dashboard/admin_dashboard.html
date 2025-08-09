@@ -1,0 +1,145 @@
+<!-- templates/admin/dashboard/admin_dashboard.html -->
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Dashboard - {{ site_title|default:"Django Administration" }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/dashboard-widgets.css' %}">
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Quick Stats Row -->
+    <div class="stats-row">
+        <div class="stat-card primary">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ system_overview.total_students }}</h3>
+                <p>Active Students</p>
+                {% if system_overview.pending_registrations %}
+                <span class="badge">{{ system_overview.pending_registrations }} pending</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="stat-card success">
+            <div class="stat-icon">
+                <i class="fas fa-tools"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ maintenance_metrics.total_requests }}</h3>
+                <p>Maintenance Requests</p>
+                <span class="badge">{{ maintenance_metrics.recent_requests }} this week</span>
+            </div>
+        </div>
+
+        <div class="stat-card warning">
+            <div class="stat-icon">
+                <i class="fas fa-user-cog"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ service_metrics.total_experts }}</h3>
+                <p>Service Experts</p>
+                <span class="badge">⭐ {{ service_metrics.avg_rating }}/5.0</span>
+            </div>
+        </div>
+
+        <div class="stat-card info">
+            <div class="stat-icon">
+                <i class="fas fa-bed"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ system_overview.occupied_rooms }}/{{ system_overview.total_rooms }}</h3>
+                <p>Room Occupancy</p>
+                <span class="badge">{{ system_overview.occupied_rooms|floatformat:0 }}% occupied</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+        <div class="chart-widget">
+            <h3>Weekly Activity Trends</h3>
+            <canvas id="trendsChart" width="400" height="200"></canvas>
+        </div>
+
+        <div class="chart-widget">
+            <h3>Maintenance Status</h3>
+            <canvas id="statusChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Quick Actions & Recent Activity -->
+    <div class="actions-row">
+        <div class="quick-actions-widget">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+                {% if quick_actions.pending_approvals %}
+                <button class="action-btn urgent" onclick="bulkApproveStudents()">
+                    <i class="fas fa-user-check"></i>
+                    Approve {{ quick_actions.pending_approvals }} Students
+                </button>
+                {% endif %}
+
+                {% if quick_actions.urgent_maintenance %}
+                <button class="action-btn warning" onclick="viewUrgentRequests()">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {{ quick_actions.urgent_maintenance }} Urgent Requests
+                </button>
+                {% endif %}
+
+                {% if quick_actions.unassigned_requests %}
+                <button class="action-btn info" onclick="assignExperts()">
+                    <i class="fas fa-user-plus"></i>
+                    Assign {{ quick_actions.unassigned_requests }} Requests
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="recent-activity-widget">
+            <h3>Recent Activity</h3>
+            <div class="activity-list">
+                {% for registration in recent_activity.recent_registrations %}
+                <div class="activity-item">
+                    <i class="fas fa-user-plus text-info"></i>
+                    <span>{{ registration.user.username }} registered</span>
+                    <small>{{ registration.created_at|timesince }} ago</small>
+                </div>
+                {% endfor %}
+
+                {% for request in recent_activity.urgent_requests %}
+                <div class="activity-item urgent">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                    <span>Urgent: {{ request.title|truncatechars:30 }}</span>
+                    <small>{{ request.created_at|timesince }} ago</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+{{ block.super }}
+<script src="{% static 'admin/js/dashboard-widgets.js' %}"></script>
+<script>
+// Initialize charts with data
+const trendsData = {{ weekly_trends|safe }};
+const statusData = {{ maintenance_metrics.status_breakdown|safe }};
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDashboardCharts(trendsData, statusData);
+});
+</script>
+{% endblock %}
