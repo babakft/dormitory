@@ -26,7 +26,9 @@
 
 <!-- ✨ NEW: Your custom admin styles -->
 <link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin-base.css' %}">
-
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin-dashboard.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin-forms.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin-tables.css' %}">
 <!-- CSRF Token for JavaScript -->
 <meta name="csrf-token" content="{{ csrf_token }}">
 
@@ -138,4 +140,5 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- ✨ NEW: Your enhanced admin JavaScript -->
 <script src="{% static 'admin/js/admin-real-time.js' %}"></script>
 <script src="{% static 'admin/js/admin-enhancements.js' %}"></script>
+<script src="{% static 'admin/js/admin-final-enhancements.js' %}"></script>
 {% endblock %}

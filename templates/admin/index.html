@@ -1,0 +1,165 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_urls %}
+
+{% block title %}{% translate 'Site administration' %}{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+/* Force Light Theme for Index Page */
+body, #container, .module, .app-list {
+    background: white !important;
+    color: #333 !important;
+}
+
+.module {
+    background: white !important;
+    border: 1px solid #e9ecef !important;
+    border-radius: 12px !important;
+    margin-bottom: 20px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.module caption {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 16px 20px !important;
+    border-radius: 12px 12px 0 0 !important;
+    font-weight: 600 !important;
+    text-align: left !important;
+}
+
+.module caption a {
+    color: white !important;
+    text-decoration: none !important;
+}
+
+.module table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+.module th {
+    background: #f8f9fa !important;
+    color: #333 !important;
+    padding: 12px 20px !important;
+    font-weight: 600 !important;
+    border-bottom: 1px solid #e9ecef !important;
+}
+
+.module td {
+    padding: 12px 20px !important;
+    border-bottom: 1px solid #f8f9fa !important;
+    color: #333 !important;
+}
+
+.module td a {
+    color: #333 !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+}
+
+.module td a:hover {
+    color: #667eea !important;
+}
+
+.module .addlink,
+.module .changelink,
+.module .viewlink {
+    color: #667eea !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    transition: all 0.3s ease !important;
+    display: inline-block !important;
+}
+
+.module .addlink:hover,
+.module .changelink:hover,
+.module .viewlink:hover {
+    background: #667eea !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+/* Dashboard Stats - Only show if we add them */
+.dashboard-stats {
+    display: none;
+}
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <i class="fas fa-building"></i>
+        Dormitory Management System
+    </a>
+</h1>
+{% endblock %}
+
+{% block content %}
+<h1>📋 Site Administration</h1>
+
+<!-- Standard Django Admin App List -->
+{% if app_list %}
+    {% for app in app_list %}
+        <div class="app-{{ app.app_label }} module">
+            <table>
+                <caption>
+                    <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">
+                        {% if app.name == 'Authentication and Authorization' %}
+                            👥 {{ app.name }}
+                        {% elif app.name == 'Maintenance' %}
+                            🔧 {{ app.name }}
+                        {% elif app.name == 'Service' %}
+                            👨‍🔧 {{ app.name }}
+                        {% elif app.name == 'Student' %}
+                            🎓 {{ app.name }}
+                        {% elif app.name == 'Ticket' %}
+                            🎫 {{ app.name }}
+                        {% elif app.name == 'Notification' %}
+                            🔔 {{ app.name }}
+                        {% else %}
+                            {{ app.name }}
+                        {% endif %}
+                    </a>
+                </caption>
+                {% for model in app.models %}
+                    <tr class="model-{{ model.object_name|lower }}">
+                        {% if model.admin_url %}
+                            <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+                        {% else %}
+                            <th scope="row">{{ model.name }}</th>
+                        {% endif %}
+
+                        {% if model.add_url %}
+                            <td><a href="{{ model.add_url }}" class="addlink">➕ {% translate 'Add' %}</a></td>
+                        {% else %}
+                            <td>&nbsp;</td>
+                        {% endif %}
+
+                        {% if model.admin_url %}
+                            {% if model.view_only %}
+                                <td><a href="{{ model.admin_url }}" class="viewlink">👁️ {% translate 'View' %}</a></td>
+                            {% else %}
+                                <td><a href="{{ model.admin_url }}" class="changelink">📝 {% translate 'Change' %}</a></td>
+                            {% endif %}
+                        {% else %}
+                            <td>&nbsp;</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endfor %}
+{% else %}
+    <div style="text-align: center; padding: 60px 20px; color: #6c757d;">
+        <i class="fas fa-lock" style="font-size: 4rem; color: #ccc; margin-bottom: 20px; display: block;"></i>
+        <h3 style="color: #495057; margin-bottom: 12px;">Access Restricted</h3>
+        <p>{% translate "You don't have permission to view or edit anything." %}</p>
+    </div>
+{% endif %}
+
+{% endblock %}
