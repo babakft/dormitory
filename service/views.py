@@ -240,3 +240,4 @@ def completed_tasks(request):
     }
 
     return render(request, 'service/completed_tasks.html', context)
+

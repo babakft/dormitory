@@ -156,3 +156,23 @@ class StudentLoginForm(AuthenticationForm):
     def get_user(self):
         """Return the authenticated user."""
         return getattr(self, 'user_cache', None)
+
+
+class ForgotPasswordForm(forms.Form):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your email address',
+            'id': 'id_email'
+        }),
+        label='Email Address',
+        help_text='Enter the email address associated with your student account'
+    )
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email:
+            email = email.strip().lower()
+            # We don't validate if email exists here for security reasons
+            # The actual check happens in the view
+        return email
