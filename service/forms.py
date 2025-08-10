@@ -108,3 +108,22 @@ class CompleteWorkForm(forms.Form):
         if not notes or len(notes.strip()) < 10:
             raise forms.ValidationError('Completion notes must be at least 10 characters.')
         return notes.strip()
+
+class ServiceExpertForgotPasswordForm(forms.Form):
+    employee_id = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Enter your employee ID',
+            'id': 'id_employee_id'
+        }),
+        label='Employee ID',
+        help_text='Enter the employee ID associated with your service expert account'
+    )
+
+    def clean_employee_id(self):
+        employee_id = self.cleaned_data.get('employee_id')
+        if employee_id:
+            employee_id = employee_id.strip()
+            # We don't validate if employee_id exists here for security reasons
+            # The actual check happens in the view
+        return employee_id

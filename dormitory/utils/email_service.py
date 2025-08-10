@@ -189,7 +189,7 @@ class StudentEmailService(BaseEmailService):
 
     @staticmethod
     @shared_task(bind=True, max_retries=5, default_retry_delay=15)
-    def send_password_reset_email(self, student_id, new_password):
+    def send_student_password_reset_email(self, student_id, new_password):
         """Async task for sending password reset email"""
         try:
             from student.models import Student
@@ -227,7 +227,7 @@ class ServiceEmailService(BaseEmailService):
 
     @staticmethod
     @shared_task(bind=True, max_retries=5, default_retry_delay=15)
-    def send_password_reset_email(self, expert_id, new_password):
+    def send_service_password_reset_email(self, expert_id, new_password):
         """Async task for sending service expert password reset email"""
         try:
             from service.models import ServiceExpert

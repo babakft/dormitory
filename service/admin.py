@@ -185,7 +185,7 @@ class ServiceExpertAdmin(admin.ModelAdmin):
                     expert.user.save()
 
                     # Send async email with new password
-                    ServiceEmailService.send_password_reset_email.delay(expert.id, new_password)
+                    ServiceEmailService.send_service_password_reset_email.delay(expert.id, new_password)
 
                     success_count += 1
 

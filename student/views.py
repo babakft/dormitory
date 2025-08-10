@@ -184,7 +184,7 @@ class ForgotPasswordView(FormView):
                 student.user.save()
 
                 # Send email with new password
-                StudentEmailService.send_password_reset_email.delay(
+                StudentEmailService.send_student_password_reset_email.delay(
                     student.id,
                     new_password
                 )

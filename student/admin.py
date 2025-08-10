@@ -131,7 +131,7 @@ class StudentAdmin(AutoMarkViewedMixin, admin.ModelAdmin):
                     student.user.save()
 
                     # Send async email with new password
-                    StudentEmailService.send_password_reset_email.delay(student.id, new_password)
+                    StudentEmailService.send_student_password_reset_email.delay(student.id, new_password)
 
                     # Count as success since we dispatched the task
                     success_count += 1
