@@ -166,6 +166,13 @@ CELERY_TIMEZONE = "Asia/Tehran"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 2 * 60
 
+# Session settings
+SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days (only when remember me is checked)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Default behavior (overridden by remember me)
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_HTTPONLY = True  # Prevent XSS attacks
+SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
+
 
 
 ## JAZZMIN ##

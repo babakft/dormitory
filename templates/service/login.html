@@ -77,9 +77,9 @@
             <!-- Form Options -->
             <div class="form-options">
                 <label class="checkbox-wrapper">
-                    <input type="checkbox" name="remember_me">
+                    {{ form.remember_me }}
                     <span class="checkmark"></span>
-                    Keep me signed in
+                    {{ form.remember_me.label }}
                 </label>
                 <a href="{% url 'service:forgot_password' %}" class="forgot-password">Reset password?</a>
             </div>
@@ -97,18 +97,6 @@
                 </button>
             </div>
 
-            <!-- Footer Links -->
-            <div class="auth-footer">
-                <p>Need help? <a href="#" class="support-link">Contact IT Support</a></p>
-                <div class="portal-links">
-                    <a href="{% url 'student:student_login' %}" class="portal-link">
-                        <i class="icon-student"></i> Student Portal
-                    </a>
-                    <a href="/admin/" class="portal-link">
-                        <i class="icon-admin"></i> Admin Panel
-                    </a>
-                </div>
-            </div>
         </form>
     </div>
 

@@ -13,6 +13,7 @@ from django.contrib.auth import logout,login
 from dormitory.utils.password_generator import PasswordGenerator
 from dormitory.utils.email_service import ServiceEmailService
 
+
 class ServiceExpertLoginView(LoginView):
     form_class = ServiceExpertLoginForm
     template_name = 'service/login.html'
@@ -47,6 +48,16 @@ class ServiceExpertLoginView(LoginView):
             messages.error(self.request, 'Invalid service expert account.')
             return self.form_invalid(form)
 
+        # Handle remember me functionality
+        remember_me = form.cleaned_data.get('remember_me', False)
+
+        if not remember_me:
+            # Session expires when browser closes
+            self.request.session.set_expiry(0)
+        else:
+            # Session expires after 30 days
+            self.request.session.set_expiry(30 * 24 * 60 * 60)  # 30 days in seconds
+
         # If there was a previous user logged in, logout first
         if self.request.user.is_authenticated:
             logout(self.request)
@@ -57,10 +68,15 @@ class ServiceExpertLoginView(LoginView):
         # Login the new user
         login(self.request, user)
 
-        messages.success(self.request, f'Welcome back, {user.username}!')
+        # Success message based on remember me choice
+        if remember_me:
+            messages.success(self.request, f'Welcome back, {user.username}! You will stay logged in.')
+        else:
+            messages.success(self.request, f'Welcome back, {user.username}!')
 
         # Redirect to success URL
         return redirect(self.get_success_url())
+
 class ServiceExpertLogoutView(LoginRequiredMixin, LogoutView):
     next_page = reverse_lazy('service:service_login')
 

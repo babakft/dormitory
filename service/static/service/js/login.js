@@ -134,7 +134,7 @@ class ServiceExpertLogin {
 
         if (employeeIdField) {
             employeeIdField.classList.add('form-control');
-            employeeIdField.placeholder = 'e.g., EMP001, TECH123';
+            employeeIdField.placeholder = 'Enter your employee id';
         }
 
         if (passwordField) {

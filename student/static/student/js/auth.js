@@ -77,7 +77,7 @@ class RegistrationSystem {
                         field.placeholder = 'your.email@student.uk.ac.ir';
                         break;
                     case 'id_username':
-                        field.placeholder = 'Choose a unique username';
+                        field.placeholder = 'username';
                         break;
                     case 'id_student_number':
                         field.placeholder = 'e.g., 1401234567';

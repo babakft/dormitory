@@ -103,7 +103,15 @@ class StudentRegistrationForm(UserCreationForm):
 
 
 class StudentLoginForm(AuthenticationForm):
-    """Simplified login form"""
+    """Simplified login form with remember me functionality"""
+
+    remember_me = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input'
+        }),
+        label='Remember me'
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -156,7 +164,6 @@ class StudentLoginForm(AuthenticationForm):
     def get_user(self):
         """Return the authenticated user."""
         return getattr(self, 'user_cache', None)
-
 
 class ForgotPasswordForm(forms.Form):
     email = forms.EmailField(

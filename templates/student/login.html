@@ -71,9 +71,9 @@
             <!-- Form Options -->
             <div class="form-options">
                 <label class="checkbox-wrapper">
-                    <input type="checkbox" name="remember_me">
+                    {{ form.remember_me }}
                     <span class="checkmark"></span>
-                    Remember me
+                    {{ form.remember_me.label }}
                 </label>
                 <a href="{% url 'student:forgot_password' %}" class="forgot-password">Forgot password?</a>
             </div>
@@ -88,6 +88,7 @@
                     </div>
                 </button>
             </div>
+
 
             <!-- Register Link -->
             <div class="auth-footer">

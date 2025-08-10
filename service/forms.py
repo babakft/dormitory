@@ -8,7 +8,15 @@ from service.models import ServiceExpert
 
 
 class ServiceExpertLoginForm(AuthenticationForm):
-    """Enhanced login form for service experts with proper validation"""
+    """Enhanced login form for service experts with proper validation and remember me"""
+
+    remember_me = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={
+            'class': 'form-check-input'
+        }),
+        label='Keep me signed in'
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
