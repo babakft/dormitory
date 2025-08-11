@@ -21,8 +21,6 @@ class MaintenanceRequestForm {
         this.filePreview = document.getElementById('filePreview');
         this.removeFileBtn = document.getElementById('removeFile');
 
-
-
         this.init();
     }
 
@@ -44,9 +42,13 @@ class MaintenanceRequestForm {
             this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
         }
 
-        // Use My Room button
+        // Use My Room button - Fixed event listener
         if (this.useMyRoomBtn) {
-            this.useMyRoomBtn.addEventListener('click', this.handleUseMyRoom.bind(this));
+            this.useMyRoomBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.handleUseMyRoom();
+            });
         }
 
         // Room selection change
@@ -351,50 +353,81 @@ class MaintenanceRequestForm {
     }
 
     /**
-     * Handle Use My Room button
+     * Handle Use My Room button - FIXED VERSION
      */
-   handleUseMyRoom() {
-    if (!this.roomField) return;
+    handleUseMyRoom() {
+        console.log('Use My Room button clicked');
 
-    // Get student's room value from button data attribute
-    const roomValue = this.useMyRoomBtn.getAttribute('data-room-id');
-    const originalText = this.useMyRoomBtn.getAttribute('data-original-text');
+        if (!this.roomField) {
+            console.error('Room field not found');
+            this.showNotification('Room field not found', 'error');
+            return;
+        }
 
-    if (roomValue) {
-        // Set the room field value
-        this.roomField.value = roomValue;
+        if (!this.useMyRoomBtn) {
+            console.error('Use My Room button not found');
+            return;
+        }
 
-        // Trigger change event to update location preview
-        this.roomField.dispatchEvent(new Event('change'));
+        // Get room value from button data attribute
+        const roomValue = this.useMyRoomBtn.getAttribute('data-room-id');
+        const originalText = this.useMyRoomBtn.getAttribute('data-original-text') || 'Use My Room';
 
+        console.log('Room value from button:', roomValue);
+        console.log('Current room field value:', this.roomField.value);
 
-        // Visual feedback
-        this.useMyRoomBtn.innerHTML = '<i class="fas fa-check"></i> Selected!';
-        this.useMyRoomBtn.style.background = 'var(--success-color)';
-        this.useMyRoomBtn.disabled = true;
+        if (roomValue && roomValue !== 'None' && roomValue !== '') {
+            // Set the room field value
+            this.roomField.value = roomValue;
 
-        // Reset button after 2 seconds
-        setTimeout(() => {
-            this.useMyRoomBtn.innerHTML = '<i class="fas fa-home"></i> ' + originalText;
-            this.useMyRoomBtn.style.background = '';
-            this.useMyRoomBtn.disabled = false;
-        }, 2000);
-    } else {
-        console.error('Room ID not found');
-        this.showNotification('Unable to auto-fill room information', 'error');
+            // Trigger change event to update validation
+            const changeEvent = new Event('change', {
+                bubbles: true,
+                cancelable: true
+            });
+            this.roomField.dispatchEvent(changeEvent);
+
+            console.log('Room field value after setting:', this.roomField.value);
+
+            // Store original button content
+            const originalHTML = this.useMyRoomBtn.innerHTML;
+            const originalStyle = this.useMyRoomBtn.style.cssText;
+
+            // Visual feedback - success state
+            this.useMyRoomBtn.innerHTML = '<i class="fas fa-check"></i> Selected!';
+            this.useMyRoomBtn.style.background = '#28a745';
+            this.useMyRoomBtn.style.color = 'white';
+            this.useMyRoomBtn.style.borderColor = '#28a745';
+            this.useMyRoomBtn.disabled = true;
+
+            // Show success notification
+            this.showNotification('Your room has been selected!', 'success');
+
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                this.useMyRoomBtn.innerHTML = originalHTML;
+                this.useMyRoomBtn.style.cssText = originalStyle;
+                this.useMyRoomBtn.disabled = false;
+            }, 2000);
+
+            // Validate the field after setting
+            this.validateField(this.roomField);
+
+        } else {
+            console.error('Room value is empty or invalid:', roomValue);
+            this.showNotification('No room information available', 'error');
+        }
     }
-}
-
 
     /**
      * Handle room selection change
      */
     handleRoomChange() {
-    // Just validate the field if needed
-    if (this.roomField && this.roomField.value) {
-        this.validateField(this.roomField);
+        // Just validate the field if needed
+        if (this.roomField && this.roomField.value) {
+            this.validateField(this.roomField);
+        }
     }
-}
 
     /**
      * Handle service type change
@@ -413,12 +446,6 @@ class MaintenanceRequestForm {
         // Auto-resize textareas
         if (this.descriptionField) {
             this.setupAutoResize(this.descriptionField);
-        }
-
-        // Set initial room if available
-        const studentRoomId = this.useMyRoomBtn?.dataset?.roomId;
-        if (studentRoomId && this.useMyRoomBtn) {
-            this.useMyRoomBtn.dataset.roomId = studentRoomId;
         }
 
         // Focus first field
@@ -443,8 +470,11 @@ class MaintenanceRequestForm {
     /**
      * Handle form submission
      */
-   handleFormSubmit(e) {
+    handleFormSubmit(e) {
     console.log('Form submission started');
+    console.log('Form element:', this.form);
+    console.log('Form action:', this.form.action);
+    console.log('Form method:', this.form.method);
 
     // Validate all fields first
     const isValid = this.validateForm();
@@ -455,23 +485,64 @@ class MaintenanceRequestForm {
         return false;
     }
 
-    // Double-check CSRF token exists
+    // Enhanced CSRF token check
     const csrfToken = this.form.querySelector('[name=csrfmiddlewaretoken]');
-    if (!csrfToken || !csrfToken.value) {
+    console.log('CSRF Token element:', csrfToken);
+    console.log('CSRF Token value:', csrfToken ? csrfToken.value : 'NOT FOUND');
+
+    if (!csrfToken) {
         e.preventDefault();
-        this.showNotification('Security token missing. Please refresh the page.', 'error');
-        console.error('CSRF token not found in form');
+        this.showNotification('Security token input not found. Please refresh the page.', 'error');
+        console.error('CSRF token input element not found in form');
         return false;
     }
 
-    console.log('CSRF token found:', csrfToken.value.substring(0, 10) + '...');
+    if (!csrfToken.value || csrfToken.value.trim() === '') {
+        e.preventDefault();
+        this.showNotification('Security token is empty. Please refresh the page.', 'error');
+        console.error('CSRF token value is empty');
+        return false;
+    }
+
+    // Additional check: Make sure the token hasn't been modified
+    const tokenLength = csrfToken.value.length;
+    if (tokenLength < 32) { // Django CSRF tokens are typically 64 characters
+        e.preventDefault();
+        this.showNotification('Invalid security token. Please refresh the page.', 'error');
+        console.error('CSRF token appears to be invalid (too short):', tokenLength);
+        return false;
+    }
+
+    console.log('CSRF token validation passed');
+    console.log('Token length:', tokenLength);
+
+    // Ensure form data includes CSRF token
+    const formData = new FormData(this.form);
+    if (!formData.has('csrfmiddlewaretoken')) {
+        e.preventDefault();
+        console.error('FormData does not contain CSRF token');
+        this.showNotification('Form data missing security token. Please refresh the page.', 'error');
+        return false;
+    }
+
+    console.log('FormData CSRF token:', formData.get('csrfmiddlewaretoken').substring(0, 10) + '...');
 
     // Show loading state
     this.showLoadingState();
 
-    // Let the form submit naturally - don't prevent default
+    // Log all form data for debugging
+    console.log('=== Form Data Debug ===');
+    for (let pair of formData.entries()) {
+        if (pair[0] === 'csrfmiddlewaretoken') {
+            console.log(pair[0] + ': ' + pair[1].substring(0, 10) + '...');
+        } else {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
+    }
+    console.log('=== End Form Data Debug ===');
+
+    // Let the form submit naturally
     return true;
-}
 }
 
     /**
@@ -534,6 +605,10 @@ class MaintenanceRequestForm {
      * Show notification
      */
     showNotification(message, type = 'info') {
+        // Remove any existing notifications first
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notif => notif.remove());
+
         // Create notification element
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
@@ -549,6 +624,7 @@ class MaintenanceRequestForm {
             transform: translateX(100%);
             transition: transform 0.3s ease;
             max-width: 400px;
+            font-family: inherit;
         `;
 
         // Set colors based on type
@@ -566,7 +642,7 @@ class MaintenanceRequestForm {
 
         notification.innerHTML = `
             <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i>
                 <span>${message}</span>
             </div>
         `;
@@ -605,20 +681,22 @@ class MaintenanceRequestForm {
     }
 }
 
-// Initialize when DOM is ready
+// Initialize when DOM is ready - SIMPLIFIED VERSION
 document.addEventListener('DOMContentLoaded', () => {
-    // Extract room ID from template for "Use My Room" button
-    const useMyRoomBtn = document.getElementById('useMyRoom');
-    if (useMyRoomBtn) {
-        // Get room ID from Django template context (you'd need to add this to template)
-        const roomId = document.body.dataset.studentRoomId;
-        if (roomId) {
-            useMyRoomBtn.dataset.roomId = roomId;
-        }
-    }
+    console.log('DOM loaded - initializing Maintenance Request Form');
 
     // Initialize the form
     window.maintenanceForm = new MaintenanceRequestForm();
+
+    // Debug: Check if Use My Room button exists and has data
+    const useMyRoomBtn = document.getElementById('useMyRoom');
+    if (useMyRoomBtn) {
+        console.log('Use My Room button found');
+        console.log('Button data-room-id:', useMyRoomBtn.getAttribute('data-room-id'));
+        console.log('Button data-original-text:', useMyRoomBtn.getAttribute('data-original-text'));
+    } else {
+        console.log('Use My Room button not found - student may not have a room assigned');
+    }
 });
 
 // Handle page visibility changes

@@ -1,8 +1,8 @@
-from django.db.models.signals import pre_save, post_init, post_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from maintenance.models import MaintenanceRequest
-from dormitory.utils.email_service import MaintenanceEmailService
+
 
 @receiver(pre_save, sender=MaintenanceRequest)
 def validate_priority_on_approval(sender, instance, **kwargs):
@@ -14,25 +14,12 @@ def validate_priority_on_approval(sender, instance, **kwargs):
         )
 
 
-###email###
-@receiver(post_init, sender=MaintenanceRequest)
-def capture_maintenance_initial_state(sender, instance, **kwargs):
-    instance._original_status = instance.status
-
-
 @receiver(post_save, sender=MaintenanceRequest)
-def maintenance_status_notification(sender, instance, created, **kwargs):
-    """Send email notifications when maintenance request status changes"""
-    if not created:  # Only for updates, not new creations
-        original_status = getattr(instance, '_original_status', None)
-        current_status = instance.status
+def update_expert_rating_on_save(sender, instance, created, **kwargs):
+    """Update expert rating when maintenance request is completed with rating"""
 
-        if original_status != current_status:
-            if current_status == 'approved':
-                MaintenanceEmailService.send_approved_email.delay(instance.id)
-            elif current_status == 'rejected':
-                MaintenanceEmailService.send_rejected_email.delay(instance.id)
-            elif current_status == 'in_progress':
-                MaintenanceEmailService.send_in_progress_email.delay(instance.id)
-            elif current_status == 'completed':
-                MaintenanceEmailService.send_completed_email.delay(instance.id)
+    # Only update if request is completed and has an assigned expert and rating
+    if (instance.status == 'completed' and
+            instance.assigned_expert and
+            instance.student_rating is not None):
+        instance.assigned_expert.update_average_rating()

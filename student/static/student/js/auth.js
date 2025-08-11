@@ -417,26 +417,42 @@ class RegistrationSystem {
     }
 
     togglePassword(fieldId) {
-        const field = document.getElementById(fieldId);
-        let icon;
+    const field = document.getElementById(fieldId);
+    let icon;
 
-        // Find the correct icon based on field ID
-        if (fieldId === 'id_password1') {
-            icon = document.getElementById('toggleIcon1');
-        } else if (fieldId === 'id_password2') {
-            icon = document.getElementById('toggleIcon2');
+    // Handle different forms - registration vs login
+    if (fieldId === 'id_password1') {
+        icon = document.getElementById('toggleIcon1');
+    } else if (fieldId === 'id_password2') {
+        icon = document.getElementById('toggleIcon2');
+    } else if (fieldId === 'id_password') {
+        // For login form
+        icon = document.getElementById('toggleIcon');
+    } else {
+        // Fallback - try to find the icon within the same form group
+        const fieldContainer = field?.closest('.form-group') || field?.closest('.input-wrapper');
+        icon = fieldContainer?.querySelector('.toggle-password i');
+    }
+
+    if (field && icon) {
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.className = 'icon-eye-off';
+        } else {
+            field.type = 'password';
+            icon.className = 'icon-eye';
         }
 
-        if (field && icon) {
-            if (field.type === 'password') {
-                field.type = 'text';
-                icon.className = 'icon-eye-off';
-            } else {
-                field.type = 'password';
-                icon.className = 'icon-eye';
-            }
+        // Add visual feedback
+        const toggleBtn = icon.closest('.toggle-password');
+        if (toggleBtn) {
+            toggleBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                toggleBtn.style.transform = '';
+            }, 150);
         }
     }
+}
 
     // Error Handling Methods
     showFieldError(fieldName, message) {
