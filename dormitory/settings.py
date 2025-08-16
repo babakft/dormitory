@@ -22,8 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
 
 ALLOWED_HOSTS = []
 
@@ -173,6 +172,15 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Default behavior (overridden by rememb
 SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
 SESSION_COOKIE_HTTPONLY = True  # Prevent XSS attacks
 SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
+
+# # HTTPS Security Settings
+# CSRF_COOKIE_SECURE = True
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://www.dormitoryplus.ir',
+#     'https://dormitoryplus.ir',
+# ]
+# SECURE_SSL_REDIRECT = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 
