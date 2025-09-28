@@ -1,309 +1,320 @@
 <!DOCTYPE html>
-<html lang="en">
+{% load static %}
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dormitory Management - Shahid Bahonar University</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>سیستم مدیریت خوابگاه - دانشگاه شهید باهنر کرمان</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/dormitory/css/home.css">
 </head>
 <body>
-<!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-    <div class="container">
-        <a class="navbar-brand" href="/">
-            <img src="/static/dormitory/images/sbu-logo.png" alt="SBU Logo" class="navbar-logo">
-            <span>SBU Dormitory</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#home">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#services">Services</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#about">About</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button"
-                       data-bs-toggle="dropdown">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="/student/login/"><i class="fas fa-user-graduate"></i> Student
-                            Portal</a></li>
-                        <li><a class="dropdown-item" href="/service/login/"><i class="fas fa-tools"></i> Service Expert</a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="/admin/"><i class="fas fa-user-shield"></i> Admin Panel</a>
-                        </li>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">🏛️</div>
+                <span>خوابگاه دانشگاه شهید باهنر</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home">خانه</a></li>
+                <li><a href="#services">خدمات</a></li>
+                <li><a href="#features">ویژگی‌ها</a></li>
+                <li><a href="#stats">آمار</a></li>
+                <li><a href="#contact">تماس</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">ورود</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/student/login/">ورود دانشجو</a></li>
+                        <li><a href="/service/login/">ورود کارشناس</a></li>
+                        <li><a href="/admin/">ورود مدیر</a></li>
                     </ul>
                 </li>
             </ul>
+            <button class="menu-toggle" id="menuToggle">☰</button>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<!-- Hero Section -->
-<section id="home" class="hero-section">
-    <div class="hero-overlay"></div>
-    <div class="container">
-        <div class="row align-items-center min-vh-100">
-            <div class="col-lg-8 mx-auto text-center text-white">
-                <div class="hero-content">
-                    <h1 class="display-3 fw-bold mb-4">
-                        Welcome to <span class="text-primary">SBU</span> Dormitory
-                    </h1>
-                    <p class="lead mb-5">
-                        Shahid Bahonar University's comprehensive dormitory management system.
-                        Register, submit maintenance requests, and communicate seamlessly with our support team.
-                    </p>
-                    <div class="hero-buttons">
-                        <a href="/student/register/" class="btn btn-primary btn-lg me-3">
-                            <i class="fas fa-user-plus"></i> Register Now
-                        </a>
-                        <a href="#services" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-info-circle"></i> Learn More
-                        </a>
-                    </div>
-                </div>
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-container">
+            <h1>سیستم مدیریت هوشمند خوابگاه</h1>
+            <p>
+                سامانه جامع مدیریت خوابگاه دانشگاه شهید باهنر کرمان
+                <br>
+                ثبت‌نام آسان، درخواست تعمیرات و ارتباط مستقیم با مدیریت
+            </p>
+            <div class="hero-buttons">
+                <a href="#" class="btn btn-primary">
+                    ورود به سامانه
+                </a>
+                <a href="#services" class="btn btn-outline">
+                    بیشتر بدانید
+                </a>
             </div>
         </div>
-    </div>
-    <div class="scroll-indicator">
-        <i class="fas fa-chevron-down"></i>
-    </div>
-</section>
+    </section>
 
-<!-- Quick Access Cards -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="access-card text-center">
-                    <div class="card-icon">
-                        <i class="fas fa-user-graduate"></i>
-                    </div>
-                    <h5>Student Portal</h5>
-                    <p>Register, manage your profile, and submit maintenance requests</p>
-                    <a href="/student/login/" class="btn btn-primary">Access Portal</a>
-                </div>
+    <!-- Quick Access Section -->
+    <section class="quick-access">
+        <div class="quick-access-container">
+            <div class="section-header">
+                <h2 class="section-title">دسترسی سریع</h2>
+                <p class="section-subtitle">انتخاب نوع کاربری برای ورود به سامانه</p>
             </div>
-            <div class="col-md-4">
-                <div class="access-card text-center">
-                    <div class="card-icon">
-                        <i class="fas fa-tools"></i>
-                    </div>
-                    <h5>Service Expert</h5>
-                    <p>Manage maintenance requests and provide quality service</p>
-                    <a href="/service/login/" class="btn btn-success">Expert Login</a>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="access-card text-center">
-                    <div class="card-icon">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <h5>Administration</h5>
-                    <p>Manage student registrations and system oversight</p>
-                    <a href="/admin/" class="btn btn-warning">Admin Panel</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- Services Section -->
-<section id="services" class="py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 mx-auto text-center mb-5">
-                <h2 class="display-5 fw-bold">Our Services</h2>
-                <p class="lead text-muted">Everything you need for comfortable dormitory living</p>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-lg-4 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-home"></i>
+            <div class="access-grid">
+                <div class="access-card fade-in">
+                    <div class="access-icon student-icon">🎓</div>
+                    <h3>ورود دانشجو</h3>
+                    <p>دسترسی به پرتال دانشجویی، درخواست اتاق، ثبت تعمیرات و ارتباط با مدیریت</p>
+                    <div class="access-features">
+                        <span>✓ مدیریت اتاق</span>
+                        <span>✓ درخواست تعمیرات</span>
+                        <span>✓ ارتباط مستقیم</span>
                     </div>
-                    <h5>Room Management</h5>
-                    <p>Easy room assignment and management system for all students</p>
+                    <a href="/student/login/" class="btn btn-primary">ورود دانشجو</a>
                 </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-wrench"></i>
-                    </div>
-                    <h5>Maintenance Requests</h5>
-                    <p>Submit and track maintenance requests with real-time updates</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <h5>Real-time Support</h5>
-                    <p>Instant communication with administration through our ticket system</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <h5>Quality Assurance</h5>
-                    <p>Rate and review services to ensure continuous improvement</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h5>Secure System</h5>
-                    <p>Your data is protected with enterprise-level security</p>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <h5>24/7 Availability</h5>
-                    <p>Access the system anytime, anywhere for your convenience</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- Stats Section -->
-<section class="py-5 bg-primary text-white">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-lg-3 col-sm-6 mb-4">
-                <div class="stat-item">
-                    <div class="stat-number" data-count="1200">0</div>
-                    <div class="stat-label">Active Students</div>
+                <div class="access-card fade-in">
+                    <div class="access-icon expert-icon">🔧</div>
+                    <h3>ورود کارشناس</h3>
+                    <p>پنل کارشناسان خدمات برای مدیریت درخواست‌های تعمیرات و ارائه خدمات</p>
+                    <div class="access-features">
+                        <span>✓ مدیریت درخواست‌ها</span>
+                        <span>✓ گزارش‌دهی</span>
+                        <span>✓ ارتباط با دانشجویان</span>
+                    </div>
+                    <a href="/service/login/" class="btn btn-success">ورود کارشناس</a>
                 </div>
-            </div>
-            <div class="col-lg-3 col-sm-6 mb-4">
-                <div class="stat-item">
-                    <div class="stat-number" data-count="45">0</div>
-                    <div class="stat-label">Service Experts</div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-6 mb-4">
-                <div class="stat-item">
-                    <div class="stat-number" data-count="2800">0</div>
-                    <div class="stat-label">Requests Completed</div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-sm-6 mb-4">
-                <div class="stat-item">
-                    <div class="stat-number" data-count="98">0</div>
-                    <div class="stat-label">Satisfaction Rate</div>
+
+                <div class="access-card fade-in">
+                    <div class="access-icon admin-icon">⚙️</div>
+                    <h3>ورود مدیر</h3>
+                    <p>پنل مدیریت کل سامانه، نظارت بر عملکرد و مدیریت کاربران</p>
+                    <div class="access-features">
+                        <span>✓ مدیریت کل سامانه</span>
+                        <span>✓ گزارش‌های تحلیلی</span>
+                        <span>✓ تنظیمات سیستم</span>
+                    </div>
+                    <a href="/admin/" class="btn btn-warning">ورود مدیر</a>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- About Section -->
-<section id="about" class="py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h2 class="display-5 fw-bold mb-4">About SBU Dormitory System</h2>
-                <p class="lead mb-4">
-                    Shahid Bahonar University is committed to providing students with a comfortable
-                    and secure living environment through our modern dormitory management system.
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="services-container">
+            <div class="section-header">
+                <h2 class="section-title">خدمات اصلی</h2>
+                <p class="section-subtitle">
+                    مجموعه کاملی از خدمات برای مدیریت بهتر زندگی خوابگاهی شما
                 </p>
-                <div class="feature-list">
-                    <div class="feature-item">
-                        <i class="fas fa-check text-success"></i>
-                        <span>Streamlined registration process</span>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card fade-in">
+                    <div class="service-icon">🏠</div>
+                    <h3>مدیریت اتاق</h3>
+                    <p>
+                        تخصیص هوشمند اتاق بر اساس ترجیحات، سازگاری و
+                        تطبیق خودکار با نیازهای دانشجویان
+                    </p>
+                    <a href="#" class="btn">مشاهده اتاق‌ها</a>
+                </div>
+
+                <div class="service-card fade-in">
+                    <div class="service-icon">🔧</div>
+                    <h3>درخواست تعمیرات</h3>
+                    <p>
+                        سامانه ساده و سریع ثبت درخواست تعمیرات با
+                        پیگیری لحظه‌ای و تخصیص کارشناس متخصص
+                    </p>
+                    <a href="#" class="btn">ثبت درخواست</a>
+                </div>
+
+                <div class="service-card fade-in">
+                    <div class="service-icon">💬</div>
+                    <h3>ارتباط مستقیم</h3>
+                    <p>
+                        پیام‌رسانی فوری با مدیریت خوابگاه، پاسخ سریع
+                        و حل مشکلات در کمترین زمان ممکن
+                    </p>
+                    <a href="#" class="btn">شروع گفتگو</a>
+                </div>
+
+                <div class="service-card fade-in">
+                    <div class="service-icon">📊</div>
+                    <h3>داشبورد تحلیلی</h3>
+                    <p>
+                        گزارش‌های جامع از وضعیت خوابگاه، نظرسنجی‌ها
+                        و آمارهای مفید برای بهبود کیفیت خدمات
+                    </p>
+                    <a href="#" class="btn">مشاهده داشبورد</a>
+                </div>
+
+                <div class="service-card fade-in">
+                    <div class="service-icon">🔒</div>
+                    <h3>امنیت و کنترل دسترسی</h3>
+                    <p>
+                        سیستم پیشرفته امنیتی با تشخیص اثر انگشت،
+                        مدیریت بازدیدکنندگان و کنترل کامل دسترسی‌ها
+                    </p>
+                    <a href="#" class="btn">اطلاعات بیشتر</a>
+                </div>
+
+                <div class="service-card fade-in">
+                    <div class="service-icon">📱</div>
+                    <h3>اپلیکیشن موبایل</h3>
+                    <p>
+                        دسترسی کامل از طریق گوشی هوشمند، اعلان‌های فوری
+                        و همگام‌سازی خودکار در تمام دستگاه‌ها
+                    </p>
+                    <a href="#" class="btn">دانلود اپ</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="features-container">
+            <div class="section-header">
+                <h2 class="section-title">چرا سامانه ما؟</h2>
+                <p class="section-subtitle">
+                    ویژگی‌های منحصر به فرد که زندگی خوابگاهی شما را آسان‌تر می‌کند
+                </p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-content">
+                        <h3>سرعت بالا</h3>
+                        <p>پردازش فوری درخواست‌ها و پاسخ در کمتر از یک ثانیه برای تجربه کاربری بهتر</p>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-check text-success"></i>
-                        <span>Professional maintenance services</span>
+                </div>
+
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-content">
+                        <h3>کاربر محور</h3>
+                        <p>طراحی بر اساس نیازهای واقعی دانشجویان و نظرات کاربران برای سهولت استفاده</p>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-check text-success"></i>
-                        <span>Real-time communication system</span>
+                </div>
+
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">🔄</div>
+                    <div class="feature-content">
+                        <h3>به‌روزرسانی لحظه‌ای</h3>
+                        <p>همگام‌سازی فوری در تمام پلتفرم‌ها با اعلان‌های آنی و وضعیت زنده</p>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-check text-success"></i>
-                        <span>Quality feedback and improvement</span>
+                </div>
+
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">🛡️</div>
+                    <div class="feature-content">
+                        <h3>امنیت بانکی</h3>
+                        <p>رمزگذاری پیشرفته، احراز هویت چندمرحله‌ای و حفاظت کامل از اطلاعات شخصی</p>
+                    </div>
+                </div>
+
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">📈</div>
+                    <div class="feature-content">
+                        <h3>تحلیل هوشمند</h3>
+                        <p>آنالیز داده‌ها با هوش مصنوعی برای بهبود مستمر کیفیت خدمات خوابگاه</p>
+                    </div>
+                </div>
+
+                <div class="feature-item fade-in">
+                    <div class="feature-icon">🌐</div>
+                    <div class="feature-content">
+                        <h3>چند پلتفرمه</h3>
+                        <p>دسترسی یکسان از وب، موبایل و دسکتاپ با همگام‌سازی کامل اطلاعات</p>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="about-image">
-                    <img src="/static/dormitory/images/sbu-dormitory.jpg"
-                         alt="Shahid Bahonar University Dormitory Complex"
-                         class="img-fluid rounded-4 shadow-lg">
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats" id="stats">
+        <div class="stats-container">
+            <div class="section-header">
+                <h2 class="section-title">آمار سامانه</h2>
+                <p class="section-subtitle">
+                    ارقام واقعی که نشان‌دهنده تأثیر مثبت سامانه بر جامعه دانشجویی است
+                </p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card fade-in">
+                    <div class="stat-number persian-number" data-target="1200">۰</div>
+                    <div class="stat-label">دانشجوی فعال</div>
+                </div>
+                <div class="stat-card fade-in">
+                    <div class="stat-number persian-number" data-target="45">۰</div>
+                    <div class="stat-label">کارشناس خدمات</div>
+                </div>
+                <div class="stat-card fade-in">
+                    <div class="stat-number persian-number" data-target="2800">۰</div>
+                    <div class="stat-label">درخواست تکمیل شده</div>
+                </div>
+                <div class="stat-card fade-in">
+                    <div class="stat-number persian-number" data-target="98">۰</div>
+                    <div class="stat-label">درصد رضایت</div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- CTA Section -->
-<section class="py-5 bg-dark text-white">
-    <div class="container text-center">
-        <h2 class="display-5 fw-bold mb-4">Ready to Get Started?</h2>
-        <p class="lead mb-5">Join thousands of students who trust SBU's dormitory management system</p>
-        <a href="/student/register/" class="btn btn-primary btn-lg">
-            <i class="fas fa-user-plus"></i> Register Now
-        </a>
-    </div>
-</section>
+    <!-- CTA Section -->
+    <section class="cta" id="contact">
+        <div class="cta-container">
+            <h2>آماده شروع هستید؟</h2>
+            <p>به هزاران دانشجویی که به سامانه مدیریت خوابگاه دانشگاه شهید باهنر اعتماد کرده‌اند، بپیوندید</p>
+            <a href="#" class="btn btn-primary">
+                ثبت‌نام در سامانه
+            </a>
+        </div>
+    </section>
 
-<!-- Footer -->
-<footer class="py-5 bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-4 mb-4">
-                <h5><i class="fas fa-university"></i> Shahid Bahonar University</h5>
-                <p>Providing quality education and comfortable living since 1973</p>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>دانشگاه شهید باهنر کرمان</h3>
+                    <p>ارائه آموزش با کیفیت و زندگی راحت دانشجویی از سال ۱۳۵۲</p>
+                </div>
+                <div class="footer-section">
+                    <h3>لینک‌های مفید</h3>
+                    <p><a href="#">ثبت‌نام دانشجو</a></p>
+                    <p><a href="#">ورود دانشجو</a></p>
+                    <p><a href="#">پنل کارشناسان</a></p>
+                    <p><a href="#">مدیریت سامانه</a></p>
+                </div>
+                <div class="footer-section">
+                    <h3>اطلاعات تماس</h3>
+                    <p>📧 dormitory@uk.ac.ir</p>
+                    <p>📞 ۰۳۴-۳۱۳۲۲۱۱۰</p>
+                    <p>📍 کرمان، بلوار ۲۲ بهمن، دانشگاه شهید باهنر</p>
+                </div>
+                <div class="footer-section">
+                    <h3>ساعات کاری</h3>
+                    <p>شنبه تا چهارشنبه: ۸:۰۰ - ۱۶:۰۰</p>
+                    <p>پنج‌شنبه: ۸:۰۰ - ۱۳:۰۰</p>
+                    <p>اورژانس: ۲۴ ساعته</p>
+                </div>
             </div>
-            <div class="col-lg-4 mb-4">
-                <h5>Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li><a href="/student/register/">Student Registration</a></li>
-                    <li><a href="/student/login/">Student Login</a></li>
-                    <li><a href="/service/login/">Service Expert Portal</a></li>
-                    <li><a href="/admin/">Administration</a></li>
-                </ul>
-            </div>
-            <div class="col-lg-4 mb-4">
-                <h5>Contact Information</h5>
-                <p><i class="fas fa-envelope"></i> babakfathi082@gmail.com</p>
-                <p><i class="fas fa-phone"></i> +98 9337715290</p>
-                <p><i class="fas fa-map-marker-alt"></i> Kerman, Iran</p>
+            <div class="footer-bottom">
+                <p>&copy; ۱۴۰۳ دانشگاه شهید باهنر کرمان. تمامی حقوق محفوظ است.</p>
             </div>
         </div>
-        <hr>
-        <div class="text-center">
-            <p>&copy; 2025 Shahid Bahonar University. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
+    </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/static/dormitory/js/home.js"></script>
+    <script src="/static/dormitory/js/home.js"></script>
 </body>
 </html>
