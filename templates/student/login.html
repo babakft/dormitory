@@ -1,133 +1,141 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Login - Dormitory System</title>
+    <title>ورود دانشجو - سامانه خوابگاه دانشگاه شهید باهنر</title>
     <link rel="stylesheet" href="{% static 'student/css/auth.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <meta name="description" content="ورود به سامانه مدیریت خوابگاه دانشگاه شهید باهنر کرمان">
+    <meta name="theme-color" content="#1976d2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <div class="logo">
-                <i class="icon-home"></i>
-                <h1>Dormitory System</h1>
-            </div>
-            <h2>Student Login</h2>
-            <p>Access your dormitory dashboard</p>
-        </div>
+    <div class="auth-container">
+        <!-- Sidebar - Now on the Left -->
+        <div class="auth-sidebar">
+            <div class="sidebar-content">
+                <h3>به سامانه مدیریت خوابگاه خوش آمدید</h3>
+                <ul class="feature-list">
+                    <li>
+                        <span>ارسال درخواست تعمیرات و نگهداری</span>
+                        <i class="icon-check"></i>
+                    </li>
+                    <li>
+                        <span>پیگیری آنلاین وضعیت درخواست‌ها</span>
+                        <i class="icon-check"></i>
+                    </li>
+                    <li>
+                        <span>امتیازدهی به کیفیت خدمات ارائه شده</span>
+                        <i class="icon-check"></i>
+                    </li>
+                    <li>
+                        <span>دریافت اطلاعیه‌ها و اعلانات مهم</span>
+                        <i class="icon-check"></i>
+                    </li>
+                    <li>
+                        <span>پشتیبانی ۲۴ ساعته و ۷ روز هفته</span>
+                        <i class="icon-check"></i>
+                    </li>
+                </ul>
 
-        <form method="post" class="auth-form" id="loginForm">
-            {% csrf_token %}
-
-            {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" id="djangoMessage">
-                    <span>{{ message }}</span>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <!-- Student Number Field -->
-            <div class="form-group">
-                <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
-                <div class="input-wrapper">
-                    <i class="icon-id"></i>
-                    {{ form.username }}
-                    {% if form.username.errors %}
-                    <div class="error-message">{{ form.username.errors.0 }}</div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Password Field -->
-            <div class="form-group">
-                <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
-                <div class="input-wrapper password-input">
-                    <i class="icon-lock"></i>
-                    {{ form.password }}
-                    <button type="button" class="toggle-password"
-                            onclick="togglePassword('{{ form.password.id_for_label }}')">
-                        <i class="icon-eye" id="toggleIcon"></i>
-                    </button>
-                    {% if form.password.errors %}
-                    <div class="error-message">{{ form.password.errors.0 }}</div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Non-field errors (from form.clean()) -->
-            {% if form.non_field_errors %}
-            <div class="form-group">
-                <div class="error-message">{{ form.non_field_errors.0 }}</div>
-            </div>
-            {% endif %}
-
-            <!-- Form Options -->
-            <div class="form-options">
-                <label class="checkbox-wrapper">
-                    {{ form.remember_me }}
-                    <span class="checkmark"></span>
-                    {{ form.remember_me.label }}
-                </label>
-                <a href="{% url 'student:forgot_password' %}" class="forgot-password">Forgot password?</a>
-            </div>
-
-
-            <!-- Submit Button -->
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary" id="loginBtn">
-                    <span class="btn-text">Login</span>
-                    <div class="btn-loader">
-                        <div class="spinner"></div>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number persian-number" data-target="1247">۱۲۴۷</div>
+                        <div class="stat-label">دانشجوی فعال</div>
                     </div>
-                </button>
-            </div>
-
-
-            <!-- Register Link -->
-            <div class="auth-footer">
-                <p>Don't have an account? <a href="{% url 'student:student_register' %}">Register here</a></p>
-            </div>
-        </form>
-    </div>
-
-    <!-- Sidebar -->
-    <div class="auth-sidebar">
-        <div class="sidebar-content">
-            <h3>Welcome to Dormitory Management</h3>
-            <div class="features">
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Submit maintenance requests</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Track request status</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Rate service quality</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Receive notifications</span>
+                    <div class="stat-card">
+                        <div class="stat-number persian-number" data-target="98">۹۸</div>
+                        <div class="stat-label">درصد رضایت</div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Main Content - Now on the Right -->
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">
+                    <i class="icon-home"></i>
+                    <h1>سامانه خوابگاه</h1>
+                </div>
+                <h2>ورود دانشجو</h2>
+                <p>به داشبورد شخصی خوابگاه خود دسترسی پیدا کنید</p>
+            </div>
+
+            <form method="post" class="auth-form" id="loginForm">
+                {% csrf_token %}
+
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" id="djangoMessage">
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Student Number Field -->
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">شماره دانشجویی</label>
+                    <div class="input-wrapper">
+                        <i class="icon-id"></i>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                        <div class="error-message">{{ form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">رمز عبور</label>
+                    <div class="input-wrapper password-input">
+                        <i class="icon-lock"></i>
+                        {{ form.password }}
+                        <button type="button" class="toggle-password"
+                                onclick="togglePassword('{{ form.password.id_for_label }}')">
+                            <i class="icon-eye" id="toggleIcon"></i>
+                        </button>
+                        {% if form.password.errors %}
+                        <div class="error-message">{{ form.password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}
+                <div class="form-group">
+                    <div class="error-message">{{ form.non_field_errors.0 }}</div>
+                </div>
+                {% endif %}
+
+                <!-- Form Options -->
+                <div class="form-options">
+                    <a href="{% url 'student:forgot_password' %}" class="forgot-password">رمز عبور را فراموش کرده‌اید؟</a>
+                    <label class="checkbox-wrapper">
+                        <span>مرا به خاطر بسپار</span>
+                        <span class="checkmark"></span>
+                        {{ form.remember_me }}
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    ورود به سامانه
+                </button>
+
+                <!-- Register Link -->
+                <div class="auth-footer">
+                    <p>حساب کاربری ندارید؟ <a href="{% url 'student:student_register' %}">همین الان ثبت نام کنید</a></p>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loadingOverlay">
-    <div class="loading-spinner"></div>
-</div>
-
-<script src="{% static 'student/js/auth.js' %}"></script>
+    <script src="{% static 'student/js/auth.js' %}"></script>
 </body>
 </html>
