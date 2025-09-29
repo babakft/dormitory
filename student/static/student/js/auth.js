@@ -1333,3 +1333,39 @@ if ('requestIdleCallback' in window) {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { EnhancedPersianAuth, PersianUtils };
 }
+
+// Quick fix for immediate validation issue
+document.addEventListener('DOMContentLoaded', () => {
+    // Remove validation on page load
+    const formControls = document.querySelectorAll('.form-control, input, select');
+    const userTouched = new Set();
+
+    formControls.forEach(control => {
+        // Track user interaction
+        control.addEventListener('focus', () => {
+            userTouched.add(control.id || control.name);
+        });
+
+        control.addEventListener('input', () => {
+            userTouched.add(control.id || control.name);
+        });
+
+        // Override blur validation
+        const originalBlurHandler = control.onblur;
+        control.addEventListener('blur', (e) => {
+            if (!userTouched.has(e.target.id || e.target.name)) {
+                e.stopImmediatePropagation();
+                return false;
+            }
+        }, true);
+    });
+
+    // Clear any existing error messages on page load
+    setTimeout(() => {
+        document.querySelectorAll('.error-message').forEach(error => {
+            if (error.textContent.includes('الزامی است')) {
+                error.remove();
+            }
+        });
+    }, 100);
+});

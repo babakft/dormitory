@@ -659,12 +659,12 @@ body::after {
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: 1.25rem; /* کاهش از 1.5rem به 1.25rem */
+    margin-bottom: 1.75rem; /* کاهش از 2rem */
 }
 
 .form-group {
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem; /* کاهش از 2rem به 1.75rem */
     position: relative;
 }
 
@@ -777,8 +777,10 @@ body::after {
 
 /* Enhanced Password Strength Indicator */
 .password-strength {
-    margin-top: 1rem;
+    margin-top: 0.75rem; /* کاهش از 1rem */
+    margin-bottom: 1rem;
 }
+
 
 .strength-meter {
     height: 6px;
@@ -903,26 +905,28 @@ body::after {
 /* Enhanced Form Options */
 .form-options {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* دو طرف صفحه */
     align-items: center;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-    flex-direction: row-reverse;
+    margin-bottom: 1.75rem;
+    flex-wrap: nowrap; /* جلوگیری از شکستن خط */
+    gap: 2rem; /* فاصله بیشتر */
+    width: 100%; /* تمام عرض */
 }
 
 .checkbox-wrapper {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: var(--text-secondary);
-    flex-direction: row-reverse;
-    padding: 0.5rem;
+    flex-direction: row;
+    padding: 0.5rem 0.75rem;
     border-radius: var(--border-radius);
     transition: all 0.3s ease;
+    position: relative;
+    margin: 0;
 }
 
 .checkbox-wrapper:hover {
@@ -930,75 +934,92 @@ body::after {
 }
 
 .checkbox-wrapper input[type="checkbox"] {
-    opacity: 0;
     position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
 }
 
 .checkmark {
-    width: 24px;
-    height: 24px;
+    width: 22px; /* کمی کوچکتر از 24px */
+    height: 22px;
     border: 2px solid var(--border);
     border-radius: 8px;
     position: relative;
     transition: all 0.3s ease;
     background: var(--surface);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    order: -1; /* چک‌باکس اول - در سمت چپ */
 }
 
-.checkbox-wrapper input[type="checkbox"]:checked + .checkmark {
+.checkbox-wrapper span:not(.checkmark) {
+    order: 1; /* متن دوم - در سمت راست چک‌باکس */
+}
+
+.checkbox-wrapper input[type="checkbox"]:checked ~ .checkmark {
     background: var(--gradient-primary);
     border-color: var(--primary);
-    transform: scale(1.1);
+    transform: scale(1.05); /* کمی کوچکتر از 1.1 */
     box-shadow: 0 4px 8px rgba(25, 118, 210, 0.3);
 }
 
-.checkbox-wrapper input[type="checkbox"]:checked + .checkmark::after {
+.checkbox-wrapper input[type="checkbox"]:checked ~ .checkmark::after {
     content: '✓';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     color: white;
-    font-size: 14px;
+    font-size: 13px; /* کمی کوچکتر */
     font-weight: bold;
 }
 
+.checkbox-wrapper input[type="checkbox"]:focus ~ .checkmark {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
 .forgot-password {
     color: var(--primary);
     text-decoration: none;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     transition: all 0.3s ease;
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
     border-radius: var(--border-radius);
+    white-space: nowrap;
+    margin-right: 0; /* مهم: حذف margin */
 }
-
+.register-card .form-options {
+    justify-content: flex-start;
+}
 .forgot-password:hover {
     color: var(--primary-dark);
     background: rgba(25, 118, 210, 0.05);
     transform: translateY(-1px);
 }
-
 /* Enhanced Buttons */
 .btn-primary {
     width: 100%;
-    padding: 1.3rem 2rem;
+    padding: 1.2rem 2rem; /* کاهش از 1.3rem */
     background: var(--gradient-primary);
     color: white;
     border: none;
     border-radius: var(--border-radius);
-    font-size: 1.1rem;
+    font-size: 1.05rem; /* کاهش از 1.1rem */
     font-weight: 700;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem; /* کاهش از 2rem */
     letter-spacing: 0.025em;
     box-shadow: 0 8px 25px rgba(25, 118, 210, 0.3);
     font-family: inherit;
     text-transform: uppercase;
 }
+
 
 .btn-primary::before {
     content: '';
@@ -1034,9 +1055,8 @@ body::after {
 /* Enhanced Auth Footer */
 .auth-footer {
     text-align: center;
-    margin-top: 2rem;
+    margin-top: 1.5rem; /* کاهش از 2rem */
 }
-
 .auth-footer p {
     color: var(--text-secondary);
     font-size: 1rem;
@@ -1093,11 +1113,20 @@ body::after {
         gap: 1rem;
     }
 
-    .form-options {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1.5rem;
-    }
+  .form-options {
+    display: flex;
+    justify-content: space-between; /* checkbox چپ، لینک راست */
+    align-items: center;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0 0.5rem;
+}
+/* استایل ویژه برای صفحه register - فقط checkbox */
+.register-card .form-options {
+    justify-content: flex-start; /* فقط checkbox در چپ */
+    padding-right: 0;
+}
 
     .stats {
         grid-template-columns: 1fr;
@@ -1279,4 +1308,23 @@ body::after {
     background: var(--secondary);
     border-radius: 50px;
     animation-delay: 10s;
+}
+
+.register-card .form-options {
+    justify-content: flex-start; /* چک‌باکس در سمت چپ */
+    padding-right: 0;
+}
+
+/* Responsive: در موبایل زیر هم قرار بگیرند */
+@media (max-width: 480px) {
+    .form-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .forgot-password {
+        width: 100%;
+        text-align: center;
+    }
 }

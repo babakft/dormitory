@@ -1,138 +1,108 @@
-{% load static %}
 <!DOCTYPE html>
+{% load static%}
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ورود دانشجو - سامانه خوابگاه دانشگاه شهید باهنر</title>
+    <title>ورود دانشجو - سامانه خوابگاه</title>
     <link rel="stylesheet" href="{% static 'student/css/auth.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <meta name="description" content="ورود به سامانه مدیریت خوابگاه دانشگاه شهید باهنر کرمان">
-    <meta name="theme-color" content="#1976d2">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
     <div class="auth-container">
-        <!-- Sidebar - Now on the Left -->
         <div class="auth-sidebar">
             <div class="sidebar-content">
+                <div class="logo">
+                    <h1>سامانه خوابگاه</h1>
+                </div>
                 <h3>به سامانه مدیریت خوابگاه خوش آمدید</h3>
                 <ul class="feature-list">
-                    <li>
-                        <span>ارسال درخواست تعمیرات و نگهداری</span>
-                        <i class="icon-check"></i>
-                    </li>
-                    <li>
-                        <span>پیگیری آنلاین وضعیت درخواست‌ها</span>
-                        <i class="icon-check"></i>
-                    </li>
-                    <li>
-                        <span>امتیازدهی به کیفیت خدمات ارائه شده</span>
-                        <i class="icon-check"></i>
-                    </li>
-                    <li>
-                        <span>دریافت اطلاعیه‌ها و اعلانات مهم</span>
-                        <i class="icon-check"></i>
-                    </li>
-                    <li>
-                        <span>پشتیبانی ۲۴ ساعته و ۷ روز هفته</span>
-                        <i class="icon-check"></i>
-                    </li>
+                    <li>ارسال درخواست تعمیرات و نگهداری</li>
+                    <li>پیگیری آنلاین وضعیت درخواست‌ها</li>
+                    <li>امتیازدهی به کیفیت خدمات ارائه شده</li>
+                    <li>دریافت اطلاعیه‌ها و اعلانات مهم</li>
+                    <li>پشتیبانی ۲۴ ساعته و ۷ روز هفته</li>
                 </ul>
-
                 <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number persian-number" data-target="1247">۱۲۴۷</div>
+                    <div class="stat-item">
+                        <div class="stat-number">۱۲۴۷</div>
                         <div class="stat-label">دانشجوی فعال</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-number persian-number" data-target="98">۹۸</div>
+                    <div class="stat-item">
+                        <div class="stat-number">۹۸٪</div>
                         <div class="stat-label">درصد رضایت</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content - Now on the Right -->
         <div class="auth-card">
             <div class="auth-header">
-                <div class="logo">
-                    <i class="icon-home"></i>
-                    <h1>سامانه خوابگاه</h1>
-                </div>
                 <h2>ورود دانشجو</h2>
                 <p>به داشبورد شخصی خوابگاه خود دسترسی پیدا کنید</p>
             </div>
 
-            <form method="post" class="auth-form" id="loginForm">
+            <form method="post" action="{% url 'student:student_login' %}" class="auth-form">
                 {% csrf_token %}
-
+                
                 {% if messages %}
-                <div class="messages">
+                <div class="messages-container">
                     {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}" id="djangoMessage">
+                    <div class="alert alert-{{ message.tags }}">
                         <span>{{ message }}</span>
+                        <button type="button" class="close-btn" onclick="closeAlert(this.parentElement)">&times;</button>
                     </div>
                     {% endfor %}
                 </div>
                 {% endif %}
 
-                <!-- Student Number Field -->
                 <div class="form-group">
-                    <label for="{{ form.username.id_for_label }}">شماره دانشجویی</label>
+                    <label for="id_username">شماره دانشجویی</label>
                     <div class="input-wrapper">
-                        <i class="icon-id"></i>
                         {{ form.username }}
-                        {% if form.username.errors %}
-                        <div class="error-message">{{ form.username.errors.0 }}</div>
-                        {% endif %}
+                        <i class="input-icon icon-user"></i>
                     </div>
+                    {% if form.username.errors %}
+                    <span class="error-message">{{ form.username.errors.0 }}</span>
+                    {% endif %}
                 </div>
 
-                <!-- Password Field -->
                 <div class="form-group">
-                    <label for="{{ form.password.id_for_label }}">رمز عبور</label>
-                    <div class="input-wrapper password-input">
-                        <i class="icon-lock"></i>
+                    <label for="id_password">رمز عبور</label>
+                    <div class="input-wrapper">
                         {{ form.password }}
-                        <button type="button" class="toggle-password"
-                                onclick="togglePassword('{{ form.password.id_for_label }}')">
-                            <i class="icon-eye" id="toggleIcon"></i>
+                        <i class="input-icon icon-lock"></i>
+                        <button type="button" class="toggle-password" onclick="togglePassword('id_password')">
+                            <i id="toggleIcon" class="icon-eye"></i>
                         </button>
-                        {% if form.password.errors %}
-                        <div class="error-message">{{ form.password.errors.0 }}</div>
-                        {% endif %}
                     </div>
+                    {% if form.password.errors %}
+                    <span class="error-message">{{ form.password.errors.0 }}</span>
+                    {% endif %}
                 </div>
 
-                <!-- Non-field errors -->
                 {% if form.non_field_errors %}
-                <div class="form-group">
-                    <div class="error-message">{{ form.non_field_errors.0 }}</div>
+                <div class="alert alert-error">
+                    {{ form.non_field_errors.0 }}
                 </div>
                 {% endif %}
 
-                <!-- Form Options -->
                 <div class="form-options">
-                    <a href="{% url 'student:forgot_password' %}" class="forgot-password">رمز عبور را فراموش کرده‌اید؟</a>
                     <label class="checkbox-wrapper">
-                        <span>مرا به خاطر بسپار</span>
-                        <span class="checkmark"></span>
                         {{ form.remember_me }}
+                        <span class="checkmark"></span>
+                        <span>مرا به خاطر بسپار</span>
                     </label>
+                    <a href="{% url 'student:forgot_password' %}" class="forgot-password">رمز عبور را فراموش کرده‌اید؟</a>
                 </div>
 
-                <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary" id="loginBtn">
+                <button type="submit" class="btn-primary">
                     ورود به سامانه
                 </button>
-
-                <!-- Register Link -->
-                <div class="auth-footer">
-                    <p>حساب کاربری ندارید؟ <a href="{% url 'student:student_register' %}">همین الان ثبت نام کنید</a></p>
-                </div>
             </form>
+
+            <div class="auth-footer">
+                <p>حساب کاربری ندارید؟ <a href="{% url 'student:student_register' %}">همین الان ثبت نام کنید</a></p>
+            </div>
         </div>
     </div>
 

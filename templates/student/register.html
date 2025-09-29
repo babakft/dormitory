@@ -6,192 +6,193 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ثبت نام دانشجو - سامانه خوابگاه دانشگاه شهید باهنر</title>
     <link rel="stylesheet" href="{% static 'student/css/auth.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet">
     <meta name="description" content="ثبت نام در سامانه مدیریت خوابگاه دانشگاه شهید باهنر کرمان">
     <meta name="theme-color" content="#1976d2">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
-    <div class="auth-container">
-        <!-- Sidebar - Now on the Left -->
-        <div class="auth-sidebar">
-            <div class="sidebar-content">
-                <h3>به جامعه دانشجویی ما بپیوندید</h3>
-                <ul class="feature-list">
-                    <li>
-                        <span>فرآیند ثبت نام سریع و آسان</span>
-                        <i class="icon-check"></i>
-                    </li>
-                    <li>
-                        <span>دسترسی فوری به تمام خدمات</span>
-                        <i class="icon-check"></i>
-                    </li>
-                    <li>
-                        <span>پشتیبانی تخصصی ۲۴ ساعته</span>
-                        <i class="icon-check"></i>
-                    </li>
-                    <li>
-                        <span>امنیت بالا و حفاظت از اطلاعات</span>
-                        <i class="icon-check"></i>
-                    </li>
-                    <li>
-                        <span>رابط کاربری مدرن و کاربرپسند</span>
-                        <i class="icon-check"></i>
-                    </li>
-                </ul>
+<div class="auth-container">
+    <!-- Sidebar - Now on the Left -->
+    <div class="auth-sidebar">
+        <div class="sidebar-content">
+            <h3>به جامعه دانشجویی ما بپیوندید</h3>
+            <ul class="feature-list">
+                <li>
+                    <span>فرآیند ثبت نام سریع و آسان</span>
+                    <i class="icon-check"></i>
+                </li>
+                <li>
+                    <span>دسترسی فوری به تمام خدمات</span>
+                    <i class="icon-check"></i>
+                </li>
+                <li>
+                    <span>پشتیبانی تخصصی ۲۴ ساعته</span>
+                    <i class="icon-check"></i>
+                </li>
+                <li>
+                    <span>امنیت بالا و حفاظت از اطلاعات</span>
+                    <i class="icon-check"></i>
+                </li>
+                <li>
+                    <span>رابط کاربری مدرن و کاربرپسند</span>
+                    <i class="icon-check"></i>
+                </li>
+            </ul>
 
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number persian-number" data-target="1247">۱۲۴۷</div>
-                        <div class="stat-label">دانشجوی عضو</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number persian-number" data-target="99">۹۹</div>
-                        <div class="stat-label">درصد موفقیت</div>
-                    </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number persian-number" data-target="1247">۱۲۴۷</div>
+                    <div class="stat-label">دانشجوی عضو</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number persian-number" data-target="99">۹۹</div>
+                    <div class="stat-label">درصد موفقیت</div>
                 </div>
             </div>
-        </div>
-
-        <!-- Main Content - Now on the Right -->
-        <div class="auth-card register-card">
-            <div class="auth-header">
-                <div class="logo">
-                    <i class="icon-home"></i>
-                    <h1>سامانه خوابگاه</h1>
-                </div>
-                <h2>ثبت نام دانشجو</h2>
-                <p>حساب کاربری خوابگاه خود را ایجاد کنید</p>
-            </div>
-
-            <form method="post" class="auth-form" id="registerForm">
-                {% csrf_token %}
-                {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        {{ message }}
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="{{ form.student_number.id_for_label }}">شماره دانشجویی</label>
-                        <div class="input-wrapper">
-                            <i class="icon-id"></i>
-                            {{ form.student_number }}
-                        </div>
-                        {% if form.student_number.errors %}
-                        <span class="error-message">{{ form.student_number.errors.0 }}</span>
-                        {% endif %}
-                    </div>
-
-                    <div class="form-group">
-                        <label for="{{ form.email.id_for_label }}">آدرس ایمیل</label>
-                        <div class="input-wrapper">
-                            <i class="icon-mail"></i>
-                            {{ form.email }}
-                        </div>
-                        {% if form.email.errors %}
-                        <span class="error-message">{{ form.email.errors.0 }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="{{ form.username.id_for_label }}">نام کاربری</label>
-                        <div class="input-wrapper">
-                            <i class="icon-user"></i>
-                            {{ form.username }}
-                        </div>
-                        {% if form.username.errors %}
-                        <span class="error-message">{{ form.username.errors.0 }}</span>
-                        {% endif %}
-                    </div>
-
-                    <div class="form-group">
-                        <label for="{{ form.phone.id_for_label }}">شماره تلفن همراه</label>
-                        <div class="input-wrapper">
-                            <i class="icon-phone"></i>
-                            {{ form.phone }}
-                        </div>
-                        {% if form.phone.errors %}
-                        <span class="error-message">{{ form.phone.errors.0 }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="{{ form.room.id_for_label }}">انتخاب اتاق</label>
-                    <div class="input-wrapper">
-                        <i class="icon-door"></i>
-                        {{ form.room }}
-                    </div>
-                    {% if form.room.errors %}
-                    <span class="error-message">{{ form.room.errors.0 }}</span>
-                    {% endif %}
-                    <small style="color: #757575; font-size: 0.875rem; margin-top: 0.5rem; display: block; text-align: right;">
-                        ساختمان و اتاق خود را انتخاب کنید (اختیاری)
-                    </small>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="{{ form.password1.id_for_label }}">رمز عبور</label>
-                        <div class="input-wrapper password-input">
-                            <i class="icon-lock"></i>
-                            {{ form.password1 }}
-                            <button type="button" class="toggle-password" onclick="togglePassword('id_password1')">
-                                <i id="toggleIcon1" class="icon-eye"></i>
-                            </button>
-                        </div>
-                        {% if form.password1.errors %}
-                        <span class="error-message">{{ form.password1.errors.0 }}</span>
-                        {% endif %}
-                    </div>
-
-                    <div class="form-group">
-                        <label for="{{ form.password2.id_for_label }}">تأیید رمز عبور</label>
-                        <div class="input-wrapper password-input">
-                            <i class="icon-lock"></i>
-                            {{ form.password2 }}
-                        </div>
-                        {% if form.password2.errors %}
-                        <span class="error-message">{{ form.password2.errors.0 }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <div class="password-strength">
-                    <div class="strength-meter">
-                        <div class="strength-fill" id="strengthFill"></div>
-                    </div>
-                    <span class="strength-text" id="strengthText">قدرت رمز عبور</span>
-                </div>
-
-                <div class="form-options">
-                    <label class="checkbox-wrapper">
-                        <span>با قوانین و مقررات خوابگاه موافقم</span>
-                        <span class="checkmark"></span>
-                        <input type="checkbox" required>
-                    </label>
-                </div>
-
-                <button type="submit" class="btn btn-primary" id="registerBtn">
-                    ایجاد حساب کاربری
-                </button>
-
-                <div class="auth-footer">
-                    <p>قبلاً ثبت نام کرده‌اید؟ <a href="{% url 'student:student_login' %}">وارد شوید</a></p>
-                </div>
-            </form>
         </div>
     </div>
 
-    <script src="{% static 'student/js/auth.js' %}"></script>
+    <!-- Main Content - Now on the Right -->
+    <div class="auth-card register-card">
+        <div class="auth-header">
+            <div class="logo">
+                <i class="icon-home"></i>
+                <h1>سامانه خوابگاه</h1>
+            </div>
+            <h2>ثبت نام دانشجو</h2>
+            <p>حساب کاربری خوابگاه خود را ایجاد کنید</p>
+        </div>
+
+        <form method="post" class="auth-form" id="registerForm">
+            {% csrf_token %}
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.student_number.id_for_label }}">شماره دانشجویی</label>
+                    <div class="input-wrapper">
+                        <i class="icon-id"></i>
+                        {{ form.student_number }}
+                    </div>
+                    {% if form.student_number.errors %}
+                    <span class="error-message">{{ form.student_number.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}">آدرس ایمیل</label>
+                    <div class="input-wrapper">
+                        <i class="icon-mail"></i>
+                        {{ form.email }}
+                    </div>
+                    {% if form.email.errors %}
+                    <span class="error-message">{{ form.email.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">نام کاربری</label>
+                    <div class="input-wrapper">
+                        <i class="icon-user"></i>
+                        {{ form.username }}
+                    </div>
+                    {% if form.username.errors %}
+                    <span class="error-message">{{ form.username.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.phone.id_for_label }}">شماره تلفن همراه</label>
+                    <div class="input-wrapper">
+                        <i class="icon-phone"></i>
+                        {{ form.phone }}
+                    </div>
+                    {% if form.phone.errors %}
+                    <span class="error-message">{{ form.phone.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.room.id_for_label }}">انتخاب اتاق</label>
+                <div class="input-wrapper">
+                    <i class="icon-door"></i>
+                    {{ form.room }}
+                </div>
+                {% if form.room.errors %}
+                <span class="error-message">{{ form.room.errors.0 }}</span>
+                {% endif %}
+                <small style="color: #757575; font-size: 0.875rem; margin-top: 0.5rem; display: block; text-align: right;">
+                    ساختمان و اتاق خود را انتخاب کنید (اختیاری)
+                </small>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.password1.id_for_label }}">رمز عبور</label>
+                    <div class="input-wrapper password-input">
+                        <i class="icon-lock"></i>
+                        {{ form.password1 }}
+                        <button type="button" class="toggle-password" onclick="togglePassword('id_password1')">
+                            <i id="toggleIcon1" class="icon-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.password1.errors %}
+                    <span class="error-message">{{ form.password1.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password2.id_for_label }}">تأیید رمز عبور</label>
+                    <div class="input-wrapper password-input">
+                        <i class="icon-lock"></i>
+                        {{ form.password2 }}
+                    </div>
+                    {% if form.password2.errors %}
+                    <span class="error-message">{{ form.password2.errors.0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="password-strength">
+                <div class="strength-meter">
+                    <div class="strength-fill" id="strengthFill"></div>
+                </div>
+                <span class="strength-text" id="strengthText">قدرت رمز عبور</span>
+            </div>
+
+            <div class="form-options">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" required id="terms-checkbox">
+                    <span class="checkmark"></span>
+                    <span>با قوانین و مقررات خوابگاه موافقم</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="registerBtn">
+                ایجاد حساب کاربری
+            </button>
+
+            <div class="auth-footer">
+                <p>قبلاً ثبت نام کرده‌اید؟ <a href="{% url 'student:student_login' %}">وارد شوید</a></p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'student/js/auth.js' %}"></script>
 </body>
 </html>
