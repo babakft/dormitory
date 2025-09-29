@@ -1,9 +1,40 @@
 /**
- * Ticket Chat JavaScript
- * Enhanced real-time chat functionality with WebSocket integration
+ * چت تیکت فارسی با WebSocket - طراحی یکپارچه
+ * Persian Ticket Chat with Full WebSocket Support
  */
 
-class TicketChat {
+// ===== توابع کمکی فارسی =====
+const PersianChatUtils = {
+    toPersianNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+        str = String(str);
+        for (let i = 0; i < englishDigits.length; i++) {
+            str = str.replace(new RegExp(englishDigits[i], 'g'), persianDigits[i]);
+        }
+        return str;
+    },
+
+    toEnglishNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+        str = String(str);
+        for (let i = 0; i < persianDigits.length; i++) {
+            str = str.replace(new RegExp(persianDigits[i], 'g'), englishDigits[i]);
+        }
+        return str;
+    },
+
+    formatTime: function(dateString) {
+        const date = new Date(dateString);
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        return `${this.toPersianNumbers(hours.toString().padStart(2, '0'))}:${this.toPersianNumbers(minutes.toString().padStart(2, '0'))}`;
+    }
+};
+
+// ===== کلاس اصلی چت =====
+class PersianTicketChat {
     constructor(ticketId, csrfToken) {
         this.ticketId = ticketId;
         this.csrfToken = csrfToken;
@@ -18,6 +49,7 @@ class TicketChat {
         // DOM elements
         this.elements = {
             connectionStatus: document.getElementById('connectionStatus'),
+            statusText: null,
             chatMessages: document.getElementById('chatMessages'),
             messageInput: document.getElementById('messageInput'),
             sendButton: document.getElementById('sendButton'),
@@ -29,24 +61,96 @@ class TicketChat {
     }
 
     /**
-     * Initialize the chat system
+     * راه‌اندازی اولیه
      */
     init() {
+        console.log('💬 راه‌اندازی چت فارسی تیکت #' + this.ticketId);
+
+        // یافتن status-text
+        if (this.elements.connectionStatus) {
+            this.elements.statusText = this.elements.connectionStatus.querySelector('.status-text');
+        }
+
+        this.createBeautifulBackground();
+        this.animateElements();
         this.connectWebSocket();
         this.bindEvents();
         this.setupCharacterCounter();
         this.setupAutoResize();
         this.setupKeyboardShortcuts();
         this.setupCloseTicketHandler();
-
-        console.log('🚀 Ticket Chat initialized for ticket #' + this.ticketId);
     }
 
     /**
-     * Connect to WebSocket
+     * ایجاد بک‌گراند زیبا
+     */
+    createBeautifulBackground() {
+        // اشکال از قبل در HTML هستند
+        // اضافه کردن افکت Parallax
+        this.addParallaxEffect();
+    }
+
+    addParallaxEffect() {
+        let ticking = false;
+
+        const updateParallax = (e) => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    const mouseX = e.clientX / window.innerWidth;
+                    const mouseY = e.clientY / window.innerHeight;
+
+                    const shapes = document.querySelectorAll('.shape');
+                    shapes.forEach((shape, index) => {
+                        const speed = (index + 1) * 0.3;
+                        const x = (mouseX - 0.5) * speed * 20;
+                        const y = (mouseY - 0.5) * speed * 20;
+
+                        const currentTransform = shape.style.transform || '';
+                        const baseTransform = currentTransform.replace(/translate\([^)]*\)/g, '');
+                        shape.style.transform = `translate(${x}px, ${y}px) ${baseTransform}`;
+                    });
+
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+
+        window.addEventListener('mousemove', updateParallax);
+    }
+
+    /**
+     * انیمیشن ورود عناصر
+     */
+    animateElements() {
+        const elements = [
+            { el: document.querySelector('.chat-header'), delay: 100 },
+            { el: document.querySelector('.chat-main'), delay: 250 },
+            { el: document.querySelector('.chat-actions'), delay: 400 }
+        ];
+
+        elements.forEach(({ el, delay }) => {
+            if (el) {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+
+                setTimeout(() => {
+                    el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, delay);
+            }
+        });
+    }
+
+    /**
+     * اتصال به WebSocket
      */
     connectWebSocket() {
-        if (this.isConnecting) return;
+        if (this.isConnecting) {
+            console.log('⏳ در حال اتصال...');
+            return;
+        }
 
         this.isConnecting = true;
         this.updateConnectionStatus('connecting');
@@ -54,116 +158,108 @@ class TicketChat {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}/ws/ticket/${this.ticketId}/`;
 
-        console.log('🔗 Connecting to WebSocket:', wsUrl);
+        console.log('🔗 اتصال به WebSocket:', wsUrl);
 
         try {
             this.ws = new WebSocket(wsUrl);
             this.setupWebSocketHandlers();
         } catch (error) {
-            console.error('❌ WebSocket connection failed:', error);
+            console.error('❌ خطا در اتصال WebSocket:', error);
             this.handleConnectionError();
         }
     }
 
     /**
-     * Setup WebSocket event handlers
+     * تنظیم هندلرهای WebSocket
      */
     setupWebSocketHandlers() {
+        // اتصال موفق
         this.ws.onopen = () => {
-            console.log('✅ WebSocket connected');
+            console.log('✅ WebSocket متصل شد');
             this.updateConnectionStatus('connected');
             this.reconnectAttempts = 0;
             this.isConnecting = false;
             this.processMessageQueue();
         };
 
+        // دریافت پیام
         this.ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                console.log('📨 Received:', data);
+                console.log('📨 پیام دریافت شد:', data);
                 this.handleMessage(data);
             } catch (error) {
-                console.error('❌ Error parsing message:', error);
+                console.error('❌ خطا در پردازش پیام:', error);
             }
         };
 
+        // قطع اتصال
         this.ws.onclose = (event) => {
-            console.log('❌ WebSocket disconnected:', event.code, event.reason);
+            console.log('❌ WebSocket قطع شد:', event.code, event.reason);
             this.updateConnectionStatus('disconnected');
             this.isConnecting = false;
 
-            // Don't attempt reconnection if the close was intentional (code 1000)
-            if (event.code !== 1000) {
+            // تلاش برای اتصال مجدد (به جز کدهای عمدی)
+            if (event.code !== 1000 && event.code !== 1001) {
                 this.attemptReconnect();
             }
         };
 
+        // خطای اتصال
         this.ws.onerror = (error) => {
-            console.error('🚨 WebSocket error:', error);
+            console.error('🚨 خطای WebSocket:', error);
             this.isConnecting = false;
             this.handleConnectionError();
         };
     }
 
     /**
-     * Handle WebSocket messages
+     * مدیریت پیام‌های دریافتی
      */
     handleMessage(data) {
         switch(data.type) {
             case 'message_history':
+                console.log('📚 تاریخچه پیام‌ها دریافت شد');
                 this.displayMessageHistory(data.messages);
                 break;
+
+            case 'chat_message':
             case 'message':
-                this.displayMessage(data.message);
-                this.playNotificationSound();
+                console.log('💬 پیام جدید');
+                this.displayMessage(data.message || data);
                 break;
+
             case 'ticket_closed':
+                console.log('🔒 تیکت بسته شد');
                 this.handleTicketClosed(data.message);
                 break;
+
             case 'typing_indicator':
+                console.log('⌨️ نشانگر تایپ');
                 this.handleTypingIndicator(data);
                 break;
+
             case 'error':
-                this.showError(data.message);
+                console.error('❌ خطا از سرور:', data.message);
+                this.showNotification(data.message, 'error');
                 break;
+
             default:
-                console.log('❓ Unknown message type:', data.type);
+                console.log('❓ نوع پیام ناشناخته:', data.type);
         }
     }
 
     /**
-     * Handle ticket closed event
-     */
-    handleTicketClosed(message) {
-        // Disable chat input
-        if (this.elements.messageInput) {
-            this.elements.messageInput.disabled = true;
-            this.elements.messageInput.placeholder = 'This ticket is closed';
-        }
-        if (this.elements.sendButton) {
-            this.elements.sendButton.disabled = true;
-        }
-
-        // Show closure message
-        this.showNotification(message, 'warning');
-        this.updateConnectionStatus('closed');
-
-        // Reload page to show updated UI after 3 seconds
-        setTimeout(() => {
-            location.reload();
-        }, 3000);
-    }
-
-    /**
-     * Display message history
+     * نمایش تاریخچه پیام‌ها
      */
     displayMessageHistory(messages) {
         const container = this.elements.chatMessages;
         container.innerHTML = '';
 
-        if (messages.length === 0) {
+        if (!messages || messages.length === 0) {
             this.showEmptyState();
         } else {
+            console.log(`📝 نمایش ${messages.length} پیام`);
             messages.forEach(message => this.displayMessage(message, false));
         }
 
@@ -171,48 +267,49 @@ class TicketChat {
     }
 
     /**
-     * Display a single message
+     * نمایش یک پیام
      */
     displayMessage(message, animate = true) {
         const container = this.elements.chatMessages;
 
-        // Remove empty state if present
-        const emptyState = container.querySelector('.empty-state');
+        // حذف empty state
+        const emptyState = container.querySelector('.empty-state, .loading-state');
         if (emptyState) {
             emptyState.remove();
         }
 
-        // Create message element
+        // ایجاد المان پیام
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${message.author_type}`;
+        messageDiv.className = `message ${message.author_type || (message.is_admin_message ? 'admin' : 'user')}`;
 
         if (animate) {
             messageDiv.style.opacity = '0';
-            messageDiv.style.transform = 'translateY(20px)';
+            messageDiv.style.transform = 'translateY(20px) scale(0.95)';
         }
 
-        // Create avatar
+        // آواتار
         const avatarDiv = document.createElement('div');
         avatarDiv.className = 'message-avatar';
         avatarDiv.textContent = this.getAvatarText(message.author);
 
-        // Create content
+        // محتوای پیام
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
 
         const textDiv = document.createElement('div');
         textDiv.className = 'message-text';
-        textDiv.textContent = message.content;
+        textDiv.textContent = message.content || message.message;
 
+        // اطلاعات پیام
         const infoDiv = document.createElement('div');
         infoDiv.className = 'message-info';
 
-        const date = new Date(message.created_at);
-        const timeString = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const timeString = PersianChatUtils.formatTime(message.created_at || new Date());
+        const isAdmin = message.is_admin_message || message.author_type === 'admin';
 
         infoDiv.innerHTML = `
             <span>${this.escapeHtml(message.author)}</span>
-            ${message.is_admin_message ? '<span class="admin-badge">Admin</span>' : ''}
+            ${isAdmin ? '<span class="admin-badge">مدیر</span>' : ''}
             <span>•</span>
             <span>${timeString}</span>
         `;
@@ -224,54 +321,60 @@ class TicketChat {
 
         container.appendChild(messageDiv);
 
-        // Animate if requested
+        // انیمیشن
         if (animate) {
             setTimeout(() => {
-                messageDiv.style.transition = 'all 0.3s ease';
+                messageDiv.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
                 messageDiv.style.opacity = '1';
-                messageDiv.style.transform = 'translateY(0)';
+                messageDiv.style.transform = 'translateY(0) scale(1)';
             }, 50);
         }
 
         this.scrollToBottom();
+
+        // پخش صدای اعلان (فقط برای پیام‌های جدید)
+        if (animate) {
+            this.playNotificationSound();
+        }
     }
 
     /**
-     * Show empty state
+     * نمایش حالت خالی
      */
     showEmptyState() {
         const container = this.elements.chatMessages;
         container.innerHTML = `
             <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-comments"></i>
-                </div>
-                <h3 class="empty-title">No messages yet</h3>
-                <p class="empty-description">Start the conversation by sending a message below!</p>
+                <i class="fas fa-comments empty-icon"></i>
+                <h3 class="empty-title">هنوز پیامی وجود ندارد</h3>
+                <p class="empty-description">اولین پیام را ارسال کنید!</p>
             </div>
         `;
     }
 
     /**
-     * Send a message
+     * ارسال پیام
      */
     async sendMessage() {
         const input = this.elements.messageInput;
         const message = input.value.trim();
 
-        if (!message) return;
-
-        // Validate message length
-        if (message.length > 1000) {
-            this.showNotification('Message is too long (max 1000 characters)', 'danger');
+        if (!message) {
+            this.showNotification('لطفاً پیامی وارد کنید', 'warning');
             return;
         }
 
-        // Disable input temporarily
+        // بررسی طول پیام
+        if (message.length > 1000) {
+            this.showNotification('پیام بیش از حد طولانی است (حداکثر ۱۰۰۰ کاراکتر)', 'error');
+            return;
+        }
+
+        // غیرفعال کردن موقت
         this.setInputState(false);
 
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            console.log('📤 Sending message:', message);
+            console.log('📤 ارسال پیام:', message);
 
             try {
                 this.ws.send(JSON.stringify({
@@ -279,21 +382,26 @@ class TicketChat {
                     message: message
                 }));
 
+                // پاک کردن ورودی
                 input.value = '';
                 this.updateCharacterCount();
                 this.resizeInput();
+
+                console.log('✅ پیام ارسال شد');
             } catch (error) {
-                console.error('❌ Error sending message:', error);
-                this.showError('Failed to send message. Please try again.');
+                console.error('❌ خطا در ارسال پیام:', error);
+                this.showNotification('خطا در ارسال پیام. دوباره تلاش کنید.', 'error');
             }
         } else {
-            // Queue message if not connected
+            // اضافه کردن به صف
+            console.log('📥 اضافه به صف پیام‌ها');
             this.messageQueue.push(message);
-            this.showNotification('Message queued. Reconnecting...', 'warning');
+            this.showNotification('پیام در صف قرار گرفت. در حال اتصال مجدد...', 'warning');
             input.value = '';
+            this.updateCharacterCount();
         }
 
-        // Re-enable input
+        // فعال کردن مجدد
         setTimeout(() => {
             this.setInputState(true);
             input.focus();
@@ -301,11 +409,11 @@ class TicketChat {
     }
 
     /**
-     * Process queued messages
+     * پردازش صف پیام‌ها
      */
     processMessageQueue() {
         if (this.messageQueue.length > 0) {
-            console.log('📤 Processing queued messages:', this.messageQueue.length);
+            console.log(`📤 ارسال ${this.messageQueue.length} پیام از صف`);
 
             this.messageQueue.forEach(message => {
                 if (this.ws && this.ws.readyState === WebSocket.OPEN) {
@@ -317,261 +425,59 @@ class TicketChat {
             });
 
             this.messageQueue = [];
-            this.showNotification('Queued messages sent!', 'success');
+            this.showNotification('پیام‌های صف ارسال شدند!', 'success');
         }
     }
 
     /**
-     * Setup event listeners
+     * مدیریت بستن تیکت
      */
-    bindEvents() {
-        // Send button click
-        if (this.elements.sendButton) {
-            this.elements.sendButton.addEventListener('click', () => this.sendMessage());
-        }
+    handleTicketClosed(message) {
+        console.log('🔒 مدیریت بستن تیکت');
 
-        // Input enter key
-        if (this.elements.messageInput) {
-            this.elements.messageInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    this.sendMessage();
-                }
-            });
+        // غیرفعال کردن ورودی
+        this.setInputState(false, 'این تیکت بسته شده است');
+        this.updateConnectionStatus('closed');
 
-            // Input events for character counting
-            this.elements.messageInput.addEventListener('input', () => {
-                this.updateCharacterCount();
-                this.resizeInput();
-                this.handleTyping();
-            });
+        // نمایش اعلان
+        this.showNotification(message || 'تیکت توسط مدیر بسته شد', 'warning');
 
-            // Focus input on load
-            setTimeout(() => {
-                this.elements.messageInput.focus();
-            }, 500);
-        }
-
-        // Handle page visibility changes
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                console.log('📱 Page hidden - pausing chat');
-            } else {
-                console.log('📱 Page visible - resuming chat');
-                if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-                    this.connectWebSocket();
-                }
-            }
-        });
-
-        // Handle page unload
-        window.addEventListener('beforeunload', () => {
-            if (this.ws) {
-                this.ws.close(1000, 'Page unload');
-            }
-        });
+        // بارگذاری مجدد صفحه بعد از 3 ثانیه
+        setTimeout(() => {
+            console.log('🔄 بارگذاری مجدد صفحه...');
+            location.reload();
+        }, 3000);
     }
 
     /**
-     * Setup character counter
-     */
-    setupCharacterCounter() {
-        this.updateCharacterCount();
-    }
-
-    /**
-     * Update character count display
-     */
-    updateCharacterCount() {
-        if (!this.elements.charCount || !this.elements.messageInput) return;
-
-        const count = this.elements.messageInput.value.length;
-        this.elements.charCount.textContent = count;
-
-        // Update styling based on character count
-        const counter = this.elements.charCount.parentElement;
-        counter.classList.remove('warning', 'danger');
-
-        if (count > 900) {
-            counter.classList.add('danger');
-        } else if (count > 800) {
-            counter.classList.add('warning');
-        }
-    }
-
-    /**
-     * Setup auto-resize for input
-     */
-    setupAutoResize() {
-        if (!this.elements.messageInput) return;
-
-        this.elements.messageInput.addEventListener('input', () => {
-            this.resizeInput();
-        });
-    }
-
-    /**
-     * Resize input based on content
-     */
-    resizeInput() {
-        const input = this.elements.messageInput;
-        if (!input) return;
-
-        input.style.height = 'auto';
-        input.style.height = Math.min(Math.max(input.scrollHeight, 50), 120) + 'px';
-    }
-
-    /**
-     * Setup keyboard shortcuts
-     */
-    setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            // Escape to clear input
-            if (e.key === 'Escape' && this.elements.messageInput) {
-                this.elements.messageInput.value = '';
-                this.updateCharacterCount();
-                this.resizeInput();
-            }
-
-            // Ctrl/Cmd + Enter to send message
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                this.sendMessage();
-            }
-
-            // Ctrl/Cmd + R to refresh
-            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-                e.preventDefault();
-                location.reload();
-            }
-        });
-    }
-
-    /**
-     * Setup close ticket handler
-     */
-    setupCloseTicketHandler() {
-        if (this.elements.closeTicketBtn) {
-            this.elements.closeTicketBtn.addEventListener('click', () => {
-                this.closeTicket();
-            });
-        }
-    }
-
-    /**
-     * Close ticket functionality
-     */
-    async closeTicket() {
-        const confirmed = confirm(
-            'Are you sure you want to close this ticket?\n\n' +
-            'Once closed, no more messages can be sent.'
-        );
-
-        if (!confirmed) return;
-
-        try {
-            const response = await fetch(`/ticket/admin-chat/${this.ticketId}/close/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': this.csrfToken,
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'same-origin'
-            });
-
-            if (response.ok) {
-                this.showNotification('Ticket closed successfully', 'success');
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            } else {
-                throw new Error('Failed to close ticket');
-            }
-        } catch (error) {
-            console.error('❌ Error closing ticket:', error);
-            this.showError('Failed to close ticket. Please try again.');
-        }
-    }
-
-    /**
-     * Handle typing indicator
-     */
-    handleTyping() {
-        if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
-
-        // Clear previous timer
-        if (this.typingTimer) {
-            clearTimeout(this.typingTimer);
-        }
-
-        // Send typing start if not already typing
-        if (!this.isTyping) {
-            this.isTyping = true;
-            this.ws.send(JSON.stringify({
-                type: 'typing_start'
-            }));
-        }
-
-        // Set timer to send typing stop
-        this.typingTimer = setTimeout(() => {
-            this.isTyping = false;
-            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                this.ws.send(JSON.stringify({
-                    type: 'typing_stop'
-                }));
-            }
-        }, 2000);
-    }
-
-    /**
-     * Handle typing indicator from other users
-     */
-    handleTypingIndicator(data) {
-        // Implementation for showing typing indicators
-        // This would show "Admin is typing..." etc.
-        console.log('👀 Typing indicator:', data);
-    }
-
-    /**
-     * Update connection status
+     * به‌روزرسانی وضعیت اتصال
      */
     updateConnectionStatus(status) {
         const statusElement = this.elements.connectionStatus;
-        const input = this.elements.messageInput;
-        const sendButton = this.elements.sendButton;
+        const statusText = this.elements.statusText;
 
-        if (!statusElement) return;
+        if (!statusElement || !statusText) return;
 
-        const statusContent = statusElement.querySelector('.status-content');
-        const statusText = statusContent.querySelector('.status-text');
+        // حذف کلاس‌های قبلی
+        statusElement.className = 'connection-status';
+        statusElement.classList.add(status);
 
-        // Update status classes
-        statusElement.className = `connection-status ${status}`;
+        const statusMessages = {
+            'connected': 'متصل - چت زنده فعال است',
+            'disconnected': 'قطع شده - در حال تلاش برای اتصال مجدد...',
+            'connecting': 'در حال اتصال...',
+            'closed': 'تیکت بسته شده - امکان ارسال پیام وجود ندارد'
+        };
 
-        switch(status) {
-            case 'connected':
-                statusText.textContent = 'Connected - Real-time chat active';
-                this.setInputState(true);
-                break;
-            case 'closed':
-                statusText.textContent = 'Ticket Closed - No messages can be sent';
-                this.setInputState(false, 'This ticket is closed');
-                break;
-            case 'disconnected':
-                statusText.textContent = 'Disconnected - Attempting to reconnect...';
-                this.setInputState(false, 'Reconnecting...');
-                break;
-            case 'connecting':
-                statusText.textContent = 'Connecting...';
-                this.setInputState(false, 'Connecting...');
-                break;
-        }
+        statusText.textContent = statusMessages[status] || status;
+
+        console.log(`📡 وضعیت: ${status}`);
     }
 
     /**
-     * Set input state (enabled/disabled)
+     * فعال/غیرفعال کردن ورودی
      */
-    setInputState(enabled, placeholder = 'Type your message...') {
+    setInputState(enabled, placeholder = 'پیام خود را بنویسید...') {
         if (this.elements.messageInput) {
             this.elements.messageInput.disabled = !enabled;
             this.elements.messageInput.placeholder = placeholder;
@@ -582,36 +488,201 @@ class TicketChat {
     }
 
     /**
-     * Attempt to reconnect
+     * تلاش برای اتصال مجدد
      */
     attemptReconnect() {
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
-            this.reconnectAttempts++;
-            const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 10000);
+        if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+            console.log('❌ حداکثر تلاش برای اتصال مجدد');
+            this.updateConnectionStatus('disconnected');
+            this.showNotification('اتصال قطع شد. لطفاً صفحه را رفرش کنید.', 'error');
+            return;
+        }
 
-            console.log(`🔄 Reconnection attempt ${this.reconnectAttempts} in ${delay}ms`);
+        this.reconnectAttempts++;
+        const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 10000);
 
+        console.log(`🔄 تلاش ${this.reconnectAttempts} برای اتصال مجدد در ${delay}ms`);
+
+        setTimeout(() => {
+            if (!this.isConnecting) {
+                this.connectWebSocket();
+            }
+        }, delay);
+    }
+
+    /**
+     * مدیریت خطای اتصال
+     */
+    handleConnectionError() {
+        this.updateConnectionStatus('disconnected');
+        this.showNotification('خطا در اتصال به سرور. لطفاً اتصال اینترنت خود را بررسی کنید.', 'error');
+    }
+
+    /**
+     * تنظیم رویدادها
+     */
+    bindEvents() {
+        // دکمه ارسال
+        if (this.elements.sendButton) {
+            this.elements.sendButton.addEventListener('click', () => {
+                this.sendMessage();
+            });
+        }
+
+        // فشردن Enter
+        if (this.elements.messageInput) {
+            this.elements.messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.sendMessage();
+                }
+            });
+
+            // به‌روزرسانی شمارنده
+            this.elements.messageInput.addEventListener('input', () => {
+                this.updateCharacterCount();
+                this.resizeInput();
+            });
+
+            // فوکوس اولیه
             setTimeout(() => {
-                if (!this.isConnecting) {
+                this.elements.messageInput.focus();
+            }, 800);
+        }
+
+        // مدیریت visibility
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                console.log('📱 صفحه مخفی شد');
+            } else {
+                console.log('📱 صفحه نمایان شد');
+                if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
                     this.connectWebSocket();
                 }
-            }, delay);
+            }
+        });
+
+        // مدیریت خروج از صفحه
+        window.addEventListener('beforeunload', () => {
+            if (this.ws) {
+                this.ws.close(1000, 'Page unload');
+            }
+        });
+    }
+
+    /**
+     * تنظیم شمارنده کاراکتر
+     */
+    setupCharacterCounter() {
+        this.updateCharacterCount();
+    }
+
+    updateCharacterCount() {
+        if (!this.elements.charCount || !this.elements.messageInput) return;
+
+        const count = this.elements.messageInput.value.length;
+        this.elements.charCount.textContent = PersianChatUtils.toPersianNumbers(count);
+
+        // تغییر رنگ
+        const parent = this.elements.charCount.parentElement;
+        if (count > 900) {
+            parent.style.color = 'var(--danger)';
+        } else if (count > 800) {
+            parent.style.color = 'var(--warning)';
         } else {
-            this.updateConnectionStatus('disconnected');
-            this.showError('Connection lost. Please refresh the page to continue chatting.');
+            parent.style.color = 'var(--text-secondary)';
         }
     }
 
     /**
-     * Handle connection errors
+     * تنظیم تغییر اندازه خودکار
      */
-    handleConnectionError() {
-        this.updateConnectionStatus('disconnected');
-        this.showError('Unable to connect to chat server. Please check your internet connection.');
+    setupAutoResize() {
+        if (!this.elements.messageInput) return;
+
+        this.elements.messageInput.addEventListener('input', () => {
+            this.resizeInput();
+        });
+    }
+
+    resizeInput() {
+        const input = this.elements.messageInput;
+        if (!input) return;
+
+        input.style.height = 'auto';
+        const newHeight = Math.min(Math.max(input.scrollHeight, 50), 150);
+        input.style.height = newHeight + 'px';
     }
 
     /**
-     * Scroll to bottom of messages
+     * میانبرهای صفحه‌کلید
+     */
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Escape = پاک کردن
+            if (e.key === 'Escape' && this.elements.messageInput) {
+                this.elements.messageInput.value = '';
+                this.updateCharacterCount();
+                this.resizeInput();
+            }
+
+            // Ctrl/Cmd + Enter = ارسال
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                this.sendMessage();
+            }
+        });
+    }
+
+    /**
+     * تنظیم دکمه بستن تیکت
+     */
+    setupCloseTicketHandler() {
+        if (!this.elements.closeTicketBtn) return;
+
+        this.elements.closeTicketBtn.addEventListener('click', async () => {
+            const confirmed = confirm(
+                'آیا مطمئن هستید که می‌خواهید این تیکت را ببندید?\n\n' +
+                'پس از بستن، امکان ارسال پیام وجود نخواهد داشت.'
+            );
+
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch(`/ticket/admin-chat/${this.ticketId}/close/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': this.csrfToken,
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin'
+                });
+
+                if (response.ok) {
+                    this.showNotification('تیکت با موفقیت بسته شد', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error('Failed to close ticket');
+                }
+            } catch (error) {
+                console.error('❌ خطا در بستن تیکت:', error);
+                this.showNotification('خطا در بستن تیکت. دوباره تلاش کنید.', 'error');
+            }
+        });
+    }
+
+    /**
+     * مدیریت نشانگر تایپ
+     */
+    handleTypingIndicator(data) {
+        console.log('⌨️ نشانگر تایپ:', data);
+        // می‌توانید نمایش "در حال تایپ..." را اضافه کنید
+    }
+
+    /**
+     * اسکرول به پایین
      */
     scrollToBottom() {
         if (this.elements.chatMessages) {
@@ -622,14 +693,14 @@ class TicketChat {
     }
 
     /**
-     * Get avatar text for user
+     * دریافت متن آواتار
      */
     getAvatarText(author) {
-        return author.charAt(0).toUpperCase();
+        return author ? author.charAt(0).toUpperCase() : '?';
     }
 
     /**
-     * Escape HTML characters
+     * Escape کردن HTML
      */
     escapeHtml(text) {
         const div = document.createElement('div');
@@ -638,123 +709,94 @@ class TicketChat {
     }
 
     /**
-     * Show error message
-     */
-    showError(message) {
-        this.showNotification(message, 'danger');
-    }
-
-    /**
-     * Show notification
+     * نمایش اعلان
      */
     showNotification(message, type = 'info') {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `alert alert-${type} notification-toast`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="fas fa-${this.getNotificationIcon(type)}"></i>
-                <span>${this.escapeHtml(message)}</span>
-                <button type="button" class="notification-close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
+        const colors = {
+            'success': 'linear-gradient(135deg, #4caf50, #388e3c)',
+            'error': 'linear-gradient(135deg, #f44336, #d32f2f)',
+            'warning': 'linear-gradient(135deg, #ff9800, #f57c00)',
+            'info': 'linear-gradient(135deg, #2196f3, #1976d2)'
+        };
 
-        // Style the notification
+        const notification = document.createElement('div');
+        notification.className = 'notification-toast';
         notification.style.cssText = `
             position: fixed;
             top: 20px;
-            right: 20px;
+            left: 20px;
+            background: ${colors[type]};
+            color: white;
+            padding: 1.2rem 2rem;
+            border-radius: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
             z-index: 9999;
-            min-width: 300px;
-            max-width: 500px;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
+            font-family: 'Vazirmatn', sans-serif;
+            direction: rtl;
+            font-weight: 700;
+            font-size: 0.95rem;
+            animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         `;
 
-        // Add to page
+        const icons = {
+            'success': '✓',
+            'error': '✕',
+            'warning': '!',
+            'info': 'ℹ'
+        };
+
+        notification.innerHTML = `
+            <span style="font-size: 1.3rem;">${icons[type]}</span>
+            <span>${this.escapeHtml(message)}</span>
+        `;
+
         document.body.appendChild(notification);
 
-        // Setup close button
-        const closeBtn = notification.querySelector('.notification-close');
-        closeBtn.addEventListener('click', () => {
-            this.hideNotification(notification);
-        });
-
-        // Show with animation
         setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-        }, 100);
-
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-            this.hideNotification(notification);
-        }, 5000);
+            notification.style.animation = 'slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            setTimeout(() => notification.remove(), 400);
+        }, 4000);
     }
 
     /**
-     * Hide notification
-     */
-    hideNotification(notification) {
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }
-
-    /**
-     * Get notification icon
-     */
-    getNotificationIcon(type) {
-        const icons = {
-            'success': 'check-circle',
-            'danger': 'exclamation-triangle',
-            'warning': 'exclamation-circle',
-            'info': 'info-circle'
-        };
-        return icons[type] || 'info-circle';
-    }
-
-    /**
-     * Play notification sound
+     * پخش صدای اعلان
      */
     playNotificationSound() {
-        // Only play sound if page is not visible
-        if (document.hidden) {
-            try {
-                // Create a simple beep sound
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
+        // فقط اگر صفحه مخفی است
+        if (!document.hidden) return;
 
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
 
-                oscillator.frequency.value = 800;
-                oscillator.type = 'sine';
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
 
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
 
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.3);
-            } catch (error) {
-                console.log('🔇 Could not play notification sound:', error);
-            }
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        } catch (error) {
+            console.log('🔇 خطا در پخش صدا:', error);
         }
     }
 
     /**
-     * Destroy the chat instance
+     * تخریب instance
      */
     destroy() {
+        console.log('🗑️ تخریب چت');
+
         if (this.ws) {
             this.ws.close(1000, 'Chat destroyed');
         }
@@ -762,71 +804,38 @@ class TicketChat {
         if (this.typingTimer) {
             clearTimeout(this.typingTimer);
         }
-
-        console.log('🗑️ Ticket Chat destroyed');
     }
 }
 
-// Export for potential module usage
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = TicketChat;
+// ===== راه‌اندازی =====
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof TICKET_ID !== 'undefined' && typeof CSRF_TOKEN !== 'undefined') {
+        console.log('🚀 راه‌اندازی چت برای تیکت #' + TICKET_ID);
+        window.persianTicketChat = new PersianTicketChat(TICKET_ID, CSRF_TOKEN);
+    } else {
+        console.error('❌ TICKET_ID یا CSRF_TOKEN تعریف نشده است!');
+    }
+});
+
+// ===== انیمیشن‌های اضافی =====
+if (!document.querySelector('#chat-animations')) {
+    const style = document.createElement('style');
+    style.id = 'chat-animations';
+    style.textContent = `
+        @keyframes slideInLeft {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutLeft {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
 }
 
-// Additional utility styles for notifications
-const notificationStyles = `
-.notification-toast {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
+// ===== Export =====
+window.PersianChatUtils = PersianChatUtils;
 
-.notification-content {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex: 1;
-}
-
-.notification-close {
-    background: none;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 0.25rem;
-    transition: background-color 0.2s ease;
-}
-
-.notification-close:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-.alert-success {
-    background-color: #d1fae5;
-    color: #065f46;
-    border: 1px solid #34d399;
-}
-
-.alert-danger {
-    background-color: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fca5a5;
-}
-
-.alert-warning {
-    background-color: #fef3c7;
-    color: #92400e;
-    border: 1px solid #fcd34d;
-}
-
-.alert-info {
-    background-color: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #60a5fa;
-}
-`;
-
-// Inject notification styles
-const style = document.createElement('style');
-style.textContent = notificationStyles;
-document.head.appendChild(style);
+console.log('✅ ماژول چت فارسی بارگذاری شد');

@@ -1,994 +1,170 @@
-{% extends 'base.html' %}
 {% load static %}
-
-{% block title %}Chat - Ticket #{{ ticket.id }}{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'ticket/css/ticket_chat.css' %}">
-{% endblock %}
-
-{% block content %}
-<div class="chat-container">
-    <!-- Chat Header -->
-    <div class="chat-header">
-        <div class="header-content">
-            <div class="header-info">
-                <div class="breadcrumb">
-                    <a href="{% url 'ticket:list' %}" class="breadcrumb-link">
-                        <i class="fas fa-arrow-left"></i>
-                        My Tickets
-                    </a>
-                    <i class="fas fa-chevron-right"></i>
-                    <span class="breadcrumb-current">Chat</span>
-                </div>
-                <h1 class="chat-title">
-                    <i class="fas fa-ticket-alt"></i>
-                    Ticket #{{ ticket.id }}: {{ ticket.title }}
-                </h1>
-                <p class="chat-subtitle">Real-time chat with administration</p>
-            </div>
-            <div class="header-status">
-                <div class="status-info">
-                    <div class="status-badge status-{{ ticket.status }}">
-                        <i class="fas fa-circle status-icon"></i>
-                        {% if ticket.status == 'pending' %}
-                            Pending
-                        {% elif ticket.status == 'answered' %}
-                            Answered
-                        {% elif ticket.status == 'closed' %}
-                            Closed
-                        {% endif %}
-                    </div>
-                    <div class="user-info">
-                        <span class="user-name">{{ user.username }}</span>
-                        {% if user.student_profile %}
-                            <span class="user-role">Student</span>
-                        {% elif user.expert_profile %}
-                            <span class="user-role">Expert</span>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>چت تیکت #{{ ticket.id }} - سامانه خوابگاه</title>
+    <link rel="stylesheet" href="{% static 'ticket/css/ticket_chat.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- اشکال هندسی متحرک -->
+    <div class="geometric-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+        <div class="shape shape-5"></div>
+        <div class="shape shape-6"></div>
     </div>
 
-    <!-- Chat Main Content -->
-    <div class="chat-main">
-        <!-- Connection Status -->
-        <div id="connectionStatus" class="connection-status connecting">
-            <div class="status-content">
-                <div class="status-indicator"></div>
-                <span class="status-text">Connecting...</span>
-            </div>
-        </div>
+    <!-- ذرات شناور -->
+    <div class="floating-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
 
-        <!-- Chat Messages -->
-        <div class="chat-messages-container">
-            <div id="chatMessages" class="chat-messages">
-                <div class="loading-state">
-                    <div class="loading-icon">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <div class="loading-text">Loading chat history...</div>
-                    <div class="loading-spinner">
-                        <div class="spinner"></div>
+    <div class="chat-container">
+        <!-- هدر چت -->
+        <header class="chat-header">
+            <div class="header-content">
+                <div class="header-info">
+                    <nav class="breadcrumb">
+                        <a href="{% url 'ticket:list' %}" class="breadcrumb-link">
+                            <i class="fas fa-arrow-right"></i>
+                            بازگشت به لیست
+                        </a>
+                        <span class="breadcrumb-separator">|</span>
+                        <span class="breadcrumb-current">تیکت #{{ ticket.id }}</span>
+                    </nav>
+                    <h1 class="chat-title">
+                        {{ ticket.title }}
+                    </h1>
+                    <p class="chat-subtitle">{{ ticket.description|truncatechars:100 }}</p>
+                </div>
+
+                <div class="header-status">
+                    <div class="status-info">
+                        <span class="status-badge status-{{ ticket.status }}">
+                            <i class="fas fa-circle status-icon"></i>
+                            {% if ticket.status == 'pending' %}
+                                در انتظار پاسخ
+                            {% elif ticket.status == 'answered' %}
+                                پاسخ داده شده
+                            {% elif ticket.status == 'closed' %}
+                                بسته شده
+                            {% endif %}
+                        </span>
+                        <div class="user-info">
+                            <span class="user-name">{{ ticket.created_by.username }}</span>
+                            <small class="user-role">دانشجو</small>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <!-- Chat Input -->
-        {% if ticket.status != 'closed' %}
-        <div class="chat-input-section">
-            <div class="chat-input-container">
-                <div class="input-wrapper">
-                    <input type="text"
-                           id="messageInput"
-                           class="message-input"
-                           placeholder="Type your message..."
-                           maxlength="1000"
-                           autocomplete="off">
-                    <button id="sendButton" class="send-button" type="button">
-                        <i class="fas fa-paper-plane"></i>
-                        <span class="btn-text">Send</span>
+        <!-- بخش اصلی چت -->
+        <main class="chat-main">
+            <!-- وضعیت اتصال -->
+            <div class="connection-status connecting" id="connectionStatus">
+                <div class="status-content">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">در حال اتصال...</span>
+                </div>
+            </div>
+
+            <!-- محتوای پیام‌ها -->
+            <div class="chat-messages-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="loading-state">
+                        <i class="fas fa-comments loading-icon"></i>
+                        <p class="loading-text">در حال بارگذاری پیام‌ها...</p>
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بخش ورودی پیام -->
+            {% if ticket.status != 'closed' %}
+            <section class="chat-input-section">
+                <div class="chat-input-container">
+                    <div class="input-wrapper">
+                        <textarea
+                            id="messageInput"
+                            class="message-input"
+                            placeholder="پیام خود را بنویسید..."
+                            maxlength="1000"
+                            rows="1"></textarea>
+
+                        <button type="button" id="sendButton" class="send-button">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>ارسال</span>
+                        </button>
+                    </div>
+
+                    <div class="input-help">
+                        <span class="help-text">
+                            <i class="fas fa-keyboard"></i>
+                            Enter برای ارسال، Shift+Enter برای خط جدید
+                        </span>
+                        <span class="char-counter" id="charCount">0</span> / 1000
+                    </div>
+                </div>
+            </section>
+            {% else %}
+            <div class="chat-closed-notice">
+                <div class="closed-content">
+                    <i class="fas fa-lock"></i>
+                    <h3>این تیکت بسته شده است</h3>
+                    <p>امکان ارسال پیام جدید وجود ندارد</p>
+                </div>
+            </div>
+            {% endif %}
+        </main>
+
+        <!-- دکمه‌های اقدام -->
+        <footer class="chat-actions">
+            <div class="actions-content">
+                <div class="action-buttons">
+                    {% if request.user.is_staff and ticket.status != 'closed' %}
+                    <button type="button" id="closeTicketBtn" class="btn btn-outline-warning">
+                        <i class="fas fa-times-circle"></i>
+                        بستن تیکت
                     </button>
-                </div>
-                <div class="input-help">
-                    <div class="help-text">
-                        <i class="fas fa-info-circle"></i>
-                        Press Enter to send • Messages are delivered in real-time
-                    </div>
-                    <div class="char-counter">
-                        <span id="charCount">0</span>/1000
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <div class="chat-closed-notice">
-            <div class="closed-content">
-                <i class="fas fa-lock"></i>
-                <h3>This ticket is closed</h3>
-                <p>No more messages can be sent on this ticket.</p>
-                <a href="{% url 'ticket:list' %}" class="btn btn-primary">
-                    <i class="fas fa-list"></i>
-                    View All Tickets
-                </a>
-            </div>
-        </div>
-        {% endif %}
-    </div>
+                    {% endif %}
 
-    <!-- Chat Actions -->
-    <div class="chat-actions">
-        <div class="actions-content">
-            <div class="action-buttons">
-                <a href="{% url 'ticket:list' %}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i>
-                    Back to Tickets
-                </a>
-                {% if ticket.status != 'closed' %}
-                <button type="button" class="btn btn-outline-warning" id="closeTicketBtn" data-ticket-id="{{ ticket.id }}">
-                    <i class="fas fa-times"></i>
-                    Close Ticket
-                </button>
-                {% endif %}
-                <button type="button" class="btn btn-outline-secondary" onclick="location.reload()">
-                    <i class="fas fa-sync-alt"></i>
-                    Refresh
-                </button>
-            </div>
-            <div class="chat-info">
-                <small class="text-muted">
-                    <i class="fas fa-shield-alt"></i>
-                    Secure encrypted chat • Created {{ ticket.created_at|date:"M d, Y" }}
+                    <a href="{% url 'ticket:list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list"></i>
+                        لیست تیکت‌ها
+                    </a>
+                </div>
+
+                <small class="chat-info">
+                    <i class="fas fa-info-circle"></i>
+                    تیکت در {{ ticket.created_at|date:"d F Y" }} ایجاد شده
                 </small>
             </div>
-        </div>
+        </footer>
     </div>
-</div>
 
-<!-- CSRF Token for JavaScript -->
-<meta name="csrf-token" content="{{ csrf_token }}">
-{% endblock %}
-
-{% block extra_js %}
-<script>
-/**
- * Ticket Chat JavaScript
- * Enhanced real-time chat functionality with WebSocket integration
- */
-
-class TicketChat {
-    constructor(ticketId, csrfToken) {
-        this.ticketId = ticketId;
-        this.csrfToken = csrfToken;
-        this.ws = null;
-        this.reconnectAttempts = 0;
-        this.maxReconnectAttempts = 5;
-        this.isConnecting = false;
-        this.messageQueue = [];
-        this.typingTimer = null;
-        this.isTyping = false;
-
-        // DOM elements
-        this.elements = {
-            connectionStatus: document.getElementById('connectionStatus'),
-            chatMessages: document.getElementById('chatMessages'),
-            messageInput: document.getElementById('messageInput'),
-            sendButton: document.getElementById('sendButton'),
-            charCount: document.getElementById('charCount'),
-            closeTicketBtn: document.getElementById('closeTicketBtn')
-        };
-
-        this.init();
-    }
-
-    /**
-     * Initialize the chat system
-     */
-    init() {
-        this.connectWebSocket();
-        this.bindEvents();
-        this.setupCharacterCounter();
-        this.setupAutoResize();
-        this.setupKeyboardShortcuts();
-        this.setupCloseTicketHandler();
-
-        console.log('🚀 Ticket Chat initialized for ticket #' + this.ticketId);
-    }
-
-    /**
-     * Connect to WebSocket
-     */
-    connectWebSocket() {
-        if (this.isConnecting) return;
-
-        this.isConnecting = true;
-        this.updateConnectionStatus('connecting');
-
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws/ticket/${this.ticketId}/`;
-
-        console.log('🔗 Connecting to WebSocket:', wsUrl);
-
-        try {
-            this.ws = new WebSocket(wsUrl);
-            this.setupWebSocketHandlers();
-        } catch (error) {
-            console.error('❌ WebSocket connection failed:', error);
-            this.handleConnectionError();
-        }
-    }
-
-    /**
-     * Setup WebSocket event handlers
-     */
-    setupWebSocketHandlers() {
-        this.ws.onopen = () => {
-            console.log('✅ WebSocket connected');
-            this.updateConnectionStatus('connected');
-            this.reconnectAttempts = 0;
-            this.isConnecting = false;
-            this.processMessageQueue();
-        };
-
-        this.ws.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                console.log('📨 Received:', data);
-                this.handleMessage(data);
-            } catch (error) {
-                console.error('❌ Error parsing message:', error);
-            }
-        };
-
-        this.ws.onclose = (event) => {
-            console.log('❌ WebSocket disconnected:', event.code, event.reason);
-            this.updateConnectionStatus('disconnected');
-            this.isConnecting = false;
-
-            // Don't attempt reconnection if the close was intentional (code 1000)
-            if (event.code !== 1000) {
-                this.attemptReconnect();
-            }
-        };
-
-        this.ws.onerror = (error) => {
-            console.error('🚨 WebSocket error:', error);
-            this.isConnecting = false;
-            this.handleConnectionError();
-        };
-    }
-
-    /**
-     * Handle WebSocket messages
-     */
-    handleMessage(data) {
-        switch(data.type) {
-            case 'message_history':
-                this.displayMessageHistory(data.messages);
-                break;
-            case 'message':
-                this.displayMessage(data.message);
-                this.playNotificationSound();
-                break;
-            case 'ticket_closed':
-                this.handleTicketClosed(data.message);
-                break;
-            case 'typing_indicator':
-                this.handleTypingIndicator(data);
-                break;
-            case 'error':
-                this.showError(data.message);
-                break;
-            default:
-                console.log('❓ Unknown message type:', data.type);
-        }
-    }
-
-    /**
-     * Handle ticket closed event
-     */
-    handleTicketClosed(message) {
-        // Disable chat input
-        if (this.elements.messageInput) {
-            this.elements.messageInput.disabled = true;
-            this.elements.messageInput.placeholder = 'This ticket is closed';
-        }
-        if (this.elements.sendButton) {
-            this.elements.sendButton.disabled = true;
-        }
-
-        // Show closure message
-        this.showNotification(message, 'warning');
-        this.updateConnectionStatus('closed');
-
-        // Reload page to show updated UI after 3 seconds
-        setTimeout(() => {
-            location.reload();
-        }, 3000);
-    }
-
-    /**
-     * Display message history
-     */
-    displayMessageHistory(messages) {
-        const container = this.elements.chatMessages;
-        container.innerHTML = '';
-
-        if (messages.length === 0) {
-            this.showEmptyState();
-        } else {
-            messages.forEach(message => this.displayMessage(message, false));
-        }
-
-        this.scrollToBottom();
-    }
-
-    /**
-     * Display a single message
-     */
-    displayMessage(message, animate = true) {
-        const container = this.elements.chatMessages;
-
-        // Remove empty state if present
-        const emptyState = container.querySelector('.empty-state');
-        if (emptyState) {
-            emptyState.remove();
-        }
-
-        // Create message element
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${message.author_type}`;
-
-        if (animate) {
-            messageDiv.style.opacity = '0';
-            messageDiv.style.transform = 'translateY(20px)';
-        }
-
-        // Create avatar
-        const avatarDiv = document.createElement('div');
-        avatarDiv.className = 'message-avatar';
-        avatarDiv.textContent = this.getAvatarText(message.author);
-
-        // Create content
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'message-content';
-
-        const textDiv = document.createElement('div');
-        textDiv.className = 'message-text';
-        textDiv.textContent = message.content;
-
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'message-info';
-
-        const date = new Date(message.created_at);
-        const timeString = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-        infoDiv.innerHTML = `
-            <span>${this.escapeHtml(message.author)}</span>
-            ${message.is_admin_message ? '<span class="admin-badge">Admin</span>' : ''}
-            <span>•</span>
-            <span>${timeString}</span>
-        `;
-
-        contentDiv.appendChild(textDiv);
-        contentDiv.appendChild(infoDiv);
-        messageDiv.appendChild(avatarDiv);
-        messageDiv.appendChild(contentDiv);
-
-        container.appendChild(messageDiv);
-
-        // Animate if requested
-        if (animate) {
-            setTimeout(() => {
-                messageDiv.style.transition = 'all 0.3s ease';
-                messageDiv.style.opacity = '1';
-                messageDiv.style.transform = 'translateY(0)';
-            }, 50);
-        }
-
-        this.scrollToBottom();
-    }
-
-    /**
-     * Show empty state
-     */
-    showEmptyState() {
-        const container = this.elements.chatMessages;
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-comments"></i>
-                </div>
-                <h3 class="empty-title">No messages yet</h3>
-                <p class="empty-description">Start the conversation by sending a message below!</p>
-            </div>
-        `;
-    }
-
-    /**
-     * Send a message
-     */
-    async sendMessage() {
-        const input = this.elements.messageInput;
-        const message = input.value.trim();
-
-        if (!message) return;
-
-        // Validate message length
-        if (message.length > 1000) {
-            this.showNotification('Message is too long (max 1000 characters)', 'danger');
-            return;
-        }
-
-        // Disable input temporarily
-        this.setInputState(false);
-
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            console.log('📤 Sending message:', message);
-
-            try {
-                this.ws.send(JSON.stringify({
-                    type: 'chat_message',
-                    message: message
-                }));
-
-                input.value = '';
-                this.updateCharacterCount();
-                this.resizeInput();
-            } catch (error) {
-                console.error('❌ Error sending message:', error);
-                this.showError('Failed to send message. Please try again.');
-            }
-        } else {
-            // Queue message if not connected
-            this.messageQueue.push(message);
-            this.showNotification('Message queued. Reconnecting...', 'warning');
-            input.value = '';
-        }
-
-        // Re-enable input
-        setTimeout(() => {
-            this.setInputState(true);
-            input.focus();
-        }, 500);
-    }
-
-    /**
-     * Process queued messages
-     */
-    processMessageQueue() {
-        if (this.messageQueue.length > 0) {
-            console.log('📤 Processing queued messages:', this.messageQueue.length);
-
-            this.messageQueue.forEach(message => {
-                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                    this.ws.send(JSON.stringify({
-                        type: 'chat_message',
-                        message: message
-                    }));
-                }
-            });
-
-            this.messageQueue = [];
-            this.showNotification('Queued messages sent!', 'success');
-        }
-    }
-
-    /**
-     * Setup event listeners
-     */
-    bindEvents() {
-        // Send button click
-        if (this.elements.sendButton) {
-            this.elements.sendButton.addEventListener('click', () => this.sendMessage());
-        }
-
-        // Input enter key
-        if (this.elements.messageInput) {
-            this.elements.messageInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    this.sendMessage();
-                }
-            });
-
-            // Input events for character counting
-            this.elements.messageInput.addEventListener('input', () => {
-                this.updateCharacterCount();
-                this.resizeInput();
-                this.handleTyping();
-            });
-
-            // Focus input on load
-            setTimeout(() => {
-                this.elements.messageInput.focus();
-            }, 500);
-        }
-
-        // Handle page visibility changes
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                console.log('📱 Page hidden - pausing chat');
-            } else {
-                console.log('📱 Page visible - resuming chat');
-                if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-                    this.connectWebSocket();
-                }
-            }
-        });
-
-        // Handle page unload
-        window.addEventListener('beforeunload', () => {
-            if (this.ws) {
-                this.ws.close(1000, 'Page unload');
-            }
-        });
-    }
-
-    /**
-     * Setup character counter
-     */
-    setupCharacterCounter() {
-        this.updateCharacterCount();
-    }
-
-    /**
-     * Update character count display
-     */
-    updateCharacterCount() {
-        if (!this.elements.charCount || !this.elements.messageInput) return;
-
-        const count = this.elements.messageInput.value.length;
-        this.elements.charCount.textContent = count;
-
-        // Update styling based on character count
-        const counter = this.elements.charCount.parentElement;
-        counter.classList.remove('warning', 'danger');
-
-        if (count > 900) {
-            counter.classList.add('danger');
-        } else if (count > 800) {
-            counter.classList.add('warning');
-        }
-    }
-
-    /**
-     * Setup auto-resize for input
-     */
-    setupAutoResize() {
-        if (!this.elements.messageInput) return;
-
-        this.elements.messageInput.addEventListener('input', () => {
-            this.resizeInput();
-        });
-    }
-
-    /**
-     * Resize input based on content
-     */
-    resizeInput() {
-        const input = this.elements.messageInput;
-        if (!input) return;
-
-        input.style.height = 'auto';
-        input.style.height = Math.min(Math.max(input.scrollHeight, 50), 120) + 'px';
-    }
-
-    /**
-     * Setup keyboard shortcuts
-     */
-    setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            // Escape to clear input
-            if (e.key === 'Escape' && this.elements.messageInput) {
-                this.elements.messageInput.value = '';
-                this.updateCharacterCount();
-                this.resizeInput();
-            }
-
-            // Ctrl/Cmd + Enter to send message
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                this.sendMessage();
-            }
-
-            // Ctrl/Cmd + R to refresh
-            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-                e.preventDefault();
-                location.reload();
-            }
-        });
-    }
-
-    /**
-     * Setup close ticket handler
-     */
-    setupCloseTicketHandler() {
-        if (this.elements.closeTicketBtn) {
-            this.elements.closeTicketBtn.addEventListener('click', () => {
-                this.closeTicket();
-            });
-        }
-    }
-
-    /**
-     * Close ticket functionality
-     */
-    async closeTicket() {
-        const confirmed = confirm(
-            'Are you sure you want to close this ticket?\n\n' +
-            'Once closed, no more messages can be sent.'
-        );
-
-        if (!confirmed) return;
-
-        try {
-            const response = await fetch(`/ticket/admin-chat/${this.ticketId}/close/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': this.csrfToken,
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'same-origin'
-            });
-
-            if (response.ok) {
-                this.showNotification('Ticket closed successfully', 'success');
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            } else {
-                throw new Error('Failed to close ticket');
-            }
-        } catch (error) {
-            console.error('❌ Error closing ticket:', error);
-            this.showError('Failed to close ticket. Please try again.');
-        }
-    }
-
-    /**
-     * Handle typing indicator
-     */
-    handleTyping() {
-        if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
-
-        // Clear previous timer
-        if (this.typingTimer) {
-            clearTimeout(this.typingTimer);
-        }
-
-        // Send typing start if not already typing
-        if (!this.isTyping) {
-            this.isTyping = true;
-            this.ws.send(JSON.stringify({
-                type: 'typing_start'
-            }));
-        }
-
-        // Set timer to send typing stop
-        this.typingTimer = setTimeout(() => {
-            this.isTyping = false;
-            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                this.ws.send(JSON.stringify({
-                    type: 'typing_stop'
-                }));
-            }
-        }, 2000);
-    }
-
-    /**
-     * Handle typing indicator from other users
-     */
-    handleTypingIndicator(data) {
-        // Implementation for showing typing indicators
-        // This would show "Admin is typing..." etc.
-        console.log('👀 Typing indicator:', data);
-    }
-
-    /**
-     * Update connection status
-     */
-    updateConnectionStatus(status) {
-        const statusElement = this.elements.connectionStatus;
-        const input = this.elements.messageInput;
-        const sendButton = this.elements.sendButton;
-
-        if (!statusElement) return;
-
-        const statusContent = statusElement.querySelector('.status-content');
-        const statusText = statusContent.querySelector('.status-text');
-
-        // Update status classes
-        statusElement.className = `connection-status ${status}`;
-
-        switch(status) {
-            case 'connected':
-                statusText.textContent = 'Connected - Real-time chat active';
-                this.setInputState(true);
-                break;
-            case 'closed':
-                statusText.textContent = 'Ticket Closed - No messages can be sent';
-                this.setInputState(false, 'This ticket is closed');
-                break;
-            case 'disconnected':
-                statusText.textContent = 'Disconnected - Attempting to reconnect...';
-                this.setInputState(false, 'Reconnecting...');
-                break;
-            case 'connecting':
-                statusText.textContent = 'Connecting...';
-                this.setInputState(false, 'Connecting...');
-                break;
-        }
-    }
-
-    /**
-     * Set input state (enabled/disabled)
-     */
-    setInputState(enabled, placeholder = 'Type your message...') {
-        if (this.elements.messageInput) {
-            this.elements.messageInput.disabled = !enabled;
-            this.elements.messageInput.placeholder = placeholder;
-        }
-        if (this.elements.sendButton) {
-            this.elements.sendButton.disabled = !enabled;
-        }
-    }
-
-    /**
-     * Attempt to reconnect
-     */
-    attemptReconnect() {
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
-            this.reconnectAttempts++;
-            const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 10000);
-
-            console.log(`🔄 Reconnection attempt ${this.reconnectAttempts} in ${delay}ms`);
-
-            setTimeout(() => {
-                if (!this.isConnecting) {
-                    this.connectWebSocket();
-                }
-            }, delay);
-        } else {
-            this.updateConnectionStatus('disconnected');
-            this.showError('Connection lost. Please refresh the page to continue chatting.');
-        }
-    }
-
-    /**
-     * Handle connection errors
-     */
-    handleConnectionError() {
-        this.updateConnectionStatus('disconnected');
-        this.showError('Unable to connect to chat server. Please check your internet connection.');
-    }
-
-    /**
-     * Scroll to bottom of messages
-     */
-    scrollToBottom() {
-        if (this.elements.chatMessages) {
-            setTimeout(() => {
-                this.elements.chatMessages.scrollTop = this.elements.chatMessages.scrollHeight;
-            }, 100);
-        }
-    }
-
-    /**
-     * Get avatar text for user
-     */
-    getAvatarText(author) {
-        return author.charAt(0).toUpperCase();
-    }
-
-    /**
-     * Escape HTML characters
-     */
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    /**
-     * Show error message
-     */
-    showError(message) {
-        this.showNotification(message, 'danger');
-    }
-
-    /**
-     * Show notification
-     */
-    showNotification(message, type = 'info') {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `alert alert-${type} notification-toast`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="fas fa-${this.getNotificationIcon(type)}"></i>
-                <span>${this.escapeHtml(message)}</span>
-                <button type="button" class="notification-close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
-
-        // Style the notification
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            min-width: 300px;
-            max-width: 500px;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-        `;
-
-        // Add to page
-        document.body.appendChild(notification);
-
-        // Setup close button
-        const closeBtn = notification.querySelector('.notification-close');
-        closeBtn.addEventListener('click', () => {
-            this.hideNotification(notification);
-        });
-
-        // Show with animation
-        setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-        }, 100);
-
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-            this.hideNotification(notification);
-        }, 5000);
-    }
-
-    /**
-     * Hide notification
-     */
-    hideNotification(notification) {
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }
-
-    /**
-     * Get notification icon
-     */
-    getNotificationIcon(type) {
-        const icons = {
-            'success': 'check-circle',
-            'danger': 'exclamation-triangle',
-            'warning': 'exclamation-circle',
-            'info': 'info-circle'
-        };
-        return icons[type] || 'info-circle';
-    }
-
-    /**
-     * Play notification sound
-     */
-    playNotificationSound() {
-        // Only play sound if page is not visible
-        if (document.hidden) {
-            try {
-                // Create a simple beep sound
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-
-                oscillator.frequency.value = 800;
-                oscillator.type = 'sine';
-
-                gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
-
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.3);
-            } catch (error) {
-                console.log('🔇 Could not play notification sound:', error);
-            }
-        }
-    }
-
-    /**
-     * Destroy the chat instance
-     */
-    destroy() {
-        if (this.ws) {
-            this.ws.close(1000, 'Chat destroyed');
-        }
-
-        if (this.typingTimer) {
-            clearTimeout(this.typingTimer);
-        }
-
-        console.log('🗑️ Ticket Chat destroyed');
-    }
-}
-
-// Additional utility styles for notifications
-const notificationStyles = `
-.notification-toast {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.notification-content {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex: 1;
-}
-
-.notification-close {
-    background: none;
-    border: none;
-    color: inherit;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 0.25rem;
-    transition: background-color 0.2s ease;
-}
-
-.notification-close:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-.alert-success {
-    background-color: #d1fae5;
-    color: #065f46;
-    border: 1px solid #34d399;
-}
-
-.alert-danger {
-    background-color: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fca5a5;
-}
-
-.alert-warning {
-    background-color: #fef3c7;
-    color: #92400e;
-    border: 1px solid #fcd34d;
-}
-
-.alert-info {
-    background-color: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #60a5fa;
-}
-`;
-
-// Inject notification styles
-const style = document.createElement('style');
-style.textContent = notificationStyles;
-document.head.appendChild(style);
-
-// Initialize chat when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    const ticketId = {{ ticket.id }};
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-    console.log('🚀 Initializing chat for ticket #' + ticketId);
-    window.ticketChat = new TicketChat(ticketId, csrfToken);
-});
-</script>
-{% endblock %}
+    <script>
+        const TICKET_ID = {{ ticket.id }};
+        const CSRF_TOKEN = '{{ csrf_token }}';
+        const IS_STAFF = {{ request.user.is_staff|yesno:"true,false" }};
+        const TICKET_STATUS = '{{ ticket.status }}';
+    </script>
+    <script src="{% static 'ticket/js/ticket_chat.js' %}"></script>
+</body>
+</html>
