@@ -1,34 +1,37 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}My Tickets{% endblock %}
+
+{% block title %}لیست تیکت‌ها{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'ticket/css/ticket_list.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="ticket-container">
-    <!-- Header Section -->
-    <div class="ticket-header">
+    <!-- بخش هدر -->
+    <header class="ticket-header">
         <div class="welcome-section">
-            <h1 class="welcome-title">
-                <i class="fas fa-ticket-alt"></i>
-                My Tickets
-            </h1>
-            <p class="subtitle">Real-time chat with administration</p>
+            <h1 class="welcome-title">تیکت‌های من</h1>
+            <p class="subtitle">مدیریت و پیگیری تیکت‌های پشتیبانی</p>
         </div>
+        <div class="header-actions">
+            <a href="{% url 'ticket:create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> تیکت جدید
+            </a>
+        </div>
+    </header>
 
-    </div>
-
-    <!-- Statistics Section -->
-    <div class="stats-section">
+    <!-- بخش آمار -->
+    <section class="stats-section">
         <div class="stats-grid">
             <div class="stat-card stat-card--info" data-stat="total">
                 <div class="stat-content">
                     <div class="stat-info">
-                        <h4 class="stat-title">Total Tickets</h4>
-                        <div class="stat-number">{{ total_tickets|default:0 }}</div>
-                        <p class="stat-subtitle">All time</p>
+                        <h5 class="stat-title">کل تیکت‌ها</h5>
+                        <h3 class="stat-number">{{ total_tickets }}</h3>
+                        <small class="stat-subtitle">همه تیکت‌ها</small>
                     </div>
                     <div class="stat-icon">
                         <i class="fas fa-ticket-alt"></i>
@@ -39,9 +42,9 @@
             <div class="stat-card stat-card--warning" data-stat="pending">
                 <div class="stat-content">
                     <div class="stat-info">
-                        <h4 class="stat-title">Pending</h4>
-                        <div class="stat-number">{{ pending_tickets|default:0 }}</div>
-                        <p class="stat-subtitle">Awaiting response</p>
+                        <h5 class="stat-title">در انتظار</h5>
+                        <h3 class="stat-number">{{ pending_tickets }}</h3>
+                        <small class="stat-subtitle">منتظر پاسخ</small>
                     </div>
                     <div class="stat-icon">
                         <i class="fas fa-clock"></i>
@@ -52,9 +55,9 @@
             <div class="stat-card stat-card--success" data-stat="answered">
                 <div class="stat-content">
                     <div class="stat-info">
-                        <h4 class="stat-title">Answered</h4>
-                        <div class="stat-number">{{ answered_tickets|default:0 }}</div>
-                        <p class="stat-subtitle">Admin replied</p>
+                        <h5 class="stat-title">پاسخ داده شده</h5>
+                        <h3 class="stat-number">{{ answered_tickets }}</h3>
+                        <small class="stat-subtitle">دارای پاسخ</small>
                     </div>
                     <div class="stat-icon">
                         <i class="fas fa-check-circle"></i>
@@ -65,9 +68,9 @@
             <div class="stat-card stat-card--secondary" data-stat="closed">
                 <div class="stat-content">
                     <div class="stat-info">
-                        <h4 class="stat-title">Closed</h4>
-                        <div class="stat-number">{{ closed_tickets|default:0 }}</div>
-                        <p class="stat-subtitle">Resolved</p>
+                        <h5 class="stat-title">بسته شده</h5>
+                        <h3 class="stat-number">{{ closed_tickets }}</h3>
+                        <small class="stat-subtitle">تیکت‌های بسته</small>
                     </div>
                     <div class="stat-icon">
                         <i class="fas fa-archive"></i>
@@ -75,32 +78,34 @@
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Tickets Section -->
-    <div class="tickets-section">
+    <!-- بخش تیکت‌ها -->
+    <section class="tickets-section">
         <div class="tickets-card">
             <div class="card-header">
-                <h2 class="card-title">
-                    <i class="fas fa-list"></i>
-                    My Tickets
-                </h2>
+                <h3 class="card-title">لیست تیکت‌ها</h3>
                 <div class="card-actions">
                     <div class="search-container">
-                        <input type="text" 
-                               id="ticketSearch" 
-                               class="search-input" 
-                               placeholder="Search tickets...">
+                        <input
+                            type="text"
+                            id="ticketSearch"
+                            class="search-input"
+                            placeholder="جستجوی تیکت..."
+                        >
                         <i class="fas fa-search search-icon"></i>
                     </div>
                     <div class="filter-container">
                         <select id="statusFilter" class="filter-select">
-                            <option value="">All Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="answered">Answered</option>
-                            <option value="closed">Closed</option>
+                            <option value="">همه وضعیت‌ها</option>
+                            <option value="pending">در انتظار</option>
+                            <option value="answered">پاسخ داده شده</option>
+                            <option value="closed">بسته شده</option>
                         </select>
                     </div>
+                    <button id="refreshBtn" class="btn btn-outline-secondary">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
                 </div>
             </div>
 
@@ -110,84 +115,54 @@
                         <table class="tickets-table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Title</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Last Activity</th>
-                                    <th>Actions</th>
+                                    <th>شماره</th>
+                                    <th>عنوان</th>
+                                    <th>وضعیت</th>
+                                    <th>تاریخ ایجاد</th>
+                                    <th>عملیات</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for ticket in tickets %}
-                                <tr class="table-row" data-ticket-id="{{ ticket.id }}" data-status="{{ ticket.status }}">
-                                    <td>
-                                        <div class="ticket-id">
-                                            <strong>#{{ ticket.id }}</strong>
-                                        </div>
+                                <tr class="table-row"
+                                    data-ticket-id="{{ ticket.id }}"
+                                    data-status="{{ ticket.status }}">
+                                    <td class="ticket-id">
+                                        <strong>#{{ ticket.id }}</strong>
                                     </td>
-                                    <td>
-                                        <div class="ticket-title">
-                                            <strong>{{ ticket.title }}</strong>
-                                            <div class="ticket-description">
-                                                {{ ticket.description|truncatechars:50 }}
-                                            </div>
+                                    <td class="ticket-title">
+                                        <strong>{{ ticket.title }}</strong>
+                                        <div class="ticket-description">
+                                            {{ ticket.description|truncatechars:80 }}
                                         </div>
                                     </td>
                                     <td>
                                         {% if ticket.status == 'pending' %}
-                                            <span class="badge badge-warning" title="Waiting for admin response">
-                                                <i class="fas fa-clock"></i>
-                                                Pending
+                                            <span class="badge badge-warning">
+                                                <i class="fas fa-clock"></i> در انتظار
                                             </span>
                                         {% elif ticket.status == 'answered' %}
-                                            <span class="badge badge-success" title="Admin has responded">
-                                                <i class="fas fa-check-circle"></i>
-                                                Answered
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-check-circle"></i> پاسخ داده شده
                                             </span>
                                         {% elif ticket.status == 'closed' %}
-                                            <span class="badge badge-secondary" title="Ticket is closed">
-                                                <i class="fas fa-archive"></i>
-                                                Closed
+                                            <span class="badge badge-secondary">
+                                                <i class="fas fa-archive"></i> بسته شده
                                             </span>
                                         {% endif %}
                                     </td>
-                                    <td>
-                                        <div class="date-info">
-                                            {{ ticket.created_at|date:"M d, Y" }}
-                                            <div class="days-ago">
-                                                {{ ticket.days_since_created }} days ago
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="date-info">
-                                            {% if ticket.updated_at %}
-                                                {{ ticket.updated_at|date:"M d, Y" }}
-                                                <div class="days-ago">
-                                                    {{ ticket.days_since_updated }} days ago
-                                                </div>
-                                            {% else %}
-                                                <span class="text-muted">No activity</span>
-                                            {% endif %}
-                                        </div>
+                                    <td class="date-info">
+                                        <small>
+                                            {{ ticket.created_at|date:"d F Y" }}<br>
+                                            <span class="days-ago">{{ ticket.days_since_created }} روز پیش</span>
+                                        </small>
                                     </td>
                                     <td>
                                         <div class="action-buttons">
-                                            <a href="{% url 'ticket:detail' ticket.pk %}" 
-                                               class="btn btn-outline-primary btn-sm action-btn"
-                                               title="Open chat">
-                                                <i class="fas fa-comments"></i>
-                                                Chat
+                                            <a href="{% url 'ticket:detail' ticket.pk %}"
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye"></i> مشاهده
                                             </a>
-                                            {% if ticket.status != 'closed' %}
-                                                <button class="btn btn-outline-secondary btn-sm action-btn close-ticket-btn"
-                                                        data-ticket-id="{{ ticket.id }}"
-                                                        title="Close ticket">
-                                                    <i class="fas fa-times"></i>
-                                                    Close
-                                                </button>
-                                            {% endif %}
                                         </div>
                                     </td>
                                 </tr>
@@ -197,57 +172,58 @@
                     </div>
 
                     <div class="table-info">
-                        <span id="showingCount">Showing {{ tickets|length }} of {{ total_tickets }} tickets</span>
+                        نمایش {{ tickets|length }} از {{ total_tickets }} تیکت
                     </div>
                 {% else %}
                     <div class="empty-state">
                         <div class="empty-icon">
                             <i class="fas fa-ticket-alt"></i>
                         </div>
-                        <h3 class="empty-title">No tickets yet</h3>
+                        <h3 class="empty-title">هنوز تیکتی ندارید</h3>
                         <p class="empty-description">
-                            Create your first ticket to start chatting with administration.
+                            اولین تیکت پشتیبانی خود را برای شروع ایجاد کنید
                         </p>
                         <a href="{% url 'ticket:create' %}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Create Your First Ticket
+                            <i class="fas fa-plus"></i> ایجاد تیکت جدید
                         </a>
                     </div>
                 {% endif %}
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Quick Actions Section -->
-    <div class="navigation-section">
+    <!-- بخش دسترسی سریع -->
+    <section class="navigation-section">
         <div class="nav-card">
             <div class="card-header">
-                <h2 class="card-title">
-                    <i class="fas fa-bolt"></i>
-                    Quick Actions
-                </h2>
+                <h3 class="card-title">دسترسی سریع</h3>
             </div>
             <div class="card-body">
                 <div class="nav-grid">
                     <a href="{% url 'ticket:create' %}" class="nav-btn nav-btn--primary">
                         <i class="fas fa-plus"></i>
-                        <span>New Ticket</span>
+                        <span>تیکت جدید</span>
+                    </a>
+                    <a href="{% url 'student:student_dashboard' %}" class="nav-btn nav-btn--info">
+                        <i class="fas fa-home"></i>
+                        <span>داشبورد</span>
                     </a>
                     <a href="{% url 'maintenance:create' %}" class="nav-btn nav-btn--success">
                         <i class="fas fa-tools"></i>
-                        <span>Maintenance</span>
+                        <span>درخواست تعمیرات</span>
                     </a>
-                    <button class="nav-btn nav-btn--secondary" id="refreshBtn">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>Refresh</span>
-                    </button>
+                    <a href="{% url 'home' %}" class="nav-btn nav-btn--secondary">
+                        <i class="fas fa-arrow-right"></i>
+                        <span>بازگشت</span>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'ticket/js/ticket_list.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 {% endblock %}

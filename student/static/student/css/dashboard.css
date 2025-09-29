@@ -165,7 +165,6 @@ body::before {
     content: '📧';
 }
 
-/* ===== STATISTICS SECTION ===== */
 /* ===== STATISTICS SECTION - CENTERED NUMBER ===== */
 .stats-section {
     margin-bottom: 2rem;
@@ -284,7 +283,7 @@ body::before {
     order: 3;
 }
 
-/* ایکون در پس‌زمینه به صورت watermark */
+/* ایکون در پس‌زمینه به صورت watermark - کاملاً ثابت */
 .stat-icon {
     position: absolute;
     top: 50%;
@@ -292,14 +291,8 @@ body::before {
     transform: translate(-50%, -50%);
     font-size: 6rem;
     opacity: 0.08;
-    transition: all 0.3s ease;
     z-index: 1;
     pointer-events: none;
-}
-
-.stat-card:hover .stat-icon {
-    transform: translate(-50%, -50%) scale(1.1) rotate(5deg);
-    opacity: 0.12;
 }
 
 /* رنگ‌های ایکون برای هر کارت */
@@ -366,6 +359,7 @@ body::before {
         font-size: 0.8rem;
     }
 }
+
 /* ===== REQUESTS SECTION ===== */
 .requests-section {
     margin-bottom: 2rem;

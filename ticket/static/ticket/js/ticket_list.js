@@ -1,65 +1,231 @@
 /**
- * Ticket List Interactive Features
- * Handles search, filtering, and other interactive elements
+ * سیستم تیکت فارسی - لیست تیکت‌ها
+ * Persian Ticket List with Beautiful Animations
  */
 
-class TicketList {
+// توابع کمکی فارسی
+const PersianTicketUtils = {
+    toPersianNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+        str = String(str);
+        for (let i = 0; i < englishDigits.length; i++) {
+            str = str.replace(new RegExp(englishDigits[i], 'g'), persianDigits[i]);
+        }
+        return str;
+    },
+
+    toEnglishNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+        str = String(str);
+        for (let i = 0; i < persianDigits.length; i++) {
+            str = str.replace(new RegExp(persianDigits[i], 'g'), englishDigits[i]);
+        }
+        return str;
+    }
+};
+
+class PersianTicketList {
     constructor() {
         this.init();
     }
 
     init() {
-        // Wait for DOM to be ready
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.setupComponents());
+            document.addEventListener('DOMContentLoaded', () => this.setup());
         } else {
-            this.setupComponents();
+            this.setup();
         }
     }
 
-    setupComponents() {
+    setup() {
+        console.log('🎫 سیستم لیست تیکت‌های فارسی در حال بارگذاری...');
+
+        this.createBeautifulBackground();
+        this.convertNumbersToPersian();
         this.setupEventListeners();
         this.setupSearch();
         this.setupFilters();
         this.setupAnimations();
-        this.setupTooltips();
-        this.setupKeyboardShortcuts();
-        this.setupAutoRefresh();
         this.setupStatCards();
+        this.setupKeyboardShortcuts();
 
-        console.log('TicketList initialized successfully');
+        console.log('✅ سیستم لیست تیکت‌ها آماده است');
     }
 
-    // ===== EVENT LISTENERS =====
-    setupEventListeners() {
-        // Table row clicks
-        document.querySelectorAll('.table-row').forEach(row => {
-            row.addEventListener('click', (e) => this.handleRowClick(e, row));
+    createBeautifulBackground() {
+        // اشکال هندسی شناور
+        const shapes = [
+            { type: 'circle', size: 120, color: '#ff6b6b', top: '10%', left: '10%', animation: 'float1 12s' },
+            { type: 'square', size: 80, color: '#4834d4', top: '20%', right: '15%', animation: 'float2 15s' },
+            { type: 'ellipse', size: '150px 60px', color: '#00d2d3', bottom: '20%', left: '20%', animation: 'float3 18s' },
+            { type: 'triangle', size: 100, color: '#ff9ff3', top: '60%', right: '25%', animation: 'float4 14s' },
+            { type: 'square', size: 90, color: '#feca57', top: '70%', left: '60%', animation: 'float5 16s' }
+        ];
+
+        const container = document.createElement('div');
+        container.className = 'geometric-shapes';
+        container.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        `;
+
+        shapes.forEach((shape, index) => {
+            const element = document.createElement('div');
+            element.className = `shape shape-${index + 1}`;
+
+            let shapeStyle = `
+                position: absolute;
+                opacity: 0.1;
+                animation: ${shape.animation} ease-in-out infinite;
+            `;
+
+            if (shape.type === 'circle') {
+                shapeStyle += `
+                    width: ${shape.size}px;
+                    height: ${shape.size}px;
+                    background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                    border-radius: 50%;
+                `;
+            } else if (shape.type === 'square') {
+                shapeStyle += `
+                    width: ${shape.size}px;
+                    height: ${shape.size}px;
+                    background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                    border-radius: 15px;
+                `;
+            } else if (shape.type === 'ellipse') {
+                shapeStyle += `
+                    width: 150px;
+                    height: 60px;
+                    background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                    border-radius: 50px;
+                `;
+            } else if (shape.type === 'triangle') {
+                shapeStyle += `
+                    width: ${shape.size}px;
+                    height: ${shape.size}px;
+                    background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+                `;
+            }
+
+            Object.assign(element.style, {
+                cssText: shapeStyle,
+                top: shape.top || 'auto',
+                bottom: shape.bottom || 'auto',
+                left: shape.left || 'auto',
+                right: shape.right || 'auto'
+            });
+
+            container.appendChild(element);
         });
 
-        // Stat card clicks
+        document.body.appendChild(container);
+
+        // اضافه کردن انیمیشن‌ها
+        this.addBackgroundAnimations();
+    }
+
+    addBackgroundAnimations() {
+        if (document.querySelector('#ticket-background-animations')) return;
+
+        const style = document.createElement('style');
+        style.id = 'ticket-background-animations';
+        style.textContent = `
+            @keyframes float1 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                33% { transform: translate(30px, -20px) rotate(120deg) scale(1.1); }
+                66% { transform: translate(-20px, 30px) rotate(240deg) scale(0.9); }
+            }
+
+            @keyframes float2 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                25% { transform: translate(-25px, 15px) rotate(90deg) scale(1.2); }
+                50% { transform: translate(35px, -25px) rotate(180deg) scale(0.8); }
+                75% { transform: translate(-15px, -35px) rotate(270deg) scale(1.1); }
+            }
+
+            @keyframes float3 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                50% { transform: translate(40px, -40px) rotate(180deg) scale(1.3); }
+            }
+
+            @keyframes float4 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                20% { transform: translate(20px, 20px) rotate(72deg) scale(1.1); }
+                40% { transform: translate(-30px, 10px) rotate(144deg) scale(0.9); }
+                60% { transform: translate(10px, -30px) rotate(216deg) scale(1.2); }
+                80% { transform: translate(-20px, -20px) rotate(288deg) scale(0.8); }
+            }
+
+            @keyframes float5 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                33% { transform: translate(-40px, 20px) rotate(120deg) scale(1.15); }
+                66% { transform: translate(20px, -40px) rotate(240deg) scale(0.85); }
+            }
+
+            @keyframes slideInUp {
+                from { opacity: 0; transform: translateY(30px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    convertNumbersToPersian() {
+        // تبدیل اعداد در کارت‌های آمار
+        document.querySelectorAll('.stat-number').forEach(element => {
+            const number = element.textContent.trim();
+            element.textContent = PersianTicketUtils.toPersianNumbers(number);
+        });
+
+        // تبدیل اعداد در جدول
+        document.querySelectorAll('.table-row').forEach(row => {
+            const idElement = row.querySelector('.ticket-id strong');
+            if (idElement) {
+                idElement.textContent = PersianTicketUtils.toPersianNumbers(idElement.textContent);
+            }
+
+            const daysElement = row.querySelector('.days-ago');
+            if (daysElement) {
+                daysElement.textContent = PersianTicketUtils.toPersianNumbers(daysElement.textContent);
+            }
+        });
+    }
+
+    setupEventListeners() {
+        // کلیک روی ردیف‌های جدول
+        document.querySelectorAll('.table-row').forEach(row => {
+            row.addEventListener('click', (e) => this.handleRowClick(e, row));
+            row.addEventListener('mouseenter', () => this.handleRowHover(row));
+            row.addEventListener('mouseleave', () => this.handleRowLeave(row));
+        });
+
+        // کلیک روی کارت‌های آمار
         document.querySelectorAll('.stat-card').forEach(card => {
             card.addEventListener('click', (e) => this.handleStatCardClick(e, card));
         });
 
-        // Navigation buttons
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleNavButtonClick(e, btn));
-        });
-
-        // Close ticket buttons
-        document.querySelectorAll('.close-ticket-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleCloseTicket(e, btn));
-        });
-
-        // Refresh button
+        // دکمه رفرش
         const refreshBtn = document.getElementById('refreshBtn');
         if (refreshBtn) {
             refreshBtn.addEventListener('click', () => this.refreshPage());
         }
     }
 
-    // ===== SEARCH FUNCTIONALITY =====
     setupSearch() {
         const searchInput = document.getElementById('ticketSearch');
         if (!searchInput) return;
@@ -70,10 +236,9 @@ class TicketList {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 this.filterTickets(e.target.value.toLowerCase());
-            }, 300); // Debounce search
+            }, 300);
         });
 
-        // Clear search on escape
         searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 e.target.value = '';
@@ -82,7 +247,6 @@ class TicketList {
         });
     }
 
-    // ===== FILTER FUNCTIONALITY =====
     setupFilters() {
         const statusFilter = document.getElementById('statusFilter');
         if (!statusFilter) return;
@@ -107,15 +271,27 @@ class TicketList {
                             ticketId.includes(searchTerm);
 
             if (isVisible) {
+                row.style.display = '';
                 row.classList.remove('hidden');
+
+                // انیمیشن ظاهر شدن
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, 50);
+
                 visibleCount++;
             } else {
-                row.classList.add('hidden');
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    row.style.display = 'none';
+                    row.classList.add('hidden');
+                }, 300);
             }
         });
 
         this.updateShowingCount(visibleCount);
-        this.highlightSearchTerm(searchTerm);
     }
 
     filterByStatus(status) {
@@ -127,9 +303,11 @@ class TicketList {
             const isVisible = !status || rowStatus === status;
 
             if (isVisible) {
+                row.style.display = '';
                 row.classList.remove('hidden');
                 visibleCount++;
             } else {
+                row.style.display = 'none';
                 row.classList.add('hidden');
             }
         });
@@ -137,63 +315,55 @@ class TicketList {
         this.updateShowingCount(visibleCount);
     }
 
-    highlightSearchTerm(searchTerm) {
-        // Remove existing highlights
-        document.querySelectorAll('.highlight').forEach(el => {
-            el.outerHTML = el.innerHTML;
-        });
-
-        if (!searchTerm) return;
-
-        // Add new highlights
-        document.querySelectorAll('.table-row:not(.hidden)').forEach(row => {
-            const titleEl = row.querySelector('.ticket-title strong');
-            const descEl = row.querySelector('.ticket-description');
-
-            [titleEl, descEl].forEach(el => {
-                if (el && el.textContent.toLowerCase().includes(searchTerm)) {
-                    this.highlightText(el, searchTerm);
-                }
-            });
-        });
-    }
-
-    highlightText(element, term) {
-        const text = element.textContent;
-        const regex = new RegExp(`(${term})`, 'gi');
-        element.innerHTML = text.replace(regex, '<span class="highlight" style="background-color: yellow; font-weight: bold;">$1</span>');
-    }
-
     updateShowingCount(visibleCount) {
-        const showingEl = document.getElementById('showingCount');
         const totalCount = document.querySelectorAll('.table-row').length;
+        const countElement = document.querySelector('.table-info');
 
-        if (showingEl) {
-            showingEl.textContent = `Showing ${visibleCount} of ${totalCount} tickets`;
+        if (countElement) {
+            countElement.innerHTML = `
+                نمایش ${PersianTicketUtils.toPersianNumbers(visibleCount)} از
+                ${PersianTicketUtils.toPersianNumbers(totalCount)} تیکت
+            `;
         }
     }
 
-    // ===== ANIMATIONS =====
     setupAnimations() {
-        // Animate stat cards on load
+        // انیمیشن کارت‌های آمار
         this.animateStatCards();
 
-        // Setup scroll animations
+        // انیمیشن اسکرول
         this.setupScrollAnimations();
+
+        // انیمیشن هدر
+        this.animateHeader();
     }
 
     animateStatCards() {
         const statCards = document.querySelectorAll('.stat-card');
         statCards.forEach((card, index) => {
             card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
+            card.style.transform = 'translateY(30px) scale(0.95)';
 
             setTimeout(() => {
-                card.style.transition = 'all 0.6s ease';
+                card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
                 card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 100);
+                card.style.transform = 'translateY(0) scale(1)';
+            }, 150 + (index * 100));
         });
+    }
+
+    animateHeader() {
+        const header = document.querySelector('.ticket-header');
+        if (header) {
+            header.style.opacity = '0';
+            header.style.transform = 'translateY(-20px)';
+
+            setTimeout(() => {
+                header.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                header.style.opacity = '1';
+                header.style.transform = 'translateY(0)';
+            }, 100);
+        }
     }
 
     setupScrollAnimations() {
@@ -201,95 +371,66 @@ class TicketList {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('animate-in');
+                    entry.target.style.opacity = '1';
                 }
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
         document.querySelectorAll('.tickets-section, .navigation-section').forEach(section => {
+            section.style.opacity = '0';
             observer.observe(section);
         });
     }
 
-    // ===== TOOLTIPS =====
-    setupTooltips() {
-        document.querySelectorAll('[title]').forEach(element => {
-            element.addEventListener('mouseenter', (e) => this.showTooltip(e));
-            element.addEventListener('mouseleave', () => this.hideTooltip());
+    setupStatCards() {
+        document.querySelectorAll('.stat-card').forEach(card => {
+            const statNumber = card.querySelector('.stat-number');
+            if (statNumber) {
+                const targetValue = parseInt(PersianTicketUtils.toEnglishNumbers(statNumber.textContent));
+                if (!isNaN(targetValue)) {
+                    this.animateCounter(statNumber, targetValue);
+                }
+            }
         });
     }
 
-    showTooltip(event) {
-        const element = event.target;
-        const title = element.getAttribute('title');
+    animateCounter(element, target, duration = 2000) {
+        const startTime = Date.now();
 
-        if (!title) return;
+        const updateCounter = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const current = Math.floor(easeOut * target);
 
-        // Remove title to prevent default tooltip
-        element.removeAttribute('title');
-        element.dataset.originalTitle = title;
+            element.textContent = PersianTicketUtils.toPersianNumbers(current);
 
-        // Create tooltip
-        const tooltip = document.createElement('div');
-        tooltip.className = 'custom-tooltip';
-        tooltip.textContent = title;
-        tooltip.style.cssText = `
-            position: absolute;
-            background: rgba(0,0,0,0.9);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            pointer-events: none;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        `;
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            } else {
+                element.textContent = PersianTicketUtils.toPersianNumbers(target);
 
-        document.body.appendChild(tooltip);
+                // افکت پایان
+                element.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    element.style.transform = 'scale(1)';
+                }, 200);
+            }
+        };
 
-        // Position tooltip
-        const rect = element.getBoundingClientRect();
-        tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
-        tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
-
-        // Show tooltip
-        requestAnimationFrame(() => {
-            tooltip.style.opacity = '1';
-        });
-
-        this.currentTooltip = tooltip;
+        requestAnimationFrame(updateCounter);
     }
 
-    hideTooltip() {
-        if (this.currentTooltip) {
-            this.currentTooltip.remove();
-            this.currentTooltip = null;
-        }
-
-        // Restore original title
-        document.querySelectorAll('[data-original-title]').forEach(el => {
-            el.setAttribute('title', el.dataset.originalTitle);
-            delete el.dataset.originalTitle;
-        });
-    }
-
-    // ===== KEYBOARD SHORTCUTS =====
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + N: New ticket
+            // Ctrl/Cmd + N = تیکت جدید
             if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
                 e.preventDefault();
                 const newTicketBtn = document.querySelector('a[href*="ticket:create"]');
                 if (newTicketBtn) newTicketBtn.click();
             }
 
-            // Ctrl/Cmd + R: Refresh (override default)
-            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-                e.preventDefault();
-                this.refreshPage();
-            }
-
-            // Ctrl/Cmd + F: Focus search
+            // Ctrl/Cmd + F = فوکوس جستجو
             if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
                 e.preventDefault();
                 const searchInput = document.getElementById('ticketSearch');
@@ -299,7 +440,7 @@ class TicketList {
                 }
             }
 
-            // Escape: Clear search and filters
+            // Escape = پاک کردن فیلترها
             if (e.key === 'Escape') {
                 this.clearFilters();
             }
@@ -319,87 +460,35 @@ class TicketList {
             statusFilter.value = '';
             this.filterByStatus('');
         }
+
+        this.showNotification('فیلترها پاک شدند', 'info');
     }
 
-    // ===== AUTO REFRESH =====
-    setupAutoRefresh() {
-        // Auto-refresh every 5 minutes
-        setInterval(() => {
-            this.refreshStatusCounts();
-        }, 5 * 60 * 1000);
-
-        // Check for new tickets every 30 seconds
-        setInterval(() => {
-            this.checkForUpdates();
-        }, 30 * 1000);
-    }
-
-    async refreshStatusCounts() {
-        try {
-            // This would make an AJAX call to get updated counts
-            // const response = await fetch('/api/ticket-counts/');
-            // const data = await response.json();
-            // this.updateStatCards(data);
-
-            console.log('Status counts refreshed');
-        } catch (error) {
-            console.error('Failed to refresh status counts:', error);
-        }
-    }
-
-    async checkForUpdates() {
-        try {
-            // Check for new tickets or status updates
-            console.log('Checking for updates...');
-        } catch (error) {
-            console.error('Failed to check for updates:', error);
-        }
-    }
-
-    // ===== STAT CARDS =====
-    setupStatCards() {
-        document.querySelectorAll('.stat-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const statType = card.dataset.stat;
-                this.filterByStatType(statType);
-            });
-        });
-    }
-
-    filterByStatType(statType) {
-        const statusFilter = document.getElementById('statusFilter');
-
-        switch (statType) {
-            case 'pending':
-                if (statusFilter) statusFilter.value = 'pending';
-                this.filterByStatus('pending');
-                break;
-            case 'answered':
-                if (statusFilter) statusFilter.value = 'answered';
-                this.filterByStatus('answered');
-                break;
-            case 'closed':
-                if (statusFilter) statusFilter.value = 'closed';
-                this.filterByStatus('closed');
-                break;
-            default:
-                if (statusFilter) statusFilter.value = '';
-                this.filterByStatus('');
-        }
-    }
-
-    // ===== EVENT HANDLERS =====
     handleRowClick(event, row) {
-        // Don't navigate if clicking on a button
         if (event.target.closest('button') || event.target.closest('a')) {
             return;
         }
 
         const ticketId = row.dataset.ticketId;
         if (ticketId) {
-            // Navigate to ticket detail
-            window.location.href = `/ticket/${ticketId}/`;
+            // افکت انتقال
+            row.style.opacity = '0.7';
+            row.style.transform = 'scale(0.98)';
+
+            setTimeout(() => {
+                window.location.href = `/ticket/${ticketId}/`;
+            }, 200);
         }
+    }
+
+    handleRowHover(row) {
+        row.style.transform = 'scale(1.02)';
+        row.style.zIndex = '10';
+    }
+
+    handleRowLeave(row) {
+        row.style.transform = 'scale(1)';
+        row.style.zIndex = '1';
     }
 
     handleStatCardClick(event, card) {
@@ -412,188 +501,88 @@ class TicketList {
         this.filterByStatType(statType);
     }
 
-    handleNavButtonClick(event, button) {
-        const icon = button.querySelector('i');
-        if (icon) {
-            icon.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                icon.style.transform = '';
-            }, 200);
+    filterByStatType(statType) {
+        const statusFilter = document.getElementById('statusFilter');
+
+        const statusMap = {
+            'pending': 'pending',
+            'answered': 'answered',
+            'closed': 'closed',
+            'total': ''
+        };
+
+        const status = statusMap[statType] || '';
+
+        if (statusFilter) {
+            statusFilter.value = status;
+            this.filterByStatus(status);
         }
-    }
-
-    async handleCloseTicket(event, button) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const ticketId = button.dataset.ticketId;
-
-        if (!confirm('Are you sure you want to close this ticket?')) {
-            return;
-        }
-
-        try {
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Closing...';
-
-            // Make API call to close ticket
-            // const response = await fetch(`/api/tickets/${ticketId}/close/`, {
-            //     method: 'POST',
-            //     headers: {
-            //         'X-CSRFToken': this.getCSRFToken(),
-            //         'Content-Type': 'application/json'
-            //     }
-            // });
-
-            // if (response.ok) {
-            //     // Update UI
-            //     this.updateTicketStatus(ticketId, 'closed');
-            //     this.showNotification('Ticket closed successfully', 'success');
-            // } else {
-            //     throw new Error('Failed to close ticket');
-            // }
-
-            // Temporary simulation
-            setTimeout(() => {
-                this.updateTicketStatus(ticketId, 'closed');
-                this.showNotification('Ticket closed successfully', 'success');
-            }, 1000);
-
-        } catch (error) {
-            console.error('Error closing ticket:', error);
-            this.showNotification('Failed to close ticket', 'error');
-            button.disabled = false;
-            button.innerHTML = '<i class="fas fa-times"></i> Close';
-        }
-    }
-
-    updateTicketStatus(ticketId, newStatus) {
-        const row = document.querySelector(`[data-ticket-id="${ticketId}"]`);
-        if (!row) return;
-
-        const badge = row.querySelector('.badge');
-        if (badge) {
-            badge.className = `badge badge-${newStatus === 'closed' ? 'secondary' : newStatus}`;
-            badge.innerHTML = `<i class="fas fa-${newStatus === 'closed' ? 'archive' : 'check-circle'}"></i> ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`;
-        }
-
-        // Hide close button
-        const closeBtn = row.querySelector('.close-ticket-btn');
-        if (closeBtn) {
-            closeBtn.style.display = 'none';
-        }
-
-        // Update row dataset
-        row.dataset.status = newStatus;
     }
 
     refreshPage() {
         const refreshBtn = document.getElementById('refreshBtn');
         if (refreshBtn) {
             const icon = refreshBtn.querySelector('i');
-            icon.classList.add('fa-spin');
+            if (icon) {
+                icon.classList.add('fa-spin');
+            }
         }
 
-        // Simulate refresh delay
+        this.showNotification('در حال به‌روزرسانی...', 'info');
+
         setTimeout(() => {
             window.location.reload();
         }, 500);
     }
 
-    // ===== UTILITY METHODS =====
-    getCSRFToken() {
-        const token = document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
-                     document.querySelector('meta[name=csrf-token]')?.getAttribute('content') ||
-                     document.cookie.match(/csrftoken=([^;]+)/)?.[1];
-        return token || '';
-    }
-
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
-        notification.className = `notification notification--${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-                <span>${message}</span>
-                <button class="notification-close" onclick="this.parentElement.parentElement.remove()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
-
         notification.style.cssText = `
             position: fixed;
             top: 20px;
-            right: 20px;
-            background: ${type === 'success' ? 'var(--success-color)' : type === 'error' ? 'var(--danger-color)' : 'var(--info-color)'};
+            left: 20px;
+            background: ${type === 'error' ? 'linear-gradient(135deg, #f44336, #d32f2f)' :
+                        type === 'success' ? 'linear-gradient(135deg, #4caf50, #388e3c)' :
+                        'linear-gradient(135deg, #2196f3, #1976d2)'};
             color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: var(--shadow-lg);
-            z-index: 1000;
-            animation: slideInRight 0.3s ease;
-            max-width: 300px;
+            padding: 1.2rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            font-family: 'Vazirmatn', sans-serif;
+            direction: rtl;
+            font-weight: 600;
+            animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
         `;
 
+        notification.textContent = message;
         document.body.appendChild(notification);
 
-        // Auto remove after 5 seconds
         setTimeout(() => {
-            if (notification.parentElement) {
-                notification.remove();
-            }
-        }, 5000);
-    }
-
-    debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
+            notification.style.animation = 'slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            setTimeout(() => notification.remove(), 400);
+        }, 4000);
     }
 }
 
-// Initialize when DOM is ready
+// راه‌اندازی
 document.addEventListener('DOMContentLoaded', () => {
-    window.ticketList = new TicketList();
+    window.persianTicketList = new PersianTicketList();
 });
 
-// Add CSS for notifications
-const notificationStyles = document.createElement('style');
-notificationStyles.textContent = `
-    @keyframes slideInRight {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+// انیمیشن‌های اضافی
+const animStyle = document.createElement('style');
+animStyle.textContent = `
+    @keyframes slideInLeft {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
     }
-
-    .notification-content {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .notification-close {
-        background: none;
-        border: none;
-        color: inherit;
-        cursor: pointer;
-        padding: 0;
-        margin-left: auto;
-    }
-
-    .notification-close:hover {
-        opacity: 0.8;
+    @keyframes slideOutLeft {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
     }
 `;
-document.head.appendChild(notificationStyles);
+document.head.appendChild(animStyle);
+
+window.PersianTicketUtils = PersianTicketUtils;
