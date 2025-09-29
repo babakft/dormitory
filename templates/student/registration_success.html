@@ -1,652 +1,425 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Success - Dormitory System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* Reset and Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #1a202c;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Background Pattern */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background:
-                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Success Container */
-        .success-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .success-card {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 3rem;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            animation: slideInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .success-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
-            background-size: 200% 100%;
-            animation: shimmer 3s ease-in-out infinite;
-        }
-
-        /* Success Icon */
-        .success-icon {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 2rem;
-            background: linear-gradient(135deg, #10b981, #34d399);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            animation: bounceIn 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.3s both;
-            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.3);
-        }
-
-        .success-icon::before {
-            content: '';
-            position: absolute;
-            width: 120px;
-            height: 120px;
-            border: 3px solid rgba(16, 185, 129, 0.2);
-            border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .success-icon i {
-            font-size: 3rem;
-            color: white;
-            z-index: 1;
-        }
-
-        /* Typography */
-        .success-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #1a202c;
-            margin-bottom: 1rem;
-            letter-spacing: -0.025em;
-        }
-
-        .success-subtitle {
-            font-size: 1.25rem;
-            color: #718096;
-            margin-bottom: 2.5rem;
-            font-weight: 500;
-        }
-
-        /* Messages */
-        .messages {
-            margin-bottom: 2rem;
-        }
-
-        .alert {
-            padding: 1.25rem 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            font-weight: 500;
-            font-size: 1rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .alert-success {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            color: #065f46;
-            border: 2px solid #34d399;
-        }
-
-        .alert-info {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            color: #1e3a8a;
-            border: 2px solid #60a5fa;
-        }
-
-        /* Steps Section */
-        .steps-section {
-            margin: 2.5rem 0;
-            text-align: left;
-        }
-
-        .steps-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1a202c;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-
-        .steps-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .step-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            border-radius: 12px;
-            border-left: 4px solid transparent;
-            transition: all 0.3s ease;
-            animation: fadeInLeft 0.6s ease-out;
-        }
-
-        .step-item:nth-child(1) {
-            border-left-color: #3b82f6;
-            animation-delay: 0.1s;
-        }
-
-        .step-item:nth-child(2) {
-            border-left-color: #10b981;
-            animation-delay: 0.2s;
-        }
-
-        .step-item:nth-child(3) {
-            border-left-color: #f59e0b;
-            animation-delay: 0.3s;
-        }
-
-        .step-item:nth-child(4) {
-            border-left-color: #8b5cf6;
-            animation-delay: 0.4s;
-        }
-
-        .step-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .step-icon {
-            font-size: 1.5rem;
-            margin-right: 1rem;
-            width: 40px;
-            text-align: center;
-        }
-
-        .step-content {
-            flex: 1;
-        }
-
-        .step-title {
-            font-weight: 600;
-            color: #1a202c;
-            margin-bottom: 0.25rem;
-        }
-
-        .step-description {
-            color: #718096;
-            font-size: 0.9rem;
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2.5rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-outline {
-            background: rgba(255, 255, 255, 0.8);
-            color: #667eea;
-            border: 2px solid #667eea;
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-outline:hover {
-            background: #667eea;
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
-        }
-
-        /* Info Box */
-        .info-box {
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border: 2px solid #3b82f6;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-            position: relative;
-        }
-
-        .info-box::before {
-            content: '💡';
-            position: absolute;
-            top: -10px;
-            left: 20px;
-            font-size: 1.5rem;
-            background: white;
-            padding: 0 0.5rem;
-        }
-
-        .info-title {
-            font-weight: 600;
-            color: #1e40af;
-            margin-bottom: 0.5rem;
-        }
-
-        .info-text {
-            color: #1e3a8a;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        /* Animations */
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes bounceIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.3);
-            }
-            50% {
-                opacity: 1;
-                transform: scale(1.1);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes fadeInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.1);
-                opacity: 0.7;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: -200% 0;
-            }
-            100% {
-                background-position: 200% 0;
-            }
-        }
-
-        /* Floating Elements */
-        .floating-element {
-            position: absolute;
-            opacity: 0.1;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .floating-element:nth-child(1) {
-            top: 10%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-
-        .floating-element:nth-child(2) {
-            top: 20%;
-            right: 10%;
-            animation-delay: 2s;
-        }
-
-        .floating-element:nth-child(3) {
-            bottom: 30%;
-            left: 5%;
-            animation-delay: 4s;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-20px) rotate(5deg);
-            }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .success-container {
-                padding: 1rem;
-            }
-
-            .success-card {
-                padding: 2rem;
-            }
-
-            .success-title {
-                font-size: 2rem;
-            }
-
-            .success-subtitle {
-                font-size: 1.125rem;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .step-item {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .step-icon {
-                margin-right: 0;
-                margin-bottom: 0.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .success-icon {
-                width: 80px;
-                height: 80px;
-            }
-
-            .success-icon i {
-                font-size: 2.5rem;
-            }
-
-            .success-title {
-                font-size: 1.75rem;
-            }
-
-            .steps-section {
-                margin: 2rem 0;
-            }
-        }
-    </style>
+    <title>ثبت نام موفق - سامانه خوابگاه دانشگاه شهید باهنر</title>
+    <link rel="stylesheet" href="{% static 'student/css/auth.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <meta name="description" content="ثبت نام موفق در سامانه مدیریت خوابگاه دانشگاه شهید باهنر کرمان">
+    <meta name="theme-color" content="#1976d2">
 </head>
 <body>
-    <!-- Floating Elements -->
-    <div class="floating-element">🏠</div>
-    <div class="floating-element">📧</div>
-    <div class="floating-element">✅</div>
-
-    <div class="success-container">
-        <div class="success-card">
-            <!-- Success Icon -->
-            <div class="success-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-
-            <!-- Main Content -->
-            <h1 class="success-title">Registration Successful!</h1>
-            <p class="success-subtitle">Welcome to Shahid Bahonar University Dormitory System</p>
-
-            <!-- Django Messages -->
-            {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="alert alert-success">
-                    <i class="fas fa-envelope"></i>
-                    Thank you for registering! Please check your email and click the verification link to continue.
-                </div>
-            {% endif %}
-
-            <!-- Next Steps -->
-            <div class="steps-section">
-                <h3 class="steps-title">What happens next?</h3>
-                <ul class="steps-list">
-                    <li class="step-item">
-                        <div class="step-icon">📧</div>
-                        <div class="step-content">
-                            <div class="step-title">Check Your Email</div>
-                            <div class="step-description">We've sent a verification link to your email address</div>
-                        </div>
+    <div class="auth-container">
+        <!-- Sidebar - سمت چپ -->
+        <div class="auth-sidebar">
+            <div class="sidebar-content">
+                <h3>به خانواده دانشگاه شهید باهنر خوش آمدید</h3>
+                <ul class="feature-list">
+                    <li>
+                        <span>ایمیل تأیید حساب ارسال شد</span>
+                        <i class="icon-check"></i>
                     </li>
-                    <li class="step-item">
-                        <div class="step-icon">✅</div>
-                        <div class="step-content">
-                            <div class="step-title">Verify Your Account</div>
-                            <div class="step-description">Click the verification link to activate your account</div>
-                        </div>
+                    <li>
+                        <span>بررسی توسط مدیریت خوابگاه</span>
+                        <i class="icon-check"></i>
                     </li>
-                    <li class="step-item">
-                        <div class="step-icon">👨‍💼</div>
-                        <div class="step-content">
-                            <div class="step-title">Admin Review</div>
-                            <div class="step-description">Our team will review and approve your registration</div>
-                        </div>
+                    <li>
+                        <span>دسترسی به تمام امکانات سامانه</span>
+                        <i class="icon-check"></i>
                     </li>
-                    <li class="step-item">
-                        <div class="step-icon">🚀</div>
-                        <div class="step-content">
-                            <div class="step-title">Start Using the System</div>
-                            <div class="step-description">Access all dormitory services and submit maintenance requests</div>
-                        </div>
+                    <li>
+                        <span>ثبت درخواست تعمیرات و نگهداری</span>
+                        <i class="icon-check"></i>
+                    </li>
+                    <li>
+                        <span>پشتیبانی ۲۴ ساعته</span>
+                        <i class="icon-check"></i>
                     </li>
                 </ul>
-            </div>
 
-            <!-- Important Info -->
-            <div class="info-box">
-                <div class="info-title">Important Reminder</div>
-                <div class="info-text">
-                    After verification,
-                    please wait for admin approval before you can access the system.
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number persian-number" data-target="1247">۱۲۴۷</div>
+                        <div class="stat-label">دانشجوی فعال</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number persian-number" data-target="98">۹۸</div>
+                        <div class="stat-label">درصد رضایت</div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <a href="{% url 'student:student_login' %}" class="btn btn-primary">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Go to Login
-                </a>
-                <a href="{% url 'student:student_register' %}" class="btn btn-outline">
-                    <i class="fas fa-user-plus"></i>
-                    Register Another Account
-                </a>
+        <!-- Main Content - سمت راست -->
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">
+                    <i class="icon-home"></i>
+                    <h1>سامانه خوابگاه</h1>
+                </div>
+                <h2>ثبت نام با موفقیت انجام شد! 🎉</h2>
+                <p>حساب کاربری شما با موفقیت ایجاد شد</p>
+            </div>
+
+            <div class="auth-form">
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-success">
+                    <span>📧 ایمیل فعال‌سازی حساب برای شما ارسال شد. لطفاً صندوق ورودی خود را بررسی کنید.</span>
+                </div>
+                {% endif %}
+
+                <!-- مراحل بعدی -->
+                <div class="next-steps-section">
+                    <h3 style="text-align: center; color: var(--text-primary); font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem;">مراحل بعدی چیست؟</h3>
+
+                    <div class="step-card">
+                        <div class="step-number">۱</div>
+                        <div class="step-content">
+                            <h4>بررسی ایمیل</h4>
+                            <p>لینک فعال‌سازی حساب را در ایمیل خود پیدا کنید</p>
+                        </div>
+                        <div class="step-icon">📧</div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">۲</div>
+                        <div class="step-content">
+                            <h4>فعال‌سازی حساب</h4>
+                            <p>روی لینک کلیک کنید تا حساب شما فعال شود</p>
+                        </div>
+                        <div class="step-icon">✅</div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">۳</div>
+                        <div class="step-content">
+                            <h4>تأیید توسط مدیریت</h4>
+                            <p>مدیریت خوابگاه اطلاعات شما را بررسی و تأیید می‌کند</p>
+                        </div>
+                        <div class="step-icon">👨‍💼</div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">۴</div>
+                        <div class="step-content">
+                            <h4>ورود به سامانه</h4>
+                            <p>پس از تأیید می‌توانید وارد سامانه شوید</p>
+                        </div>
+                        <div class="step-icon">🚀</div>
+                    </div>
+                </div>
+
+                <!-- یادآوری مهم -->
+                <div class="info-box-custom">
+                    <div class="info-icon">💡</div>
+                    <div class="info-content">
+                        <h4>نکته مهم</h4>
+                        <p>پس از فعال‌سازی حساب، لطفاً منتظر تأیید نهایی توسط مدیریت خوابگاه باشید. این فرآیند ممکن است تا ۲۴ ساعت طول بکشد.</p>
+                    </div>
+                </div>
+
+                <!-- دکمه‌های اقدام -->
+                <div class="action-buttons-container">
+                    <a href="{% url 'student:student_login' %}" class="btn btn-primary">
+                        ورود به سامانه
+                    </a>
+                    <a href="{% url 'student:student_register' %}" class="btn-outline-custom">
+                        ثبت نام حساب دیگر
+                    </a>
+                </div>
+
+                <!-- فوتر -->
+                <div class="auth-footer">
+                    <p>ایمیل را دریافت نکرده‌اید؟ <a href="#" onclick="resendEmail(event)">ارسال مجدد</a></p>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">
+                        در صورت بروز مشکل با پشتیبانی تماس بگیرید
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Font Awesome for Icons -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-
-    <!-- Additional Animations -->
+    <script src="{% static 'student/js/auth.js' %}"></script>
     <script>
+        // استایل‌های اضافی برای این صفحه
         document.addEventListener('DOMContentLoaded', function() {
-            // Add staggered animation to step items
-            const stepItems = document.querySelectorAll('.step-item');
-            stepItems.forEach((item, index) => {
-                item.style.opacity = '0';
-                item.style.transform = 'translateX(-30px)';
-                
-                setTimeout(() => {
-                    item.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
-                    item.style.opacity = '1';
-                    item.style.transform = 'translateX(0)';
-                }, 500 + (index * 150));
-            });
-
-            // Auto-hide messages after 10 seconds
-            setTimeout(() => {
-                const messages = document.querySelectorAll('.alert');
-                messages.forEach(message => {
-                    message.style.transition = 'all 0.5s ease';
-                    message.style.opacity = '0';
-                    message.style.transform = 'translateY(-20px)';
-                    setTimeout(() => {
-                        if (message.parentNode) {
-                            message.remove();
-                        }
-                    }, 500);
-                });
-            }, 10000);
-
-            // Add click animation to buttons
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    // Create ripple effect
-                    const ripple = document.createElement('span');
-                    const rect = this.getBoundingClientRect();
-                    const size = Math.max(rect.width, rect.height);
-                    const x = e.clientX - rect.left - size / 2;
-                    const y = e.clientY - rect.top - size / 2;
-                    
-                    ripple.style.cssText = `
-                        position: absolute;
-                        width: ${size}px;
-                        height: ${size}px;
-                        left: ${x}px;
-                        top: ${y}px;
-                        background: rgba(255, 255, 255, 0.3);
-                        border-radius: 50%;
-                        transform: scale(0);
-                        animation: ripple 0.6s ease-out;
-                        pointer-events: none;
-                    `;
-                    
-                    this.appendChild(ripple);
-                    
-                    setTimeout(() => {
-                        ripple.remove();
-                    }, 600);
-                });
-            });
-
-            // Add CSS for ripple animation
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes ripple {
-                    to {
-                        transform: scale(2);
-                        opacity: 0;
+            // اضافه کردن استایل‌های سفارشی
+            const customStyles = `
+                <style>
+                    .next-steps-section {
+                        margin: 2rem 0;
                     }
-                }
+
+                    .step-card {
+                        display: flex;
+                        align-items: center;
+                        gap: 1.5rem;
+                        padding: 1.5rem;
+                        margin-bottom: 1.25rem;
+                        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%);
+                        border-radius: var(--border-radius-lg);
+                        border: 2px solid var(--border);
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    .step-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        width: 4px;
+                        height: 100%;
+                        background: var(--gradient-primary);
+                        opacity: 0;
+                        transition: opacity 0.3s ease;
+                    }
+
+                    .step-card:hover {
+                        transform: translateX(-5px);
+                        box-shadow: var(--shadow-lg);
+                        border-color: var(--primary);
+                    }
+
+                    .step-card:hover::before {
+                        opacity: 1;
+                    }
+
+                    .step-number {
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 50%;
+                        background: var(--gradient-primary);
+                        color: white;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.5rem;
+                        font-weight: 800;
+                        flex-shrink: 0;
+                        box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+                    }
+
+                    .step-content {
+                        flex: 1;
+                        text-align: right;
+                    }
+
+                    .step-content h4 {
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        color: var(--text-primary);
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .step-content p {
+                        font-size: 0.95rem;
+                        color: var(--text-secondary);
+                        margin: 0;
+                        line-height: 1.5;
+                    }
+
+                    .step-icon {
+                        font-size: 2rem;
+                        flex-shrink: 0;
+                        filter: grayscale(0.3);
+                        transition: all 0.3s ease;
+                    }
+
+                    .step-card:hover .step-icon {
+                        filter: grayscale(0);
+                        transform: scale(1.1);
+                    }
+
+                    .info-box-custom {
+                        display: flex;
+                        gap: 1.25rem;
+                        padding: 1.5rem;
+                        margin: 2rem 0;
+                        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+                        border-radius: var(--border-radius-lg);
+                        border-right: 4px solid var(--primary);
+                        box-shadow: var(--shadow-md);
+                    }
+
+                    .info-icon {
+                        font-size: 2rem;
+                        flex-shrink: 0;
+                    }
+
+                    .info-content h4 {
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        color: var(--primary-dark);
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .info-content p {
+                        font-size: 0.95rem;
+                        color: #1e3a8a;
+                        margin: 0;
+                        line-height: 1.6;
+                    }
+
+                    .action-buttons-container {
+                        display: flex;
+                        gap: 1rem;
+                        margin-top: 2rem;
+                        margin-bottom: 2rem;
+                    }
+
+                    .action-buttons-container .btn {
+                        flex: 1;
+                        margin: 0;
+                    }
+
+                    .btn-outline-custom {
+                        flex: 1;
+                        padding: 1.2rem 2rem;
+                        background: transparent;
+                        color: var(--primary);
+                        border: 2px solid var(--primary);
+                        border-radius: var(--border-radius);
+                        font-size: 1.05rem;
+                        font-weight: 700;
+                        cursor: pointer;
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        text-decoration: none;
+                        text-align: center;
+                        display: inline-block;
+                        font-family: inherit;
+                        letter-spacing: 0.025em;
+                        text-transform: uppercase;
+                    }
+
+                    .btn-outline-custom:hover {
+                        background: var(--primary);
+                        color: white;
+                        transform: translateY(-3px);
+                        box-shadow: 0 15px 35px rgba(25, 118, 210, 0.3);
+                    }
+
+                    @media (max-width: 768px) {
+                        .step-card {
+                            flex-direction: column;
+                            text-align: center;
+                        }
+
+                        .step-content {
+                            text-align: center;
+                        }
+
+                        .action-buttons-container {
+                            flex-direction: column;
+                        }
+                    }
+
+                    /* انیمیشن ورود */
+                    @keyframes slideInUp {
+                        from {
+                            opacity: 0;
+                            transform: translateY(30px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                    }
+
+                    .step-card {
+                        animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+                    }
+
+                    .step-card:nth-child(1) { animation-delay: 0.1s; }
+                    .step-card:nth-child(2) { animation-delay: 0.2s; }
+                    .step-card:nth-child(3) { animation-delay: 0.3s; }
+                    .step-card:nth-child(4) { animation-delay: 0.4s; }
+
+                    .info-box-custom {
+                        animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.5s backwards;
+                    }
+                </style>
             `;
-            document.head.appendChild(style);
+            document.head.insertAdjacentHTML('beforeend', customStyles);
+
+            // افکت پارتی (confetti) برای جشن ثبت نام موفق
+            setTimeout(() => {
+                createConfetti();
+            }, 500);
+
+            console.log('🎉 صفحه ثبت نام موفق آماده است');
         });
+
+        // تابع ارسال مجدد ایمیل
+        function resendEmail(event) {
+            event.preventDefault();
+
+            if (window.enhancedPersianAuth) {
+                window.enhancedPersianAuth.showNotification('ایمیل مجدداً ارسال شد. لطفاً صندوق ورودی خود را بررسی کنید.', 'success');
+            } else {
+                alert('ایمیل مجدداً ارسال شد. لطفاً صندوق ورودی خود را بررسی کنید.');
+            }
+
+            // اینجا می‌توانید درخواست AJAX برای ارسال مجدد ایمیل اضافه کنید
+            // fetch('/resend-verification-email/', { ... })
+        }
+
+        // ایجاد افکت confetti
+        function createConfetti() {
+            const colors = ['#1976d2', '#4caf50', '#ff9800', '#f44336', '#9c27b0'];
+            const confettiCount = 50;
+
+            for (let i = 0; i < confettiCount; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.cssText = `
+                        position: fixed;
+                        width: 10px;
+                        height: 10px;
+                        background: ${colors[Math.floor(Math.random() * colors.length)]};
+                        top: -20px;
+                        left: ${Math.random() * 100}%;
+                        opacity: 1;
+                        border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+                        pointer-events: none;
+                        z-index: 9999;
+                        animation: fall ${2 + Math.random() * 3}s linear forwards;
+                    `;
+
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }, i * 30);
+            }
+
+            // اضافه کردن انیمیشن CSS
+            if (!document.querySelector('#confetti-animation')) {
+                const style = document.createElement('style');
+                style.id = 'confetti-animation';
+                style.textContent = `
+                    @keyframes fall {
+                        to {
+                            transform: translateY(100vh) rotate(${Math.random() * 360}deg);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
     </script>
 </body>
 </html>

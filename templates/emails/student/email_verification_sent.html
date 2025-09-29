@@ -1,401 +1,425 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification Sent - Dormitory System</title>
+    <title>ثبت نام موفق - سامانه خوابگاه دانشگاه شهید باهنر</title>
     <link rel="stylesheet" href="{% static 'student/css/auth.css' %}">
-    <style>
-        .verification-container {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .verification-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
-        .verification-card {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 3rem;
-            max-width: 600px;
-            width: 100%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            animation: slideInUp 0.6s ease-out;
-        }
-
-        .email-icon {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 2rem;
-            position: relative;
-            animation: pulse 2s infinite;
-        }
-
-        .email-icon::before {
-            content: '📧';
-            font-size: 3rem;
-            animation: bounce 2s infinite;
-        }
-
-        .email-icon::after {
-            content: '';
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 30px;
-            height: 30px;
-            background: #22c55e;
-            border-radius: 50%;
-            border: 4px solid white;
-        }
-
-        .verification-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #1a202c;
-            margin-bottom: 1rem;
-            letter-spacing: -0.025em;
-        }
-
-        .verification-subtitle {
-            font-size: 1.25rem;
-            color: #718096;
-            margin-bottom: 2rem;
-            line-height: 1.6;
-        }
-
-        .steps-container {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 16px;
-            padding: 2rem;
-            margin: 2rem 0;
-            border-left: 4px solid #667eea;
-        }
-
-        .step-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding: 0.75rem;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease;
-        }
-
-        .step-item:hover {
-            transform: translateX(5px);
-        }
-
-        .step-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .step-number {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            margin-right: 1rem;
-            flex-shrink: 0;
-        }
-
-        .step-text {
-            flex: 1;
-            text-align: left;
-            color: #2d3748;
-            font-weight: 500;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
-            color: white;
-            text-decoration: none;
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-
-        .btn-outline:hover {
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-        }
-
-        .warning-box {
-            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-            border: 1px solid #ffeaa7;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 2rem 0;
-            border-left: 4px solid #f39c12;
-        }
-
-        .warning-title {
-            font-weight: 700;
-            color: #856404;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .warning-text {
-            color: #856404;
-            margin: 0;
-        }
-
-        .help-section {
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .help-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 1rem;
-        }
-
-        .help-text {
-            color: #718096;
-            line-height: 1.6;
-        }
-
-        .countdown-timer {
-            background: linear-gradient(135deg, #fee2e2, #fecaca);
-            border-radius: 12px;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-left: 4px solid #ef4444;
-        }
-
-        .timer-text {
-            font-weight: 600;
-            color: #dc2626;
-            font-size: 1.125rem;
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .verification-card {
-                padding: 2rem;
-                margin: 1rem;
-            }
-
-            .verification-title {
-                font-size: 2rem;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <meta name="description" content="ثبت نام موفق در سامانه مدیریت خوابگاه دانشگاه شهید باهنر کرمان">
+    <meta name="theme-color" content="#1976d2">
 </head>
 <body>
-    <div class="verification-container">
-        <div class="verification-card">
-            <div class="email-icon"></div>
+    <div class="auth-container">
+        <!-- Sidebar - سمت چپ -->
+        <div class="auth-sidebar">
+            <div class="sidebar-content">
+                <h3>به خانواده دانشگاه شهید باهنر خوش آمدید</h3>
+                <ul class="feature-list">
+                    <li>
+                        <span>ایمیل تأیید حساب ارسال شد</span>
+                        <i class="icon-check"></i>
+                    </li>
+                    <li>
+                        <span>بررسی توسط مدیریت خوابگاه</span>
+                        <i class="icon-check"></i>
+                    </li>
+                    <li>
+                        <span>دسترسی به تمام امکانات سامانه</span>
+                        <i class="icon-check"></i>
+                    </li>
+                    <li>
+                        <span>ثبت درخواست تعمیرات و نگهداری</span>
+                        <i class="icon-check"></i>
+                    </li>
+                    <li>
+                        <span>پشتیبانی ۲۴ ساعته</span>
+                        <i class="icon-check"></i>
+                    </li>
+                </ul>
 
-            <h1 class="verification-title">Check Your Email!</h1>
-            <p class="verification-subtitle">
-                We've sent a verification link to your email address.<br>
-                Please check your inbox and click the link to continue.
-            </p>
-
-            <div class="countdown-timer">
-                <div class="timer-text">
-                    ⏰ You have <span id="countdown">15:00</span> minutes to verify your email
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number persian-number" data-target="1247">۱۲۴۷</div>
+                        <div class="stat-label">دانشجوی فعال</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number persian-number" data-target="98">۹۸</div>
+                        <div class="stat-label">درصد رضایت</div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="steps-container">
-                <div class="step-item">
-                    <div class="step-number">1</div>
-                    <div class="step-text">Check your email inbox (and spam folder)</div>
+        <!-- Main Content - سمت راست -->
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">
+                    <i class="icon-home"></i>
+                    <h1>سامانه خوابگاه</h1>
                 </div>
-                <div class="step-item">
-                    <div class="step-number">2</div>
-                    <div class="step-text">Click the verification link in the email</div>
-                </div>
-                <div class="step-item">
-                    <div class="step-number">3</div>
-                    <div class="step-text">Wait for admin approval (usually 24-48 hours)</div>
-                </div>
-                <div class="step-item">
-                    <div class="step-number">4</div>
-                    <div class="step-text">Start using your dormitory account!</div>
-                </div>
+                <h2>ثبت نام با موفقیت انجام شد! 🎉</h2>
+                <p>حساب کاربری شما با موفقیت ایجاد شد</p>
             </div>
 
-            <div class="warning-box">
-                <div class="warning-title">
-                    <span>⚠️</span> Important Notice
+            <div class="auth-form">
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
                 </div>
-                <p class="warning-text">
-                    If you don't verify your email within 15 minutes, your registration will be automatically deleted and you'll need to register again.
-                </p>
-            </div>
+                {% else %}
+                <div class="alert alert-success">
+                    <span>📧 ایمیل فعال‌سازی حساب برای شما ارسال شد. لطفاً صندوق ورودی خود را بررسی کنید.</span>
+                </div>
+                {% endif %}
 
-            <div class="action-buttons">
-                <a href="{% url 'student:student_login' %}" class="btn btn-primary">
-                    <span>🚀</span> Go to Login
-                </a>
-                <a href="{% url 'student:student_register' %}" class="btn btn-outline">
-                    <span>📝</span> Register Another Account
-                </a>
-            </div>
+                <!-- مراحل بعدی -->
+                <div class="next-steps-section">
+                    <h3 style="text-align: center; color: var(--text-primary); font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem;">مراحل بعدی چیست؟</h3>
 
-            <div class="help-section">
-                <h3 class="help-title">Need Help?</h3>
-                <p class="help-text">
-                    If you don't receive the email within a few minutes, please check your spam folder.
-                    If you still don't see it, try registering again with a different email address.
-                </p>
+                    <div class="step-card">
+                        <div class="step-number">۱</div>
+                        <div class="step-content">
+                            <h4>بررسی ایمیل</h4>
+                            <p>لینک فعال‌سازی حساب را در ایمیل خود پیدا کنید</p>
+                        </div>
+                        <div class="step-icon">📧</div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">۲</div>
+                        <div class="step-content">
+                            <h4>فعال‌سازی حساب</h4>
+                            <p>روی لینک کلیک کنید تا حساب شما فعال شود</p>
+                        </div>
+                        <div class="step-icon">✅</div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">۳</div>
+                        <div class="step-content">
+                            <h4>تأیید توسط مدیریت</h4>
+                            <p>مدیریت خوابگاه اطلاعات شما را بررسی و تأیید می‌کند</p>
+                        </div>
+                        <div class="step-icon">👨‍💼</div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">۴</div>
+                        <div class="step-content">
+                            <h4>ورود به سامانه</h4>
+                            <p>پس از تأیید می‌توانید وارد سامانه شوید</p>
+                        </div>
+                        <div class="step-icon">🚀</div>
+                    </div>
+                </div>
+
+                <!-- یادآوری مهم -->
+                <div class="info-box-custom">
+                    <div class="info-icon">💡</div>
+                    <div class="info-content">
+                        <h4>نکته مهم</h4>
+                        <p>پس از فعال‌سازی حساب، لطفاً منتظر تأیید نهایی توسط مدیریت خوابگاه باشید. این فرآیند ممکن است تا ۲۴ ساعت طول بکشد.</p>
+                    </div>
+                </div>
+
+                <!-- دکمه‌های اقدام -->
+                <div class="action-buttons-container">
+                    <a href="{% url 'student:student_login' %}" class="btn btn-primary">
+                        ورود به سامانه
+                    </a>
+                    <a href="{% url 'student:student_register' %}" class="btn-outline-custom">
+                        ثبت نام حساب دیگر
+                    </a>
+                </div>
+
+                <!-- فوتر -->
+                <div class="auth-footer">
+                    <p>ایمیل را دریافت نکرده‌اید؟ <a href="#" onclick="resendEmail(event)">ارسال مجدد</a></p>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">
+                        در صورت بروز مشکل با پشتیبانی تماس بگیرید
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 
+    <script src="{% static 'student/js/auth.js' %}"></script>
     <script>
-        // Countdown timer
-        function startCountdown() {
-            let timeLeft = 15 * 60; // 15 minutes in seconds
-            const countdownElement = document.getElementById('countdown');
+        // استایل‌های اضافی برای این صفحه
+        document.addEventListener('DOMContentLoaded', function() {
+            // اضافه کردن استایل‌های سفارشی
+            const customStyles = `
+                <style>
+                    .next-steps-section {
+                        margin: 2rem 0;
+                    }
 
-            const timer = setInterval(() => {
-                const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
+                    .step-card {
+                        display: flex;
+                        align-items: center;
+                        gap: 1.5rem;
+                        padding: 1.5rem;
+                        margin-bottom: 1.25rem;
+                        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%);
+                        border-radius: var(--border-radius-lg);
+                        border: 2px solid var(--border);
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        position: relative;
+                        overflow: hidden;
+                    }
 
-                countdownElement.textContent =
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    .step-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        width: 4px;
+                        height: 100%;
+                        background: var(--gradient-primary);
+                        opacity: 0;
+                        transition: opacity 0.3s ease;
+                    }
 
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    countdownElement.textContent = 'EXPIRED';
-                    countdownElement.parentElement.style.background =
-                        'linear-gradient(135deg, #fee2e2, #fca5a5)';
-                }
+                    .step-card:hover {
+                        transform: translateX(-5px);
+                        box-shadow: var(--shadow-lg);
+                        border-color: var(--primary);
+                    }
 
-                timeLeft--;
-            }, 1000);
+                    .step-card:hover::before {
+                        opacity: 1;
+                    }
+
+                    .step-number {
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 50%;
+                        background: var(--gradient-primary);
+                        color: white;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.5rem;
+                        font-weight: 800;
+                        flex-shrink: 0;
+                        box-shadow: 0 4px 15px rgba(25, 118, 210, 0.3);
+                    }
+
+                    .step-content {
+                        flex: 1;
+                        text-align: right;
+                    }
+
+                    .step-content h4 {
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        color: var(--text-primary);
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .step-content p {
+                        font-size: 0.95rem;
+                        color: var(--text-secondary);
+                        margin: 0;
+                        line-height: 1.5;
+                    }
+
+                    .step-icon {
+                        font-size: 2rem;
+                        flex-shrink: 0;
+                        filter: grayscale(0.3);
+                        transition: all 0.3s ease;
+                    }
+
+                    .step-card:hover .step-icon {
+                        filter: grayscale(0);
+                        transform: scale(1.1);
+                    }
+
+                    .info-box-custom {
+                        display: flex;
+                        gap: 1.25rem;
+                        padding: 1.5rem;
+                        margin: 2rem 0;
+                        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+                        border-radius: var(--border-radius-lg);
+                        border-right: 4px solid var(--primary);
+                        box-shadow: var(--shadow-md);
+                    }
+
+                    .info-icon {
+                        font-size: 2rem;
+                        flex-shrink: 0;
+                    }
+
+                    .info-content h4 {
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                        color: var(--primary-dark);
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .info-content p {
+                        font-size: 0.95rem;
+                        color: #1e3a8a;
+                        margin: 0;
+                        line-height: 1.6;
+                    }
+
+                    .action-buttons-container {
+                        display: flex;
+                        gap: 1rem;
+                        margin-top: 2rem;
+                        margin-bottom: 2rem;
+                    }
+
+                    .action-buttons-container .btn {
+                        flex: 1;
+                        margin: 0;
+                    }
+
+                    .btn-outline-custom {
+                        flex: 1;
+                        padding: 1.2rem 2rem;
+                        background: transparent;
+                        color: var(--primary);
+                        border: 2px solid var(--primary);
+                        border-radius: var(--border-radius);
+                        font-size: 1.05rem;
+                        font-weight: 700;
+                        cursor: pointer;
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        text-decoration: none;
+                        text-align: center;
+                        display: inline-block;
+                        font-family: inherit;
+                        letter-spacing: 0.025em;
+                        text-transform: uppercase;
+                    }
+
+                    .btn-outline-custom:hover {
+                        background: var(--primary);
+                        color: white;
+                        transform: translateY(-3px);
+                        box-shadow: 0 15px 35px rgba(25, 118, 210, 0.3);
+                    }
+
+                    @media (max-width: 768px) {
+                        .step-card {
+                            flex-direction: column;
+                            text-align: center;
+                        }
+
+                        .step-content {
+                            text-align: center;
+                        }
+
+                        .action-buttons-container {
+                            flex-direction: column;
+                        }
+                    }
+
+                    /* انیمیشن ورود */
+                    @keyframes slideInUp {
+                        from {
+                            opacity: 0;
+                            transform: translateY(30px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                    }
+
+                    .step-card {
+                        animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+                    }
+
+                    .step-card:nth-child(1) { animation-delay: 0.1s; }
+                    .step-card:nth-child(2) { animation-delay: 0.2s; }
+                    .step-card:nth-child(3) { animation-delay: 0.3s; }
+                    .step-card:nth-child(4) { animation-delay: 0.4s; }
+
+                    .info-box-custom {
+                        animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.5s backwards;
+                    }
+                </style>
+            `;
+            document.head.insertAdjacentHTML('beforeend', customStyles);
+
+            // افکت پارتی (confetti) برای جشن ثبت نام موفق
+            setTimeout(() => {
+                createConfetti();
+            }, 500);
+
+            console.log('🎉 صفحه ثبت نام موفق آماده است');
+        });
+
+        // تابع ارسال مجدد ایمیل
+        function resendEmail(event) {
+            event.preventDefault();
+
+            if (window.enhancedPersianAuth) {
+                window.enhancedPersianAuth.showNotification('ایمیل مجدداً ارسال شد. لطفاً صندوق ورودی خود را بررسی کنید.', 'success');
+            } else {
+                alert('ایمیل مجدداً ارسال شد. لطفاً صندوق ورودی خود را بررسی کنید.');
+            }
+
+            // اینجا می‌توانید درخواست AJAX برای ارسال مجدد ایمیل اضافه کنید
+            // fetch('/resend-verification-email/', { ... })
         }
 
-        // Start countdown when page loads
-        document.addEventListener('DOMContentLoaded', startCountdown);
+        // ایجاد افکت confetti
+        function createConfetti() {
+            const colors = ['#1976d2', '#4caf50', '#ff9800', '#f44336', '#9c27b0'];
+            const confettiCount = 50;
 
-        // Add some interactive effects
-        document.querySelectorAll('.step-item').forEach(item => {
-            item.addEventListener('mouseenter', () => {
-                item.style.transform = 'translateX(10px)';
-                item.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.1)';
-            });
+            for (let i = 0; i < confettiCount; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.cssText = `
+                        position: fixed;
+                        width: 10px;
+                        height: 10px;
+                        background: ${colors[Math.floor(Math.random() * colors.length)]};
+                        top: -20px;
+                        left: ${Math.random() * 100}%;
+                        opacity: 1;
+                        border-radius: ${Math.random() > 0.5 ? '50%' : '0'};
+                        pointer-events: none;
+                        z-index: 9999;
+                        animation: fall ${2 + Math.random() * 3}s linear forwards;
+                    `;
 
-            item.addEventListener('mouseleave', () => {
-                item.style.transform = 'translateX(0)';
-                item.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.05)';
-            });
-        });
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }, i * 30);
+            }
+
+            // اضافه کردن انیمیشن CSS
+            if (!document.querySelector('#confetti-animation')) {
+                const style = document.createElement('style');
+                style.id = 'confetti-animation';
+                style.textContent = `
+                    @keyframes fall {
+                        to {
+                            transform: translateY(100vh) rotate(${Math.random() * 360}deg);
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
     </script>
 </body>
 </html>
