@@ -1,33 +1,34 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Student Dashboard{% endblock %}
+{% block title %}داشبورد دانشجو{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'student/css/dashboard.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="dashboard-container">
-    <!-- Header Section -->
+    <!-- بخش هدر -->
     <header class="dashboard-header">
         <div class="student-info">
-            <h2 class="welcome-title">Welcome, {{ student.user.username }}!</h2>
-            <p class="student-id">Student ID: {{ student.student_number }}</p>
+            <h2 class="welcome-title">خوش آمدید، {{ student.user.username }}!</h2>
+            <p class="student-id">شماره دانشجویی: {{ student.student_number }}</p>
         </div>
         <div class="contact-info">
-            <p class="room-info"><strong>Room:</strong> {{ student.full_room_address }}</p>
+            <p class="room-info">اتاق: {{ student.full_room_address }}</p>
             <small class="email-info">{{ student.user.email }}</small>
         </div>
     </header>
 
-    <!-- Statistics Cards -->
+    <!-- بخش آمار -->
     <section class="stats-section">
         <div class="stats-grid">
             <div class="stat-card stat-card--primary">
                 <div class="stat-content">
                     <div class="stat-text">
-                        <h5 class="stat-title">Total Requests</h5>
+                        <h5 class="stat-title">کل درخواست‌ها</h5>
                         <h3 class="stat-number">{{ total_requests }}</h3>
                     </div>
                     <div class="stat-icon">
@@ -39,7 +40,7 @@
             <div class="stat-card stat-card--warning">
                 <div class="stat-content">
                     <div class="stat-text">
-                        <h5 class="stat-title">Pending</h5>
+                        <h5 class="stat-title">در انتظار</h5>
                         <h3 class="stat-number">{{ pending_requests }}</h3>
                     </div>
                     <div class="stat-icon">
@@ -51,7 +52,7 @@
             <div class="stat-card stat-card--success">
                 <div class="stat-content">
                     <div class="stat-text">
-                        <h5 class="stat-title">Completed</h5>
+                        <h5 class="stat-title">تکمیل شده</h5>
                         <h3 class="stat-number">{{ completed_requests }}</h3>
                     </div>
                     <div class="stat-icon">
@@ -63,13 +64,13 @@
             <div class="stat-card stat-card--info">
                 <div class="stat-content">
                     <div class="stat-text">
-                        <h5 class="stat-title">My Tickets</h5>
+                        <h5 class="stat-title">تیکت‌های من</h5>
                         <h3 class="stat-number">{{ total_tickets|default:0 }}</h3>
                         <small class="stat-subtitle">
                             {% if pending_tickets %}
-                                {{ pending_tickets }} pending
+                                {{ pending_tickets }} در انتظار
                             {% else %}
-                                All up to date
+                                همه به‌روز است
                             {% endif %}
                         </small>
                     </div>
@@ -81,13 +82,13 @@
         </div>
     </section>
 
-    <!-- Maintenance Requests Section -->
+    <!-- بخش درخواست‌های تعمیرات -->
     <section class="requests-section">
         <div class="requests-card">
             <div class="card-header">
-                <h5 class="card-title">Recent Maintenance Requests</h5>
+                <h5 class="card-title">آخرین درخواست‌های تعمیرات</h5>
                 <a href="{% url 'maintenance:create' %}" class="btn btn-primary btn-create">
-                    <i class="fas fa-plus"></i> New Request
+                    <i class="fas fa-plus"></i> درخواست جدید
                 </a>
             </div>
 
@@ -97,12 +98,12 @@
                         <table class="requests-table">
                             <thead>
                                 <tr>
-                                    <th>Title</th>
-                                    <th>Service Type</th>
-                                    <th>Priority</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
+                                    <th>عنوان</th>
+                                    <th>نوع خدمات</th>
+                                    <th>اولویت</th>
+                                    <th>وضعیت</th>
+                                    <th>تاریخ ایجاد</th>
+                                    <th>عملیات</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -118,39 +119,39 @@
                                     </td>
                                     <td>
                                         {% if request.priority == 'high' %}
-                                            <span class="badge badge-danger">High</span>
+                                            <span class="badge badge-danger">بالا</span>
                                         {% elif request.priority == 'medium' %}
-                                            <span class="badge badge-warning">Medium</span>
+                                            <span class="badge badge-warning">متوسط</span>
                                         {% elif request.priority == 'low' %}
-                                            <span class="badge badge-success">Low</span>
+                                            <span class="badge badge-success">پایین</span>
                                         {% elif request.priority == 'not_decided' %}
-                                            <span class="badge badge-secondary">Not Decided</span>
+                                            <span class="badge badge-light">تعیین نشده</span>
                                         {% else %}
                                             <span class="badge badge-light">{{ request.get_priority_display }}</span>
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if request.status == 'pending' %}
-                                            <span class="badge badge-warning">Pending</span>
+                                            <span class="badge badge-warning">در انتظار</span>
                                         {% elif request.status == 'approved' %}
-                                            <span class="badge badge-info">Approved</span>
+                                            <span class="badge badge-info">تأیید شده</span>
                                         {% elif request.status == 'in_progress' %}
-                                            <span class="badge badge-primary">In Progress</span>
+                                            <span class="badge badge-primary">در حال انجام</span>
                                         {% elif request.status == 'completed' %}
-                                            <span class="badge badge-success">Completed</span>
+                                            <span class="badge badge-success">تکمیل شده</span>
                                         {% elif request.status == 'rejected' %}
-                                            <span class="badge badge-danger">Rejected</span>
+                                            <span class="badge badge-danger">رد شده</span>
                                         {% endif %}
                                     </td>
                                     <td class="date-info">
                                         <small>
-                                            {{ request.created_at|date:"M d, Y" }}<br>
-                                            <span class="days-ago">{{ request.days_since_created }} days ago</span>
+                                            {{ request.created_at|date:"d F Y" }}<br>
+                                            <span class="days-ago">{{ request.days_since_created }} روز پیش</span>
                                         </small>
                                     </td>
                                     <td>
                                         <a href="{% url 'maintenance:detail' request.pk %}" class="btn btn-outline-primary btn-sm">
-                                            View
+                                            مشاهده
                                         </a>
                                     </td>
                                 </tr>
@@ -162,17 +163,17 @@
                     {% if total_requests > 5 %}
                     <div class="more-info">
                         <small class="text-muted">
-                            Showing 5 most recent requests. Total requests: {{ total_requests }}
+                            نمایش ۵ درخواست اخیر. مجموع درخواست‌ها: {{ total_requests }}
                         </small>
                     </div>
                     {% endif %}
                 {% else %}
                     <div class="empty-state">
                         <i class="fas fa-tools empty-icon"></i>
-                        <h5 class="empty-title">No maintenance requests yet</h5>
-                        <p class="empty-description">Submit your first maintenance request to get started.</p>
-                        <a href="{% url 'maintenance:create' %}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Create Request
+                        <h5 class="empty-title">هنوز درخواست تعمیراتی ندارید</h5>
+                        <p class="empty-description">اولین درخواست تعمیرات خود را برای شروع ثبت کنید.</p>
+                        <a href="{% url 'maintenance:create' %}" class="btn btn-primary btn-create">
+                            <i class="fas fa-plus"></i> ایجاد درخواست
                         </a>
                     </div>
                 {% endif %}
@@ -180,31 +181,31 @@
         </div>
     </section>
 
-    <!-- Quick Navigation -->
+    <!-- بخش دسترسی سریع -->
     <section class="navigation-section">
         <div class="nav-card">
             <div class="card-header">
-                <h5 class="card-title">Quick Navigation</h5>
+                <h5 class="card-title">دسترسی سریع</h5>
             </div>
             <div class="card-body">
                 <div class="nav-grid">
                     <a href="{% url 'maintenance:create' %}" class="nav-btn nav-btn--primary">
                         <i class="fas fa-plus"></i>
-                        <span>New Request</span>
+                        <span>درخواست جدید</span>
                     </a>
                     <a href="{% url 'ticket:list' %}" class="nav-btn nav-btn--info">
                         <i class="fas fa-ticket-alt"></i>
-                        <span>My Tickets</span>
+                        <span>تیکت‌های من</span>
                     </a>
-                    <button type="button" class="nav-btn nav-btn--success" onclick="alert('Profile functionality coming soon!')">
+                    <button type="button" class="nav-btn nav-btn--success" onclick="alert('قابلیت پروفایل به زودی...')">
                         <i class="fas fa-user"></i>
-                        <span>Profile</span>
+                        <span>پروفایل</span>
                     </button>
                     <form method="post" action="{% url 'student:student_logout' %}" class="logout-form">
                         {% csrf_token %}
                         <button type="submit" class="nav-btn nav-btn--danger">
                             <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
+                            <span>خروج</span>
                         </button>
                     </form>
                 </div>
@@ -212,8 +213,9 @@
         </div>
     </section>
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'student/js/dashboard.js' %}"></script>
-{% endblock %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 {% endblock %}

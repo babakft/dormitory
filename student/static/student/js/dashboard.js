@@ -1,15 +1,61 @@
 /**
- * Student Dashboard JavaScript
- * Handles interactive features and enhancements for the student dashboard
+ * داشبورد دانشجو - سیستم مدیریت خوابگاه
+ * Persian Student Dashboard with Beautiful Animations
  */
 
-class StudentDashboard {
+// توابع کمکی فارسی
+const PersianDashboardUtils = {
+    // تبدیل اعداد انگلیسی به فارسی
+    toPersianNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+
+        str = String(str);
+        for (let i = 0; i < englishDigits.length; i++) {
+            str = str.replace(new RegExp(englishDigits[i], 'g'), persianDigits[i]);
+        }
+        return str;
+    },
+
+    // تبدیل اعداد فارسی به انگلیسی
+    toEnglishNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+
+        str = String(str);
+        for (let i = 0; i < persianDigits.length; i++) {
+            str = str.replace(new RegExp(persianDigits[i], 'g'), englishDigits[i]);
+        }
+        return str;
+    },
+
+    // فرمت کردن تاریخ به فارسی
+    formatPersianDate: function(dateString) {
+        const date = new Date(dateString);
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
+        return date.toLocaleDateString('fa-IR', options);
+    },
+
+    // محاسبه روزهای گذشته
+    getDaysAgo: function(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return this.toPersianNumbers(diffDays);
+    }
+};
+
+class PersianStudentDashboard {
     constructor() {
         this.init();
     }
 
     init() {
-        // Wait for DOM to be fully loaded
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.setup());
         } else {
@@ -18,80 +64,117 @@ class StudentDashboard {
     }
 
     setup() {
+        console.log('🏛️ داشبورد دانشجو در حال بارگذاری...');
+
+        this.convertNumbersToPersian();
         this.setupEventListeners();
         this.setupAnimations();
-        this.setupTooltips();
+        this.setupStatCards();
+        this.setupTableInteractions();
+        this.setupNavigationButtons();
         this.setupAutoRefresh();
         this.setupKeyboardShortcuts();
-        this.setupFormValidation();
+        this.addTooltips();
+
+        console.log('✅ داشبورد دانشجو آماده است');
     }
 
-    /**
-     * Setup event listeners for interactive elements
-     */
+    // تبدیل تمام اعداد به فارسی
+    convertNumbersToPersian() {
+        // تبدیل اعداد در کارت‌های آمار
+        const statNumbers = document.querySelectorAll('.stat-number');
+        statNumbers.forEach(element => {
+            const number = element.textContent.trim();
+            element.textContent = PersianDashboardUtils.toPersianNumbers(number);
+            element.classList.add('persian-number');
+        });
+
+        // تبدیل تاریخ‌ها
+        const dateElements = document.querySelectorAll('.date-info small');
+        dateElements.forEach(element => {
+            const text = element.textContent;
+            element.textContent = PersianDashboardUtils.toPersianNumbers(text);
+        });
+    }
+
+    // راه‌اندازی رویدادها
     setupEventListeners() {
-        // Stat cards click effects
+        // کلیک روی کارت‌های آمار
         const statCards = document.querySelectorAll('.stat-card');
         statCards.forEach(card => {
             card.addEventListener('click', this.handleStatCardClick.bind(this));
+            card.addEventListener('mouseenter', this.handleStatCardHover.bind(this));
+            card.addEventListener('mouseleave', this.handleStatCardLeave.bind(this));
         });
 
-        // Table row click handlers
+        // کلیک روی ردیف‌های جدول
         const tableRows = document.querySelectorAll('.table-row');
         tableRows.forEach(row => {
             row.addEventListener('click', this.handleTableRowClick.bind(this));
         });
 
-        // Navigation button enhancements
+        // دکمه‌های ناوبری
         const navButtons = document.querySelectorAll('.nav-btn');
         navButtons.forEach(btn => {
             btn.addEventListener('mouseenter', this.handleNavButtonHover.bind(this));
         });
 
-        // Logout confirmation
+        // فرم خروج
         const logoutForm = document.querySelector('.logout-form');
         if (logoutForm) {
             logoutForm.addEventListener('submit', this.handleLogoutConfirmation.bind(this));
         }
 
-        // Search functionality (if search input exists)
+        // جستجو (در صورت وجود)
         const searchInput = document.querySelector('#requestSearch');
         if (searchInput) {
             searchInput.addEventListener('input', this.debounce(this.handleSearch.bind(this), 300));
         }
     }
 
-    /**
-     * Setup smooth animations and transitions
-     */
+    // راه‌اندازی انیمیشن‌ها
     setupAnimations() {
-        // Animate stat cards on load
+        // انیمیشن ورود کارت‌های آمار
         this.animateStatCards();
 
-        // Setup intersection observer for scroll animations
+        // انیمیشن اسکرول
         this.setupScrollAnimations();
+
+        // انیمیشن هدر
+        this.animateHeader();
     }
 
-    /**
-     * Animate stat cards with staggered effect
-     */
+    // انیمیشن کارت‌های آمار
     animateStatCards() {
         const statCards = document.querySelectorAll('.stat-card');
         statCards.forEach((card, index) => {
             card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
+            card.style.transform = 'translateY(30px) scale(0.95)';
 
             setTimeout(() => {
-                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
                 card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 150);
+                card.style.transform = 'translateY(0) scale(1)';
+            }, 150 + (index * 100));
         });
     }
 
-    /**
-     * Setup scroll-based animations
-     */
+    // انیمیشن هدر
+    animateHeader() {
+        const header = document.querySelector('.dashboard-header');
+        if (header) {
+            header.style.opacity = '0';
+            header.style.transform = 'translateY(-20px)';
+
+            setTimeout(() => {
+                header.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                header.style.opacity = '1';
+                header.style.transform = 'translateY(0)';
+            }, 100);
+        }
+    }
+
+    // راه‌اندازی انیمیشن اسکرول
     setupScrollAnimations() {
         const observerOptions = {
             threshold: 0.1,
@@ -102,72 +185,242 @@ class StudentDashboard {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('animate-in');
+                    entry.target.style.opacity = '1';
                 }
             });
         }, observerOptions);
 
-        // Observe sections for animation
         const sections = document.querySelectorAll('.requests-section, .navigation-section');
         sections.forEach(section => {
+            section.style.opacity = '0';
             observer.observe(section);
         });
     }
 
-    /**
-     * Setup tooltips for better UX
-     */
-    setupTooltips() {
-        // Add tooltips to badges and status indicators
-        const badges = document.querySelectorAll('.badge');
-        badges.forEach(badge => {
-            this.addTooltip(badge);
-        });
+    // راه‌اندازی کارت‌های آمار
+    setupStatCards() {
+        const statCards = document.querySelectorAll('.stat-card');
 
-        // Add tooltips to action buttons
-        const actionButtons = document.querySelectorAll('[title]');
-        actionButtons.forEach(btn => {
-            this.enhanceTooltip(btn);
+        statCards.forEach(card => {
+            const statNumber = card.querySelector('.stat-number');
+            if (statNumber) {
+                const targetValue = parseInt(PersianDashboardUtils.toEnglishNumbers(statNumber.textContent));
+                if (!isNaN(targetValue)) {
+                    statNumber.setAttribute('data-target', targetValue);
+                    this.animateCounter(statNumber, targetValue);
+                }
+            }
         });
     }
 
-    /**
-     * Add tooltip functionality
-     */
-    addTooltip(element) {
-        const tooltipText = this.getTooltipText(element);
-        if (tooltipText) {
-            element.setAttribute('title', tooltipText);
-            element.setAttribute('data-toggle', 'tooltip');
+    // انیمیشن شمارنده
+    animateCounter(element, target, duration = 2000) {
+        const startTime = Date.now();
+        const startValue = 0;
+
+        const updateCounter = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Easing function
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+
+            const current = Math.floor(easeOut * target);
+            element.textContent = PersianDashboardUtils.toPersianNumbers(current);
+
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            } else {
+                element.textContent = PersianDashboardUtils.toPersianNumbers(target);
+
+                // افکت پایان شمارش
+                element.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    element.style.transform = 'scale(1)';
+                }, 200);
+            }
+        };
+
+        requestAnimationFrame(updateCounter);
+    }
+
+    // راه‌اندازی تعاملات جدول
+    setupTableInteractions() {
+        const tableRows = document.querySelectorAll('.table-row');
+
+        tableRows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.transform = 'scale(1.01)';
+            });
+
+            row.addEventListener('mouseleave', () => {
+                row.style.transform = 'scale(1)';
+            });
+        });
+    }
+
+    // راه‌اندازی دکمه‌های ناوبری
+    setupNavigationButtons() {
+        const navButtons = document.querySelectorAll('.nav-btn');
+
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // افکت کلیک
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    btn.style.transform = '';
+                }, 150);
+            });
+        });
+    }
+
+    // مدیریت کلیک روی کارت آمار
+    handleStatCardClick(e) {
+        const card = e.currentTarget;
+
+        // افکت کلیک
+        card.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+            card.style.transform = '';
+        }, 150);
+
+        // هدایت بر اساس نوع کارت
+        if (card.classList.contains('stat-card--primary')) {
+            this.showNotification('نمایش همه درخواست‌ها', 'info');
+        } else if (card.classList.contains('stat-card--warning')) {
+            this.showNotification('نمایش درخواست‌های در انتظار', 'info');
+        } else if (card.classList.contains('stat-card--success')) {
+            this.showNotification('نمایش درخواست‌های تکمیل شده', 'info');
+        } else if (card.classList.contains('stat-card--info')) {
+            const ticketsBtn = document.querySelector('a[href*="ticket:list"]');
+            if (ticketsBtn) {
+                window.location.href = ticketsBtn.href;
+            }
         }
     }
 
-    /**
-     * Get tooltip text based on element content
-     */
-    getTooltipText(element) {
-        const text = element.textContent.trim().toLowerCase();
-        const tooltips = {
-            'pending': 'Request is waiting for admin approval',
-            'approved': 'Request has been approved and assigned',
-            'in progress': 'Maintenance team is working on this request',
-            'completed': 'Request has been completed successfully',
-            'rejected': 'Request was rejected - check details for reason',
-            'high': 'High priority - will be addressed urgently',
-            'medium': 'Medium priority - normal processing time',
-            'low': 'Low priority - may take longer to process'
-        };
-        return tooltips[text] || null;
+    // مدیریت هاور روی کارت آمار
+    handleStatCardHover(e) {
+        const card = e.currentTarget;
+        const icon = card.querySelector('.stat-icon');
+
+        if (icon) {
+            icon.style.transform = 'scale(1.15) rotate(5deg)';
+        }
     }
 
-    /**
-     * Setup auto-refresh for real-time updates
-     */
-    setupAutoRefresh() {
-        // Only refresh if user is active (to save bandwidth)
-        let lastActivity = Date.now();
-        let refreshInterval;
+    handleStatCardLeave(e) {
+        const card = e.currentTarget;
+        const icon = card.querySelector('.stat-icon');
 
-        // Track user activity
+        if (icon) {
+            icon.style.transform = '';
+        }
+    }
+
+    // مدیریت کلیک روی ردیف جدول
+    handleTableRowClick(e) {
+        // عدم فعال‌سازی اگر روی دکمه کلیک شده
+        if (e.target.closest('.btn')) return;
+
+        const row = e.currentTarget;
+        const viewBtn = row.querySelector('a[href*="detail"]');
+
+        if (viewBtn) {
+            // افکت انتقال
+            row.style.opacity = '0.7';
+            row.style.transform = 'scale(0.98)';
+
+            setTimeout(() => {
+                window.location.href = viewBtn.href;
+            }, 200);
+        }
+    }
+
+    // مدیریت هاور روی دکمه ناوبری
+    handleNavButtonHover(e) {
+        const btn = e.currentTarget;
+        const icon = btn.querySelector('i');
+
+        if (icon) {
+            icon.style.transform = 'scale(1.15) rotate(5deg)';
+        }
+    }
+
+    // مدیریت تأیید خروج
+    handleLogoutConfirmation(e) {
+        const confirmed = confirm('آیا مطمئن هستید که می‌خواهید خارج شوید؟');
+        if (!confirmed) {
+            e.preventDefault();
+        }
+    }
+
+    // مدیریت جستجو
+    handleSearch(e) {
+        const query = e.target.value.toLowerCase();
+        const tableRows = document.querySelectorAll('.table-row');
+
+        let visibleCount = 0;
+
+        tableRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const shouldShow = text.includes(query);
+
+            if (shouldShow) {
+                row.style.display = '';
+                visibleCount++;
+
+                // انیمیشن ظاهر شدن
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(20px)';
+
+                setTimeout(() => {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, 50);
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        this.updateSearchResults(visibleCount, tableRows.length);
+    }
+
+    // به‌روزرسانی نتایج جستجو
+    updateSearchResults(visible, total) {
+        let resultsEl = document.querySelector('.search-results');
+
+        if (!resultsEl) {
+            resultsEl = document.createElement('div');
+            resultsEl.className = 'search-results';
+            resultsEl.style.cssText = `
+                text-align: center;
+                padding: 1rem;
+                color: var(--text-secondary);
+                font-size: 0.95rem;
+                font-weight: 600;
+            `;
+
+            const searchInput = document.querySelector('#requestSearch');
+            if (searchInput) {
+                searchInput.parentNode.insertBefore(resultsEl, searchInput.nextSibling);
+            }
+        }
+
+        if (visible !== total) {
+            resultsEl.textContent = `نمایش ${PersianDashboardUtils.toPersianNumbers(visible)} از ${PersianDashboardUtils.toPersianNumbers(total)} درخواست`;
+            resultsEl.style.display = 'block';
+        } else {
+            resultsEl.style.display = 'none';
+        }
+    }
+
+    // راه‌اندازی به‌روزرسانی خودکار
+    setupAutoRefresh() {
+        let lastActivity = Date.now();
+
+        // ردیابی فعالیت کاربر
         document.addEventListener('mousemove', () => {
             lastActivity = Date.now();
         });
@@ -176,114 +429,46 @@ class StudentDashboard {
             lastActivity = Date.now();
         });
 
-        // Auto-refresh every 5 minutes if user is active
-        refreshInterval = setInterval(() => {
+        // به‌روزرسانی هر 5 دقیقه
+        setInterval(() => {
             const now = Date.now();
             const timeSinceActivity = now - lastActivity;
 
-            // Refresh if user was active in the last 10 minutes
+            // به‌روزرسانی فقط اگر کاربر در 10 دقیقه گذشته فعال بوده
             if (timeSinceActivity < 600000) {
                 this.refreshStatusCounts();
             }
-        }, 300000); // 5 minutes
-
-        // Clear interval when page unloads
-        window.addEventListener('beforeunload', () => {
-            clearInterval(refreshInterval);
-        });
+        }, 300000); // 5 دقیقه
     }
 
-    /**
-     * Refresh status counts via AJAX
-     */
+    // به‌روزرسانی شمارنده‌های وضعیت
     async refreshStatusCounts() {
         try {
-            // You can uncomment and adjust this when you have the endpoint
+            // در اینجا می‌توانید درخواست AJAX برای دریافت داده‌های جدید بفرستید
+            console.log('🔄 به‌روزرسانی خودکار داده‌ها...');
+
+            // مثال (باید با endpoint واقعی جایگزین شود):
             // const response = await fetch('/student/dashboard/status-counts/', {
             //     headers: {
             //         'X-Requested-With': 'XMLHttpRequest',
             //         'X-CSRFToken': this.getCSRFToken()
             //     }
             // });
-
+            //
             // if (response.ok) {
             //     const data = await response.json();
             //     this.updateStatusCounts(data);
             // }
 
-            console.log('Auto-refresh placeholder - implement with your status endpoint');
         } catch (error) {
-            console.log('Auto-refresh failed:', error);
+            console.log('❌ خطا در به‌روزرسانی:', error);
         }
     }
 
-    /**
-     * Update status counts in the UI
-     */
-    updateStatusCounts(data) {
-        const counters = {
-            'total_requests': '.stat-card--primary .stat-number',
-            'pending_requests': '.stat-card--warning .stat-number',
-            'completed_requests': '.stat-card--success .stat-number',
-            'total_tickets': '.stat-card--info .stat-number'
-        };
-
-        Object.entries(counters).forEach(([key, selector]) => {
-            const element = document.querySelector(selector);
-            if (element && data[key] !== undefined) {
-                this.animateCounterUpdate(element, data[key]);
-            }
-        });
-    }
-
-    /**
-     * Animate counter updates
-     */
-    animateCounterUpdate(element, newValue) {
-        const currentValue = parseInt(element.textContent);
-        if (currentValue !== newValue) {
-            element.style.color = '#28a745'; // Flash green
-            setTimeout(() => {
-                element.style.color = '';
-            }, 1000);
-
-            // Animate the number change
-            this.animateNumber(element, currentValue, newValue, 500);
-        }
-    }
-
-    /**
-     * Animate number changes
-     */
-    animateNumber(element, start, end, duration) {
-        const startTime = performance.now();
-        const updateNumber = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const current = Math.round(start + (end - start) * this.easeOutCubic(progress));
-
-            element.textContent = current;
-
-            if (progress < 1) {
-                requestAnimationFrame(updateNumber);
-            }
-        };
-        requestAnimationFrame(updateNumber);
-    }
-
-    /**
-     * Easing function for smooth animations
-     */
-    easeOutCubic(t) {
-        return 1 - Math.pow(1 - t, 3);
-    }
-
-    /**
-     * Setup keyboard shortcuts
-     */
+    // راه‌اندازی میانبرهای صفحه‌کلید
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + N = New Request
+            // Ctrl/Cmd + N = درخواست جدید
             if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
                 e.preventDefault();
                 const newRequestBtn = document.querySelector('a[href*="maintenance:create"]');
@@ -292,7 +477,7 @@ class StudentDashboard {
                 }
             }
 
-            // Ctrl/Cmd + T = My Tickets
+            // Ctrl/Cmd + T = تیکت‌های من
             if ((e.ctrlKey || e.metaKey) && e.key === 't') {
                 e.preventDefault();
                 const ticketsBtn = document.querySelector('a[href*="ticket:list"]');
@@ -301,157 +486,40 @@ class StudentDashboard {
                 }
             }
 
-            // Escape = Close any open modals/dropdowns
+            // Escape = بستن عناصر باز
             if (e.key === 'Escape') {
                 this.closeOpenElements();
             }
         });
     }
 
-    /**
-     * Setup form validation enhancements
-     */
-    setupFormValidation() {
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            form.addEventListener('submit', this.handleFormSubmit.bind(this));
+    // اضافه کردن راهنماها
+    addTooltips() {
+        const badges = document.querySelectorAll('.badge');
+        badges.forEach(badge => {
+            const text = badge.textContent.trim().toLowerCase();
+
+            const tooltips = {
+                'pending': 'در انتظار تأیید مدیر',
+                'approved': 'تأیید شده و اختصاص داده شده',
+                'in progress': 'در حال انجام توسط تیم نگهداری',
+                'completed': 'با موفقیت تکمیل شده',
+                'rejected': 'رد شده - جزئیات را بررسی کنید',
+                'high': 'اولویت بالا - به سرعت بررسی می‌شود',
+                'medium': 'اولویت متوسط - زمان پردازش عادی',
+                'low': 'اولویت پایین - ممکن است زمان بیشتری ببرد'
+            };
+
+            if (tooltips[text]) {
+                badge.setAttribute('title', tooltips[text]);
+                badge.style.cursor = 'help';
+            }
         });
     }
 
-    /**
-     * Handle stat card clicks
-     */
-    handleStatCardClick(e) {
-        const card = e.currentTarget;
-
-        // Add click effect
-        card.style.transform = 'scale(0.98)';
-        setTimeout(() => {
-            card.style.transform = '';
-        }, 150);
-
-        // Navigate based on card type
-        if (card.classList.contains('stat-card--primary')) {
-            // Navigate to all requests (placeholder - adjust URL as needed)
-            alert('All requests view coming soon!');
-        } else if (card.classList.contains('stat-card--warning')) {
-            // Navigate to pending requests (placeholder - adjust URL as needed)
-            alert('Pending requests view coming soon!');
-        } else if (card.classList.contains('stat-card--success')) {
-            // Navigate to completed requests (placeholder - adjust URL as needed)
-            alert('Completed requests view coming soon!');
-        } else if (card.classList.contains('stat-card--info')) {
-            // Navigate to tickets
-            const ticketsBtn = document.querySelector('a[href*="ticket:list"]');
-            if (ticketsBtn) {
-                window.location.href = ticketsBtn.href;
-            }
-        }
-    }
-
-    /**
-     * Handle table row clicks
-     */
-    handleTableRowClick(e) {
-        // Don't trigger if clicking on a button
-        if (e.target.closest('.btn')) return;
-
-        const row = e.currentTarget;
-        const viewBtn = row.querySelector('a[href*="detail"]');
-        if (viewBtn) {
-            window.location.href = viewBtn.href;
-        }
-    }
-
-    /**
-     * Handle navigation button hover effects
-     */
-    handleNavButtonHover(e) {
-        const btn = e.currentTarget;
-        const icon = btn.querySelector('i');
-
-        if (icon) {
-            icon.style.transform = 'scale(1.1)';
-            setTimeout(() => {
-                icon.style.transform = '';
-            }, 200);
-        }
-    }
-
-    /**
-     * Handle logout confirmation
-     */
-    handleLogoutConfirmation(e) {
-        if (!confirm('Are you sure you want to logout?')) {
-            e.preventDefault();
-        }
-    }
-
-    /**
-     * Handle search functionality
-     */
-    handleSearch(e) {
-        const query = e.target.value.toLowerCase();
-        const tableRows = document.querySelectorAll('.table-row');
-
-        tableRows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            const shouldShow = text.includes(query);
-            row.style.display = shouldShow ? '' : 'none';
-        });
-
-        // Update results count
-        const visibleRows = document.querySelectorAll('.table-row:not([style*="display: none"])');
-        this.updateSearchResults(visibleRows.length, tableRows.length);
-    }
-
-    /**
-     * Update search results display
-     */
-    updateSearchResults(visible, total) {
-        let resultsEl = document.querySelector('.search-results');
-        if (!resultsEl) {
-            resultsEl = document.createElement('div');
-            resultsEl.className = 'search-results text-muted mt-2';
-            const searchInput = document.querySelector('#requestSearch');
-            if (searchInput) {
-                searchInput.parentNode.insertBefore(resultsEl, searchInput.nextSibling);
-            }
-        }
-
-        if (visible !== total) {
-            resultsEl.textContent = `Showing ${visible} of ${total} requests`;
-            resultsEl.style.display = 'block';
-        } else {
-            resultsEl.style.display = 'none';
-        }
-    }
-
-    /**
-     * Handle form submissions
-     */
-    handleFormSubmit(e) {
-        const form = e.currentTarget;
-        const submitBtn = form.querySelector('button[type="submit"]');
-
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Processing...';
-
-            // Re-enable after 3 seconds if form hasn't been submitted
-            setTimeout(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            }, 3000);
-        }
-    }
-
-    /**
-     * Close any open elements (modals, dropdowns, etc.)
-     */
+    // بستن عناصر باز
     closeOpenElements() {
-        // Close any Bootstrap modals
+        // بستن مودال‌های Bootstrap
         const modals = document.querySelectorAll('.modal.show');
         modals.forEach(modal => {
             const modalInstance = bootstrap.Modal.getInstance(modal);
@@ -459,25 +527,15 @@ class StudentDashboard {
                 modalInstance.hide();
             }
         });
-
-        // Close any dropdowns
-        const dropdowns = document.querySelectorAll('.dropdown-menu.show');
-        dropdowns.forEach(dropdown => {
-            dropdown.classList.remove('show');
-        });
     }
 
-    /**
-     * Get CSRF token for AJAX requests
-     */
+    // دریافت توکن CSRF
     getCSRFToken() {
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
         return csrfToken ? csrfToken.value : '';
     }
 
-    /**
-     * Debounce function to limit API calls
-     */
+    // تابع debounce
     debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -490,41 +548,78 @@ class StudentDashboard {
         };
     }
 
-    /**
-     * Enhance existing tooltips
-     */
-    enhanceTooltip(element) {
-        element.addEventListener('mouseenter', () => {
-            element.style.position = 'relative';
-        });
-    }
-
-    /**
-     * Utility method to show notifications
-     */
+    // نمایش اعلان
     showNotification(message, type = 'info') {
-        // Create notification element
         const notification = document.createElement('div');
-        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        notification.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        notification.className = `notification-toast notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: ${type === 'error' ? 'linear-gradient(135deg, #f44336, #d32f2f)' :
+                        type === 'success' ? 'linear-gradient(135deg, #4caf50, #388e3c)' :
+                        'linear-gradient(135deg, #2196f3, #1976d2)'};
+            color: white;
+            padding: 1.2rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            font-family: 'Vazirmatn', sans-serif;
+            direction: rtl;
+            font-weight: 600;
+            animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
         `;
 
+        notification.textContent = message;
         document.body.appendChild(notification);
 
-        // Auto-remove after 5 seconds
+        // حذف خودکار بعد از 4 ثانیه
         setTimeout(() => {
-            if (notification.parentNode) {
+            notification.style.animation = 'slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            setTimeout(() => {
                 notification.remove();
-            }
-        }, 5000);
+            }, 400);
+        }, 4000);
     }
 }
 
-// Initialize dashboard when DOM is ready
-const dashboard = new StudentDashboard();
+// راه‌اندازی داشبورد
+document.addEventListener('DOMContentLoaded', () => {
+    window.persianDashboard = new PersianStudentDashboard();
+});
 
-// Export for potential external use
-window.StudentDashboard = StudentDashboard;
+// افزودن انیمیشن‌ها به استایل‌ها
+if (!document.querySelector('#dashboard-animations')) {
+    const style = document.createElement('style');
+    style.id = 'dashboard-animations';
+    style.textContent = `
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutLeft {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// صادرات برای استفاده در سایر ماژول‌ها
+window.PersianDashboardUtils = PersianDashboardUtils;
+
+console.log('🏛️ سیستم داشبورد فارسی آماده است');
