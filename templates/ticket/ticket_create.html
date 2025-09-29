@@ -1,173 +1,97 @@
-{% extends 'base.html' %}
 {% load static %}
-{% block title %}Create New Ticket{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'ticket/css/ticket_create.css' %}">
-{% endblock %}
-
-{% block content %}
-<div class="ticket-container">
-    <!-- Header Section -->
-    <div class="ticket-header">
-        <div class="header-content">
-            <div class="title-section">
-                <h1 class="page-title">Create New Ticket</h1>
-                <p class="page-subtitle">Start a real-time conversation with administration</p>
-            </div>
-            <div class="breadcrumb-section">
-                <a href="{% url 'ticket:list' %}" class="breadcrumb-link">
-                    <i class="fas fa-arrow-left"></i>
-                    My Tickets
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- User Info Card -->
-    <div class="user-info-card">
-        <div class="user-avatar">
-            <i class="fas fa-user"></i>
-        </div>
-        <div class="user-details">
-            <h3 class="user-name">{{ user.username }}</h3>
-            <p class="user-role">
-                {% if user.student_profile %}
-                    <span class="badge badge--primary">Student</span>
-                {% elif user.expert_profile %}
-                    <span class="badge badge--success">Service Expert</span>
-                {% endif %}
-            </p>
-        </div>
-    </div>
-
-    <!-- Messages -->
-    {% if messages %}
-    <div class="messages-container">
-        {% for message in messages %}
-        <div class="alert alert--{{ message.tags }}">
-            <i class="fas fa-{% if message.tags == 'error' %}exclamation-triangle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
-            {{ message }}
-            <button type="button" class="alert-close" onclick="this.parentElement.remove()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- Main Content -->
-    <div class="content-grid">
-        <!-- Ticket Form -->
-        <div class="form-section">
-            <div class="form-card">
-                <div class="card-header">
-                    <h2 class="card-title">
-                        <i class="fas fa-ticket-alt"></i>
-                        Ticket Information
-                    </h2>
-                    <p class="card-subtitle">Start your conversation with admin</p>
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ایجاد تیکت جدید - سامانه خوابگاه دانشگاه شهید باهنر</title>
+    <link rel="stylesheet" href="{% static 'ticket/css/ticket_create.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="description" content="ایجاد تیکت پشتیبانی در سامانه مدیریت خوابگاه دانشگاه شهید باهنر کرمان">
+    <meta name="theme-color" content="#1976d2">
+</head>
+<body>
+    <div class="ticket-container">
+        <div class="ticket-card">
+            <!-- Header -->
+            <div class="ticket-header">
+                <div class="logo">
+                    <i class="icon-home"></i>
+                    <h1>سامانه خوابگاه</h1>
                 </div>
+                <h2>ایجاد تیکت جدید</h2>
+                <p>سوال یا مشکل خود را برای پشتیبانی ارسال کنید</p>
+            </div>
 
-                <div class="card-content">
-                    {% if form.errors %}
-                    <div class="form-errors">
-                        <h4 class="error-title">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            Please correct the following errors:
-                        </h4>
-                        <ul class="error-list">
-                            {% for field, errors in form.errors.items %}
-                                {% for error in errors %}
-                                <li>{{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                        </ul>
-                    </div>
+            <!-- Messages -->
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Form -->
+            <form method="post" id="ticketForm" class="ticket-form">
+                {% csrf_token %}
+
+                <!-- عنوان تیکت -->
+                <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}">
+                        <span class="required-indicator">*</span>
+                        عنوان تیکت
+                    </label>
+                    {{ form.title }}
+                    <span class="form-help">یک عنوان کوتاه و گویا برای تیکت خود انتخاب کنید</span>
+                    {% if form.title.errors %}
+                        <span class="error-message">{{ form.title.errors.0 }}</span>
                     {% endif %}
-
-                    <form method="post" class="ticket-form" id="ticketForm">
-                        {% csrf_token %}
-
-                        <div class="form-group">
-                            <label for="{{ form.title.id_for_label }}" class="form-label">
-                                {{ form.title.label }}
-                                <span class="required-indicator">*</span>
-                            </label>
-                            {{ form.title }}
-                            <div class="form-help">Brief summary of your issue or question</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="{{ form.description.id_for_label }}" class="form-label">
-                                {{ form.description.label }}
-                                <span class="required-indicator">*</span>
-                            </label>
-                            {{ form.description }}
-                            <div class="form-help">Provide detailed information about your issue or question</div>
-                        </div>
-
-                        <div class="form-actions">
-                            <a href="{% url 'ticket:list' %}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i>
-                                Back to Tickets
-                            </a>
-                            <button type="submit" class="btn btn-primary" id="submitBtn">
-                                <i class="fas fa-paper-plane"></i>
-                                Create Ticket & Start Chat
-                                <span class="btn-loader" id="btnLoader">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                    Creating...
-                                </span>
-                            </button>
-                        </div>
-                    </form>
                 </div>
-            </div>
-        </div>
 
-        <!-- Process Steps -->
-        <div class="steps-section">
-            <div class="steps-card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-list-ol"></i>
-                        What Happens Next?
-                    </h3>
+                <!-- توضیحات -->
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">
+                        <span class="required-indicator">*</span>
+                        شرح کامل موضوع
+                    </label>
+                    {{ form.description }}
+                    <span class="form-help">توضیحات کامل مشکل یا سوال خود را با جزئیات بنویسید</span>
+                    {% if form.description.errors %}
+                        <span class="error-message">{{ form.description.errors.0 }}</span>
+                    {% endif %}
                 </div>
-                <div class="card-content">
-                    <div class="process-steps">
-                        <div class="step">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
-                                <h4 class="step-title">Ticket Created</h4>
-                                <p class="step-description">Your ticket will be created and assigned a unique ID</p>
-                            </div>
-                        </div>
 
-                        <div class="step">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
-                                <h4 class="step-title">Real-time Chat</h4>
-                                <p class="step-description">Start chatting with admin immediately</p>
-                            </div>
-                        </div>
-
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
-                                <h4 class="step-title">Get Help</h4>
-                                <p class="step-description">Receive assistance and resolve your issue</p>
-                            </div>
-                        </div>
-                    </div>
+                <!-- دکمه‌های اقدام -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        ارسال تیکت
+                    </button>
+                    <a href="{% url 'ticket:list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        انصراف
+                    </a>
                 </div>
-            </div>
+
+                <!-- راهنما -->
+                <div class="form-footer">
+                    <p>
+                        <i class="fas fa-keyboard"></i>
+                        میانبر کیبورد: <strong>Ctrl + Enter</strong> برای ارسال سریع
+                    </p>
+                    <p>
+                        <i class="fas fa-clock"></i>
+                        زمان پاسخگویی: کمتر از ۲۴ ساعت
+                    </p>
+                </div>
+            </form>
         </div>
     </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="{% static 'ticket/js/ticket_create.js' %}"></script>
-{% endblock %}
+    <script src="{% static 'ticket/js/ticket_create.js' %}"></script>
+</body>
+</html>

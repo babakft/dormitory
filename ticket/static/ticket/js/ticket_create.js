@@ -1,12 +1,10 @@
 /**
- * Ticket Creation JavaScript
- * Handles form validation, UI interactions, and user experience enhancements
+ * سیستم تیکت فارسی - ایجاد تیکت
  */
 
-class TicketCreate {
+class PersianTicketCreate {
     constructor() {
         this.form = null;
-        this.submitBtn = null;
         this.titleInput = null;
         this.descriptionInput = null;
         this.isSubmitting = false;
@@ -15,7 +13,6 @@ class TicketCreate {
     }
 
     init() {
-        // Wait for DOM to be fully loaded
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.setup());
         } else {
@@ -25,484 +22,330 @@ class TicketCreate {
 
     setup() {
         this.cacheElements();
+        this.createBeautifulBackground();
         this.setupEventListeners();
-        this.setupAnimations();
         this.setupFormValidation();
+        this.setupCharacterCounters();
         this.setupKeyboardShortcuts();
-        this.setupTooltips();
+        this.animateElements();
+
+        console.log('🎫 سیستم تیکت فارسی آماده است');
     }
 
-    /**
-     * Cache DOM elements for better performance
-     */
     cacheElements() {
         this.form = document.getElementById('ticketForm');
-        this.submitBtn = document.getElementById('submitBtn');
-        this.btnLoader = document.getElementById('btnLoader');
         this.titleInput = document.querySelector('#id_title');
         this.descriptionInput = document.querySelector('#id_description');
+        this.submitBtn = document.querySelector('.btn-primary');
     }
 
-    /**
-     * Setup event listeners
-     */
+    createBeautifulBackground() {
+        // اشکال هندسی
+        const shapes = [
+            { type: 'circle', size: 120, color: '#ff6b6b', top: '10%', left: '10%', delay: 0 },
+            { type: 'square', size: 80, color: '#4834d4', top: '20%', right: '15%', delay: 2 },
+            { type: 'circle', size: 150, color: '#00d2d3', bottom: '20%', left: '20%', delay: 4 }
+        ];
+
+        shapes.forEach(shape => {
+            const element = document.createElement('div');
+            element.style.cssText = `
+                position: fixed;
+                width: ${shape.size}px;
+                height: ${shape.size}px;
+                background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                border-radius: ${shape.type === 'circle' ? '50%' : '20%'};
+                opacity: 0.1;
+                pointer-events: none;
+                z-index: 0;
+                animation: floatShape 12s ease-in-out infinite;
+                animation-delay: ${shape.delay}s;
+            `;
+
+            Object.assign(element.style, {
+                top: shape.top || 'auto',
+                bottom: shape.bottom || 'auto',
+                left: shape.left || 'auto',
+                right: shape.right || 'auto'
+            });
+
+            document.body.appendChild(element);
+        });
+
+        // انیمیشن
+        if (!document.querySelector('#background-animations')) {
+            const style = document.createElement('style');
+            style.id = 'background-animations';
+            style.textContent = `
+                @keyframes floatShape {
+                    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+                    33% { transform: translate(30px, -20px) rotate(120deg); }
+                    66% { transform: translate(-20px, 30px) rotate(240deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
     setupEventListeners() {
-        // Form submission
         if (this.form) {
             this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
         }
 
-        // Real-time validation
         if (this.titleInput) {
-            this.titleInput.addEventListener('input', this.debounce(this.validateTitle.bind(this), 300));
-            this.titleInput.addEventListener('blur', this.validateTitle.bind(this));
+            this.titleInput.addEventListener('input', () => {
+                this.validateField(this.titleInput, this.validateTitle.bind(this));
+            });
+            this.titleInput.addEventListener('blur', () => {
+                this.validateField(this.titleInput, this.validateTitle.bind(this));
+            });
         }
 
         if (this.descriptionInput) {
-            this.descriptionInput.addEventListener('input', this.debounce(this.validateDescription.bind(this), 300));
-            this.descriptionInput.addEventListener('blur', this.validateDescription.bind(this));
+            this.descriptionInput.addEventListener('input', () => {
+                this.validateField(this.descriptionInput, this.validateDescription.bind(this));
+            });
+            this.descriptionInput.addEventListener('blur', () => {
+                this.validateField(this.descriptionInput, this.validateDescription.bind(this));
+            });
+        }
+    }
+
+    setupFormValidation() {
+        // تبدیل اعداد فارسی به انگلیسی قبل از submit
+        if (this.form) {
+            this.form.addEventListener('submit', () => {
+                const inputs = this.form.querySelectorAll('input, textarea');
+                inputs.forEach(input => {
+                    input.value = this.toEnglishNumbers(input.value);
+                });
+            });
+        }
+    }
+
+    validateField(field, validator) {
+        this.clearFieldError(field);
+        const isValid = validator();
+
+        if (!isValid) {
+            field.style.borderColor = 'var(--error)';
+        } else {
+            field.style.borderColor = 'var(--success)';
         }
 
-        // Auto-dismiss alerts
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => {
-            setTimeout(() => {
-                this.dismissAlert(alert);
-            }, 5000); // Auto-dismiss after 5 seconds
+        return isValid;
+    }
+
+    validateTitle() {
+        if (!this.titleInput) return true;
+
+        const value = this.titleInput.value.trim();
+
+        if (value.length < 5) {
+            this.showFieldError(this.titleInput, 'عنوان باید حداقل ۵ کاراکتر باشد');
+            return false;
+        }
+
+        if (value.length > 200) {
+            this.showFieldError(this.titleInput, 'عنوان نمی‌تواند بیشتر از ۲۰۰ کاراکتر باشد');
+            return false;
+        }
+
+        return true;
+    }
+
+    validateDescription() {
+        if (!this.descriptionInput) return true;
+
+        const value = this.descriptionInput.value.trim();
+
+        if (value.length < 10) {
+            this.showFieldError(this.descriptionInput, 'توضیحات باید حداقل ۱۰ کاراکتر باشد');
+            return false;
+        }
+
+        return true;
+    }
+
+    showFieldError(field, message) {
+        this.clearFieldError(field);
+
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.textContent = message;
+
+        field.parentElement.appendChild(errorDiv);
+
+        // حذف خودکار بعد از 5 ثانیه
+        setTimeout(() => {
+            if (errorDiv.parentElement) {
+                errorDiv.remove();
+            }
+        }, 5000);
+    }
+
+    clearFieldError(field) {
+        const existingError = field.parentElement.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        field.style.borderColor = '';
+    }
+
+    setupCharacterCounters() {
+        [this.titleInput, this.descriptionInput].forEach(field => {
+            if (!field) return;
+
+            const maxLength = field.maxLength || 1000;
+            const counter = document.createElement('div');
+            counter.className = 'character-counter';
+
+            const updateCounter = () => {
+                const current = field.value.length;
+                counter.textContent = `${this.toPersianNumbers(current)} / ${this.toPersianNumbers(maxLength)}`;
+
+                if (current > maxLength * 0.9) {
+                    counter.style.color = 'var(--warning)';
+                } else {
+                    counter.style.color = 'var(--text-secondary)';
+                }
+            };
+
+            field.addEventListener('input', updateCounter);
+            updateCounter();
+
+            field.parentElement.appendChild(counter);
         });
-
-        // Character counter for inputs
-        this.setupCharacterCounters();
     }
 
-    /**
-     * Setup smooth animations
-     */
-    setupAnimations() {
-        // Animate elements on page load
-        this.animatePageLoad();
-    }
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + Enter = Submit
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (this.form) {
+                    this.form.dispatchEvent(new Event('submit'));
+                }
+            }
 
-    /**
-     * Animate page elements on load
-     */
-    animatePageLoad() {
-        const animatedElements = [
-            '.ticket-header',
-            '.user-info-card',
-            '.form-card',
-            '.steps-card'
-        ];
-
-        animatedElements.forEach((selector, index) => {
-            const element = document.querySelector(selector);
-            if (element) {
-                element.style.opacity = '0';
-                element.style.transform = 'translateY(20px)';
-
-                setTimeout(() => {
-                    element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                    element.style.opacity = '1';
-                    element.style.transform = 'translateY(0)';
-                }, index * 150);
+            // Escape = Clear
+            if (e.key === 'Escape') {
+                if (confirm('آیا می‌خواهید فرم را پاک کنید؟')) {
+                    this.form?.reset();
+                }
             }
         });
     }
 
-    /**
-     * Handle form submission
-     */
     handleFormSubmit(e) {
         if (this.isSubmitting) {
             e.preventDefault();
             return false;
         }
 
-        // Validate form before submission
-        if (!this.validateForm()) {
+        // اعتبارسنجی
+        const titleValid = this.validateField(this.titleInput, this.validateTitle.bind(this));
+        const descValid = this.validateField(this.descriptionInput, this.validateDescription.bind(this));
+
+        if (!titleValid || !descValid) {
             e.preventDefault();
+            this.showNotification('لطفاً خطاهای فرم را برطرف کنید', 'error');
             return false;
         }
 
-        // Set loading state
-        this.setLoadingState(true);
         this.isSubmitting = true;
-
-        // Form will submit normally, but we show loading state
-        // Reset loading state after a delay in case of validation errors
-        setTimeout(() => {
-            if (this.isSubmitting) {
-                this.setLoadingState(false);
-                this.isSubmitting = false;
-            }
-        }, 5000);
+        this.setLoadingState(true);
     }
 
-    /**
-     * Set loading state for submit button
-     */
     setLoadingState(loading) {
         if (!this.submitBtn) return;
 
         if (loading) {
-            this.submitBtn.classList.add('loading');
             this.submitBtn.disabled = true;
+            this.submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال ارسال...';
         } else {
-            this.submitBtn.classList.remove('loading');
             this.submitBtn.disabled = false;
+            this.submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> ارسال تیکت';
         }
     }
 
-    /**
-     * Validate entire form
-     */
-    validateForm() {
-        let isValid = true;
-
-        // Validate title
-        if (!this.validateTitle()) {
-            isValid = false;
-        }
-
-        // Validate description
-        if (!this.validateDescription()) {
-            isValid = false;
-        }
-
-        return isValid;
-    }
-
-    /**
-     * Validate title field
-     */
-    validateTitle() {
-        if (!this.titleInput) return true;
-
-        const title = this.titleInput.value.trim();
-        const minLength = 5;
-        const maxLength = 200;
-
-        // Remove previous validation
-        this.clearFieldValidation(this.titleInput);
-
-        if (!title) {
-            this.showFieldError(this.titleInput, 'Title is required.');
-            return false;
-        }
-
-        if (title.length < minLength) {
-            this.showFieldError(this.titleInput, `Title must be at least ${minLength} characters.`);
-            return false;
-        }
-
-        if (title.length > maxLength) {
-            this.showFieldError(this.titleInput, `Title cannot exceed ${maxLength} characters.`);
-            return false;
-        }
-
-        this.showFieldSuccess(this.titleInput);
-        return true;
-    }
-
-    /**
-     * Validate description field
-     */
-    validateDescription() {
-        if (!this.descriptionInput) return true;
-
-        const description = this.descriptionInput.value.trim();
-        const minLength = 10;
-
-        // Remove previous validation
-        this.clearFieldValidation(this.descriptionInput);
-
-        if (!description) {
-            this.showFieldError(this.descriptionInput, 'Description is required.');
-            return false;
-        }
-
-        if (description.length < minLength) {
-            this.showFieldError(this.descriptionInput, `Description must be at least ${minLength} characters.`);
-            return false;
-        }
-
-        this.showFieldSuccess(this.descriptionInput);
-        return true;
-    }
-
-    /**
-     * Show field error
-     */
-    showFieldError(field, message) {
-        const formGroup = field.closest('.form-group');
-        if (!formGroup) return;
-
-        field.classList.add('is-invalid');
-        field.style.borderColor = 'var(--danger-color)';
-
-        // Remove existing error message
-        const existingError = formGroup.querySelector('.field-error');
-        if (existingError) {
-            existingError.remove();
-        }
-
-        // Add new error message
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'field-error';
-        errorDiv.style.color = 'var(--danger-color)';
-        errorDiv.style.fontSize = 'var(--font-size-xs)';
-        errorDiv.style.marginTop = 'var(--spacing-xs)';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-
-        const helpText = formGroup.querySelector('.form-help');
-        if (helpText) {
-            formGroup.insertBefore(errorDiv, helpText);
-        } else {
-            formGroup.appendChild(errorDiv);
-        }
-    }
-
-    /**
-     * Show field success
-     */
-    showFieldSuccess(field) {
-        field.classList.remove('is-invalid');
-        field.classList.add('is-valid');
-        field.style.borderColor = 'var(--success-color)';
-    }
-
-    /**
-     * Clear field validation
-     */
-    clearFieldValidation(field) {
-        const formGroup = field.closest('.form-group');
-        if (!formGroup) return;
-
-        field.classList.remove('is-invalid', 'is-valid');
-        field.style.borderColor = '';
-
-        const errorDiv = formGroup.querySelector('.field-error');
-        if (errorDiv) {
-            errorDiv.remove();
-        }
-    }
-
-    /**
-     * Setup character counters
-     */
-    setupCharacterCounters() {
-        if (this.titleInput) {
-            this.addCharacterCounter(this.titleInput, 200);
-        }
-
-        if (this.descriptionInput) {
-            this.addCharacterCounter(this.descriptionInput, 1000);
-        }
-    }
-
-    /**
-     * Add character counter to field
-     */
-    addCharacterCounter(field, maxLength) {
-        const formGroup = field.closest('.form-group');
-        if (!formGroup) return;
-
-        const counter = document.createElement('div');
-        counter.className = 'character-counter';
-        counter.style.fontSize = 'var(--font-size-xs)';
-        counter.style.color = 'var(--gray-500)';
-        counter.style.textAlign = 'right';
-        counter.style.marginTop = 'var(--spacing-xs)';
-
-        // Update counter
-        const updateCounter = () => {
-            const currentLength = field.value.length;
-            counter.textContent = `${currentLength}/${maxLength}`;
-
-            if (currentLength > maxLength * 0.9) {
-                counter.style.color = 'var(--warning-color)';
-            } else if (currentLength > maxLength) {
-                counter.style.color = 'var(--danger-color)';
-            } else {
-                counter.style.color = 'var(--gray-500)';
-            }
-        };
-
-        field.addEventListener('input', updateCounter);
-        updateCounter();
-
-        formGroup.appendChild(counter);
-    }
-
-    /**
-     * Setup keyboard shortcuts
-     */
-    setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + Enter = Submit form
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                if (this.form && !this.isSubmitting) {
-                    e.preventDefault();
-                    this.form.dispatchEvent(new Event('submit'));
-                }
-            }
-
-            // Escape = Clear form
-            if (e.key === 'Escape') {
-                if (confirm('Are you sure you want to clear the form?')) {
-                    this.clearForm();
-                }
-            }
-        });
-    }
-
-    /**
-     * Clear form fields
-     */
-    clearForm() {
-        if (this.titleInput) {
-            this.titleInput.value = '';
-            this.clearFieldValidation(this.titleInput);
-        }
-
-        if (this.descriptionInput) {
-            this.descriptionInput.value = '';
-            this.clearFieldValidation(this.descriptionInput);
-        }
-
-        // Update character counters
-        this.titleInput?.dispatchEvent(new Event('input'));
-        this.descriptionInput?.dispatchEvent(new Event('input'));
-
-        // Focus first field
-        if (this.titleInput) {
-            this.titleInput.focus();
-        }
-    }
-
-    /**
-     * Setup tooltips
-     */
-    setupTooltips() {
-        const tooltipElements = document.querySelectorAll('[title]');
-        tooltipElements.forEach(element => {
-            this.enhanceTooltip(element);
-        });
-    }
-
-    /**
-     * Enhance tooltip functionality
-     */
-    enhanceTooltip(element) {
-        element.addEventListener('mouseenter', (e) => {
-            const tooltip = document.createElement('div');
-            tooltip.className = 'custom-tooltip';
-            tooltip.textContent = element.getAttribute('title');
-            tooltip.style.cssText = `
-                position: absolute;
-                background: var(--gray-800);
-                color: var(--white);
-                padding: var(--spacing-xs) var(--spacing-sm);
-                border-radius: var(--border-radius-sm);
-                font-size: var(--font-size-xs);
-                z-index: 1000;
-                pointer-events: none;
-                opacity: 0;
-                transition: opacity var(--transition-normal);
-            `;
-
-            document.body.appendChild(tooltip);
-
-            const rect = element.getBoundingClientRect();
-            tooltip.style.left = rect.left + 'px';
-            tooltip.style.top = (rect.bottom + 5) + 'px';
-
-            // Remove original title to prevent browser tooltip
-            element.setAttribute('data-title', element.getAttribute('title'));
-            element.removeAttribute('title');
-
-            setTimeout(() => tooltip.style.opacity = '1', 10);
-
-            // Store reference for cleanup
-            element._tooltip = tooltip;
-        });
-
-        element.addEventListener('mouseleave', (e) => {
-            if (element._tooltip) {
-                element._tooltip.remove();
-                element._tooltip = null;
-            }
-
-            // Restore title
-            if (element.getAttribute('data-title')) {
-                element.setAttribute('title', element.getAttribute('data-title'));
-                element.removeAttribute('data-title');
-            }
-        });
-    }
-
-    /**
-     * Dismiss alert
-     */
-    dismissAlert(alert) {
-        if (alert) {
-            alert.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            alert.style.opacity = '0';
-            alert.style.transform = 'translateY(-10px)';
+    animateElements() {
+        const elements = document.querySelectorAll('.form-group');
+        elements.forEach((el, index) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
 
             setTimeout(() => {
-                alert.remove();
-            }, 300);
-        }
+                el.style.transition = 'all 0.6s ease';
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, 150 + (index * 100));
+        });
     }
 
-    /**
-     * Show notification
-     */
+    toPersianNumbers(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+        str = String(str);
+        for (let i = 0; i < englishDigits.length; i++) {
+            str = str.replace(new RegExp(englishDigits[i], 'g'), persianDigits[i]);
+        }
+        return str;
+    }
+
+    toEnglishNumbers(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+        str = String(str);
+        for (let i = 0; i < persianDigits.length; i++) {
+            str = str.replace(new RegExp(persianDigits[i], 'g'), englishDigits[i]);
+        }
+        return str;
+    }
+
     showNotification(message, type = 'info') {
         const notification = document.createElement('div');
-        notification.className = `alert alert--${type}`;
-        notification.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
-            ${message}
-            <button type="button" class="alert-close" onclick="this.parentElement.remove()">
-                <i class="fas fa-times"></i>
-            </button>
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: ${type === 'error' ? 'linear-gradient(135deg, #f44336, #d32f2f)' : 'linear-gradient(135deg, #4caf50, #388e3c)'};
+            color: white;
+            padding: 1.2rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            font-family: 'Vazirmatn', sans-serif;
+            direction: rtl;
+            font-weight: 600;
+            animation: slideIn 0.4s ease;
         `;
 
-        const container = document.querySelector('.messages-container') ||
-                         document.querySelector('.ticket-container');
+        notification.textContent = message;
+        document.body.appendChild(notification);
 
-        if (container) {
-            container.insertAdjacentElement('afterbegin', notification);
-
-            // Auto-dismiss after 5 seconds
-            setTimeout(() => {
-                this.dismissAlert(notification);
-            }, 5000);
-        }
-    }
-
-    /**
-     * Debounce utility function
-     */
-    debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.4s ease';
+            setTimeout(() => notification.remove(), 400);
+        }, 4000);
     }
 }
 
-// Initialize when DOM is ready
+// راه‌اندازی
 document.addEventListener('DOMContentLoaded', () => {
-    window.ticketCreate = new TicketCreate();
+    window.persianTicketCreate = new PersianTicketCreate();
 });
 
-// Expose class to global scope for external access
-window.TicketCreate = TicketCreate;
+// انیمیشن‌ها
+const animStyle = document.createElement('style');
+animStyle.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(-100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(-100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(animStyle);
