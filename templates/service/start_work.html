@@ -1,136 +1,291 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Start Work - Service Expert{% endblock %}
+
+{% block title %}شروع کار{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'service/css/start_work.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="start-work-container">
-    <!-- Header Section -->
-    <div class="start-work-header">
+    <!-- ===== HEADER SECTION ===== -->
+    <header class="start-work-header">
         <div class="header-content">
             <div class="header-info">
                 <div class="breadcrumb">
                     <a href="{% url 'service:service_dashboard' %}" class="breadcrumb-link">
-                        <i class="fas fa-arrow-left"></i>
-                        Dashboard
+                        <i class="fas fa-tachometer-alt"></i>
+                        داشبورد
                     </a>
-                    <span class="breadcrumb-separator">/</span>
-                    <span class="breadcrumb-current">Start Work</span>
+                    <span class="breadcrumb-separator">
+                        <i class="fas fa-chevron-left"></i>
+                    </span>
+                    <span class="breadcrumb-current">شروع کار</span>
                 </div>
+
                 <h1 class="page-title">
                     <i class="fas fa-play-circle"></i>
-                    Start Work on Request
+                    شروع کار روی درخواست
                 </h1>
             </div>
+
             <div class="header-status">
                 <div class="status-badge status-ready">
-                    <i class="fas fa-clock"></i>
-                    Ready to Start
+                    <i class="fas fa-check-circle"></i>
+                    آماده شروع
                 </div>
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Request Details Card -->
+    <!-- ===== ALERTS ===== -->
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div class="alert-content">
+            <h4>خطا در اطلاعات ورودی</h4>
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ===== REQUEST DETAILS CARD ===== -->
     <div class="request-details-card">
         <div class="card-header">
             <h2 class="card-title">
                 <i class="fas fa-info-circle"></i>
-                Request Details
+                جزئیات درخواست
             </h2>
         </div>
         <div class="card-body">
             <div class="request-info-grid">
                 <div class="info-item">
-                    <label class="info-label">
-                        <i class="fas fa-tools"></i>
-                        Request Title
-                    </label>
-                    <div class="info-value request-title">{{ maintenance_request.title }}</div>
+                    <div class="info-label">
+                        <i class="fas fa-heading"></i>
+                        عنوان درخواست
+                    </div>
+                    <div class="info-value request-title-value">
+                        {{ maintenance_request.title }}
+                    </div>
                 </div>
 
                 <div class="info-item">
-                    <label class="info-label">
-                        <i class="fas fa-user-graduate"></i>
-                        Student
-                    </label>
-                    <div class="info-value">{{ maintenance_request.student.user.username }}</div>
+                    <div class="info-label">
+                        <i class="fas fa-user"></i>
+                        دانشجوی درخواست‌کننده
+                    </div>
+                    <div class="info-value">
+                        {{ maintenance_request.student.user.username }}
+                        <small style="display: block; color: var(--text-secondary); margin-top: 0.25rem;">
+                            #{{ maintenance_request.student.student_number }}
+                        </small>
+                    </div>
                 </div>
 
                 <div class="info-item">
-                    <label class="info-label">
+                    <div class="info-label">
                         <i class="fas fa-map-marker-alt"></i>
-                        Location
-                    </label>
-                    <div class="info-value">{{ maintenance_request.full_location }}</div>
+                        مکان
+                    </div>
+                    <div class="info-value">
+                        {{ maintenance_request.full_location }}
+                    </div>
                 </div>
 
                 <div class="info-item">
-                    <label class="info-label">
-                        <i class="fas fa-cog"></i>
-                        Service Type
+                    <div class="info-label">
+                        <i class="fas fa-tools"></i>
+                        نوع سرویس
+                    </div>
+                    <div class="info-value">
+                        {{ maintenance_request.get_service_type_display }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-exclamation-circle"></i>
+                        اولویت
+                    </div>
+                    <div class="info-value">
+                        {% if maintenance_request.priority == 'high' %}
+                            <span style="color: var(--error); font-weight: 700;">
+                                <i class="fas fa-exclamation-triangle"></i> بالا
+                            </span>
+                        {% elif maintenance_request.priority == 'medium' %}
+                            <span style="color: var(--warning); font-weight: 700;">
+                                <i class="fas fa-minus-circle"></i> متوسط
+                            </span>
+                        {% elif maintenance_request.priority == 'low' %}
+                            <span style="color: var(--success); font-weight: 700;">
+                                <i class="fas fa-circle"></i> پایین
+                            </span>
+                        {% else %}
+                            {{ maintenance_request.get_priority_display }}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-calendar-alt"></i>
+                        تاریخ ایجاد
+                    </div>
+                    <div class="info-value">
+                        {{ maintenance_request.created_at|date:"j F Y - H:i" }}
+                        <small style="display: block; color: var(--text-secondary); margin-top: 0.25rem;">
+                            {{ maintenance_request.days_since_created }} روز پیش
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            {% if maintenance_request.description %}
+            <div class="description-section">
+                <div class="info-label">
+                    <i class="fas fa-align-left"></i>
+                    توضیحات کامل
+                </div>
+                <div class="description-content">
+                    {{ maintenance_request.description }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ===== START WORK FORM CARD ===== -->
+    <div class="start-work-form-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-clipboard-list"></i>
+                یادداشت‌های متخصص
+            </h2>
+            <div class="required-notice">
+                <i class="fas fa-asterisk"></i>
+                پر کردن این قسمت الزامی است
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{% url 'service:start_work' maintenance_request.id %}" class="start-work-form" id="startWorkForm">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_expert_notes" class="form-label">
+                        <i class="fas fa-sticky-note"></i>
+                        یادداشت‌های شما
+                        <span class="required">*</span>
                     </label>
-                    <div class="info-value">{{ maintenance_request.get_service_type_display }}</div>
+
+                    <textarea
+                        name="expert_notes"
+                        id="id_expert_notes"
+                        placeholder="لطفاً توضیح دهید که چه اقداماتی برای حل این مشکل انجام خواهید داد..."
+                        required
+                        minlength="10"
+                        maxlength="1000"
+                    >{{ form.expert_notes.value|default_if_none:"" }}</textarea>
+
+                    <div class="form-help">
+                        <i class="fas fa-info-circle"></i>
+                        لطفاً توضیح دهید که چه برنامه‌ای برای حل این مشکل دارید. این اطلاعات به دانشجو نمایش داده خواهد شد.
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="startWorkBtn">
+                        <span class="btn-text">
+                            <i class="fas fa-play"></i>
+                            شروع کار
+                        </span>
+                        <span class="btn-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            در حال پردازش...
+                        </span>
+                    </button>
+
+                    <a href="{% url 'service:service_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i>
+                        بازگشت به داشبورد
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== HELP SECTION ===== -->
+    <div class="request-details-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-lightbulb"></i>
+                راهنمای شروع کار
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="request-info-grid">
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-clipboard-check"></i>
+                        مرحله ۱
+                    </div>
+                    <div class="info-value">
+                        یادداشت‌های خود را با جزئیات کامل بنویسید
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-play-circle"></i>
+                        مرحله ۲
+                    </div>
+                    <div class="info-value">
+                        روی دکمه "شروع کار" کلیک کنید
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-tools"></i>
+                        مرحله ۳
+                    </div>
+                    <div class="info-value">
+                        کار خود را انجام دهید و در پایان تکمیل کنید
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-camera"></i>
+                        مرحله ۴
+                    </div>
+                    <div class="info-value">
+                        تصویر نهایی کار را آپلود کنید
+                    </div>
                 </div>
             </div>
 
             <div class="description-section">
-                <label class="info-label">
-                    <i class="fas fa-file-alt"></i>
-                    Description
-                </label>
-                <div class="description-content">{{ maintenance_request.description }}</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Start Work Form -->
-    <div class="start-work-form-card">
-        <div class="card-header">
-            <h2 class="card-title">
-                <i class="fas fa-edit"></i>
-                Work Notes
-            </h2>
-        </div>
-        <div class="card-body">
-            {% if form.errors %}
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle"></i>
-                <div class="alert-content">
-                    <strong>Please correct the following errors:</strong>
-                    {{ form.errors }}
+                <div class="info-label">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    نکات مهم
+                </div>
+                <div class="description-content">
+                    <ul style="margin: 0; padding-right: 1.5rem; line-height: 1.8;">
+                        <li>پس از شروع کار، وضعیت درخواست به "در حال انجام" تغییر می‌کند</li>
+                        <li>دانشجو از شروع کار شما مطلع خواهد شد</li>
+                        <li>یادداشت‌های شما برای دانشجو قابل مشاهده است</li>
+                        <li>لطفاً تا تکمیل کامل کار، درخواست را رها نکنید</li>
+                    </ul>
                 </div>
             </div>
-            {% endif %}
-
-            <form method="post" class="start-work-form" id="startWorkForm" action="">
-                {% csrf_token %}
-
-                <div class="form-group">
-                    {{ form.expert_notes.label_tag }}
-                    {{ form.expert_notes }}
-                    {% if form.expert_notes.help_text %}
-                    <div class="form-help">
-                        <i class="fas fa-info-circle"></i>
-                        {{ form.expert_notes.help_text }}
-                    </div>
-                    {% endif %}
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary btn-start-work" id="startWorkBtn">
-                        <i class="fas fa-play"></i>
-                        <span class="btn-text">Start Work</span>
-                    </button>
-                    <a href="{% url 'service:service_dashboard' %}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i>
-                        Back to Dashboard
-                    </a>
-                </div>
-            </form>
         </div>
     </div>
 </div>
@@ -138,4 +293,5 @@
 
 {% block extra_js %}
 <script src="{% static 'service/js/start_work.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 {% endblock %}

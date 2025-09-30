@@ -1,286 +1,391 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Completed Tasks{% endblock %}
+{% block title %}کارهای تکمیل شده{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'service/css/completed_tasks.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="completed-tasks-container">
-    <!-- Header Section -->
-    <div class="page-header">
+    <!-- ===== HEADER SECTION ===== -->
+    <header class="page-header">
         <div class="header-content">
             <div class="header-info">
-                <h1 class="page-title">
-                    <i class="fas fa-check-circle"></i>
-                    Completed Tasks
-                </h1>
-                <div class="expert-info">
-                    <span class="expert-name">{{ expert.user.username }}</span>
-                    <span class="separator">|</span>
-                    <span class="task-count">Total Completed: {{ total_completed }}</span>
-                </div>
-            </div>
-            <div class="header-actions">
-                <a href="{% url 'service:service_dashboard' %}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i>
-                    Back to Dashboard
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Search and Filter Section -->
-    <div class="search-section">
-        <div class="search-container">
-            <div class="search-input-wrapper">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="taskSearch" class="form-control search-input" placeholder="Search completed tasks...">
-            </div>
-        </div>
-        <div class="results-summary">
-            <span id="resultsCount">{{ completed_requests|length }}</span> task{{ completed_requests|length|pluralize }} found
-        </div>
-    </div>
-
-    <!-- Content Section -->
-    <div class="content-section">
-        <div class="section-header">
-            <h2 class="section-title">My Completed Work</h2>
-        </div>
-
-        {% if completed_requests %}
-            <!-- Tasks Table -->
-            <div class="table-responsive">
-                <table class="table completed-tasks-table">
-                    <thead>
-                        <tr>
-                            <th>Task Details</th>
-                            <th>Student</th>
-                            <th>Location</th>
-                            <th>Priority</th>
-                            <th>Completed</th>
-                            <th>Rating</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for request in completed_requests %}
-                        <tr class="task-row" data-task-id="{{ request.id }}">
-                            <td class="task-details-cell">
-                                <div class="task-title">{{ request.title }}</div>
-                                <div class="task-description">{{ request.description|truncatechars:50 }}</div>
-                            </td>
-                            <td class="student-cell">
-                                <div class="student-name">{{ request.student.user.username }}</div>
-                                <div class="student-number">#{{ request.student.student_number }}</div>
-                            </td>
-                            <td class="location-cell">{{ request.full_location }}</td>
-                            <td class="priority-cell">
-                                <span class="priority-badge priority-{{ request.priority }}">
-                                    {% if request.priority == 'high' %}
-                                        <i class="fas fa-exclamation-circle"></i> High
-                                    {% elif request.priority == 'medium' %}
-                                        <i class="fas fa-minus-circle"></i> Medium
-                                    {% elif request.priority == 'low' %}
-                                        <i class="fas fa-circle"></i> Low
-                                    {% else %}
-                                        {{ request.get_priority_display }}
-                                    {% endif %}
-                                </span>
-                            </td>
-                            <td class="completed-date-cell">
-                                <div class="date">{{ request.completed_at|date:"M d, Y" }}</div>
-                                <div class="time">{{ request.completed_at|date:"H:i" }}</div>
-                                <div class="ago">
-                                    {% with days_ago=request.completed_at|timesince %}
-                                        {{ days_ago }} ago
-                                    {% endwith %}
-                                </div>
-                            </td>
-                            <td class="rating-cell">
-                                {% if request.student_rating %}
-                                    <div class="rating-stars">
-                                        {% for i in "12345" %}
-                                            {% if forloop.counter <= request.student_rating %}
-                                                <i class="fas fa-star star-filled"></i>
-                                            {% else %}
-                                                <i class="far fa-star star-empty"></i>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                    <div class="rating-value">{{ request.student_rating }}/5</div>
-                                {% else %}
-                                    <span class="no-rating">No Rating</span>
-                                {% endif %}
-                            </td>
-                            <td class="actions-cell">
-                                <button class="btn btn-sm btn-primary view-details-btn" data-task-id="{{ request.id }}">
-                                    <i class="fas fa-eye"></i>
-                                    View Details
-                                </button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Task Detail Modals -->
-            {% for request in completed_requests %}
-            <div class="modal" id="taskModal{{ request.id }}">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3 class="modal-title">
-                                <i class="fas fa-clipboard-check"></i>
-                                {{ request.title }}
-                            </h3>
-                            <button type="button" class="close-btn" aria-label="Close">
-                                <i class="fas fa-times"></i>
-                            </button>
+                <div class="welcome-section">
+                    <h1 class="page-title">
+                        <i class="fas fa-clipboard-check"></i>
+                        کارهای تکمیل شده
+                    </h1>
+                    <div class="expert-summary">
+                        <div class="expert-name">
+                            <i class="fas fa-user-cog"></i>
+                            <span>متخصص: <strong>{{ expert.user.username }}</strong></span>
                         </div>
-                        <div class="modal-body">
-                            <div class="task-details-grid">
-                                <div class="detail-item">
-                                    <div class="detail-label">
-                                        <i class="fas fa-user"></i>
-                                        Student
-                                    </div>
-                                    <div class="detail-value">{{ request.student.user.username }}</div>
-                                </div>
-
-                                <div class="detail-item">
-                                    <div class="detail-label">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        Location
-                                    </div>
-                                    <div class="detail-value">{{ request.full_location }}</div>
-                                </div>
-
-                                <div class="detail-item">
-                                    <div class="detail-label">
-                                        <i class="fas fa-cogs"></i>
-                                        Service Type
-                                    </div>
-                                    <div class="detail-value">{{ request.get_service_type_display }}</div>
-                                </div>
-
-                                <div class="detail-item">
-                                    <div class="detail-label">
-                                        <i class="fas fa-calendar-check"></i>
-                                        Completed
-                                    </div>
-                                    <div class="detail-value">{{ request.completed_at|date:"F d, Y H:i" }}</div>
-                                </div>
-
-                                <div class="detail-item">
-                                    <div class="detail-label">
-                                        <i class="fas fa-clock"></i>
-                                        Work Duration
-                                    </div>
-                                    <div class="detail-value">
-                                        {% if request.work_started_at and request.completed_at %}
-                                            {{ request.work_started_at|timesince:request.completed_at }}
-                                        {% else %}
-                                            N/A
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                                <div class="detail-item">
-                                    <div class="detail-label">
-                                        <i class="fas fa-star"></i>
-                                        Student Rating
-                                    </div>
-                                    <div class="detail-value">
-                                        {% if request.student_rating %}
-                                            <div class="rating-stars">
-                                                {% for i in "12345" %}
-                                                    {% if forloop.counter <= request.student_rating %}
-                                                        <i class="fas fa-star star-filled"></i>
-                                                    {% else %}
-                                                        <i class="far fa-star star-empty"></i>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                            <span class="rating-text">{{ request.student_rating }}/5</span>
-                                        {% else %}
-                                            <span class="no-rating">No rating provided</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {% if request.description %}
-                            <div class="detail-section">
-                                <div class="section-label">
-                                    <i class="fas fa-align-left"></i>
-                                    Description
-                                </div>
-                                <div class="section-content">
-                                    {{ request.description }}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            {% if request.completion_notes %}
-                            <div class="detail-section">
-                                <div class="section-label">
-                                    <i class="fas fa-sticky-note"></i>
-                                    Completion Notes
-                                </div>
-                                <div class="section-content">
-                                    {{ request.completion_notes }}
-                                </div>
-                            </div>
-                            {% endif %}
-
-                            {% if request.student_feedback %}
-                            <div class="detail-section feedback-section">
-                                <div class="section-label">
-                                    <i class="fas fa-comment"></i>
-                                    Student Feedback
-                                </div>
-                                <div class="section-content feedback-content">
-                                    {{ request.student_feedback }}
-                                </div>
-                            </div>
-                            {% endif %}
+                        <div class="completion-stats">
+                            <i class="fas fa-trophy"></i>
+                            <span>مجموع کارهای انجام شده: <strong class="persian-number">{{ total_completed }}</strong></span>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary close-btn">
-                                <i class="fas fa-times"></i>
-                                Close
-                            </button>
+                        {% if expert.average_rating %}
+                        <div class="expert-rating">
+                            <i class="fas fa-star"></i>
+                            <span>امتیاز شما: <strong class="persian-number">{{ expert.rating_display }}</strong></span>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-            {% endfor %}
 
-        {% else %}
-            <!-- Empty State -->
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-clipboard-list"></i>
-                </div>
-                <h3 class="empty-title">No completed tasks yet</h3>
-                <p class="empty-description">
-                    Complete some maintenance requests to see them here.
-                </p>
-                <a href="{% url 'service:service_dashboard' %}" class="btn btn-primary">
-                    <i class="fas fa-arrow-left"></i>
-                    Back to Dashboard
+            <div class="header-actions">
+                <a href="{% url 'service:service_dashboard' %}" class="btn btn-back">
+                    <i class="fas fa-arrow-right"></i>
+                    <span class="btn-text">بازگشت به داشبورد</span>
                 </a>
             </div>
+        </div>
+
+        {% if expert.average_rating %}
+        <div class="achievement-section">
+            <div class="achievement-badge">
+                {% if expert.average_rating >= 4.5 %}
+                    <div class="badge badge-excellent">
+                        <i class="fas fa-crown"></i>
+                        <span>متخصص برتر</span>
+                    </div>
+                {% elif expert.average_rating >= 4.0 %}
+                    <div class="badge badge-great">
+                        <i class="fas fa-medal"></i>
+                        <span>متخصص ماهر</span>
+                    </div>
+                {% elif expert.average_rating >= 3.5 %}
+                    <div class="badge badge-good">
+                        <i class="fas fa-thumbs-up"></i>
+                        <span>عملکرد خوب</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
         {% endif %}
+    </header>
+
+    <!-- ===== SEARCH SECTION ===== -->
+    <section class="search-section">
+        <div class="search-card">
+            <div class="search-header">
+                <h3 class="search-title">
+                    <i class="fas fa-search"></i>
+                    جستجو و فیلتر
+                </h3>
+            </div>
+            <div class="search-body">
+                <div class="search-container">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="taskSearch" class="search-input" placeholder="جستجو در کارهای انجام شده...">
+                    </div>
+                </div>
+                <div class="search-results">
+                    <span class="results-text">
+                        <span id="resultsCount" class="persian-number">{{ completed_requests|length }}</span>
+                        کار پیدا شد
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTENT SECTION ===== -->
+    <section class="content-section">
+        <div class="content-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-list-check"></i>
+                    لیست کارهای تکمیل شده
+                </h2>
+                <div class="card-stats">
+                    <span class="stat-badge">
+                        <span class="persian-number">{{ total_completed }}</span>
+                        کار انجام شده
+                    </span>
+                </div>
+            </div>
+
+            <div class="card-body">
+                {% if completed_requests %}
+                    <!-- ===== TASKS TABLE ===== -->
+                    <div class="table-container">
+                        <div class="table-responsive">
+                            <table class="completed-tasks-table">
+                                <thead>
+                                    <tr>
+                                        <th>جزئیات کار</th>
+                                        <th>دانشجو</th>
+                                        <th>مکان</th>
+                                        <th>اولویت</th>
+                                        <th>تاریخ تکمیل</th>
+                                        <th>امتیاز</th>
+                                        <th>عملیات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for request in completed_requests %}
+                                    <tr class="task-row" data-task-id="{{ request.id }}">
+                                        <td class="task-details-cell">
+                                            <div class="task-info">
+                                                <div class="task-title">{{ request.title }}</div>
+                                                <div class="task-description">{{ request.description|truncatechars:50 }}</div>
+                                                <div class="task-type">
+                                                    <i class="fas fa-tools"></i>
+                                                    {{ request.get_service_type_display }}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="student-cell">
+                                            <div class="student-info">
+                                                <div class="student-avatar">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                                <div class="student-details">
+                                                    <div class="student-name">{{ request.student.user.username }}</div>
+                                                    <div class="student-number">#{{ request.student.student_number }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="location-cell">
+                                            <div class="location-info">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                                <span>{{ request.full_location }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="priority-cell">
+                                            {% if request.priority == 'high' %}
+                                                <span class="priority-badge priority-high">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                    <span>اولویت بالا</span>
+                                                </span>
+                                            {% elif request.priority == 'medium' %}
+                                                <span class="priority-badge priority-medium">
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                    <span>اولویت متوسط</span>
+                                                </span>
+                                            {% elif request.priority == 'low' %}
+                                                <span class="priority-badge priority-low">
+                                                    <i class="fas fa-circle"></i>
+                                                    <span>اولویت پایین</span>
+                                                </span>
+                                            {% else %}
+                                                <span class="priority-badge priority-default">
+                                                    {{ request.get_priority_display }}
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="completed-date-cell">
+                                            <div class="date-info">
+                                                <div class="main-date persian-number">{{ request.completed_at|date:"j F Y" }}</div>
+                                                <div class="time-info persian-number">{{ request.completed_at|date:"H:i" }}</div>
+                                                <div class="ago-info persian-number">{{ request.completed_at|timesince }} پیش</div>
+                                            </div>
+                                        </td>
+                                        <td class="rating-cell">
+                                            {% if request.student_rating %}
+                                                <div class="rating-display">
+                                                    <div class="rating-stars">
+                                                        {% for i in "12345" %}
+                                                            {% if forloop.counter <= request.student_rating %}
+                                                                <i class="fas fa-star star-filled"></i>
+                                                            {% else %}
+                                                                <i class="far fa-star star-empty"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="rating-value persian-number">{{ request.student_rating }}/۵</div>
+                                                </div>
+                                            {% else %}
+                                                <div class="no-rating">
+                                                    <i class="fas fa-clock"></i>
+                                                    <span>بدون امتیاز</span>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td class="actions-cell">
+                                            <button class="btn btn-details" data-task-id="{{ request.id }}">
+                                                <i class="fas fa-eye"></i>
+                                                <span class="btn-text">جزئیات</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                {% else %}
+                    <!-- ===== EMPTY STATE ===== -->
+                    <div class="empty-state">
+                        <div class="empty-animation">
+                            <div class="empty-icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <div class="empty-shapes">
+                                <div class="shape shape-1"></div>
+                                <div class="shape shape-2"></div>
+                                <div class="shape shape-3"></div>
+                            </div>
+                        </div>
+                        <h3 class="empty-title">هنوز کاری تکمیل نشده</h3>
+                        <p class="empty-description">
+                            وقتی کارهای خود را تکمیل کنید، در اینجا نمایش داده می‌شوند.
+                        </p>
+                        <div class="empty-actions">
+                            <a href="{% url 'service:service_dashboard' %}" class="btn btn-primary">
+                                <i class="fas fa-arrow-right"></i>
+                                <span class="btn-text">بازگشت به داشبورد</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== TASK DETAIL MODALS ===== -->
+    {% for request in completed_requests %}
+    <div class="modal-overlay" id="taskModal{{ request.id }}">
+        <div class="task-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>جزئیات کار تکمیل شده</span>
+                </h3>
+                <button type="button" class="close-btn" data-modal="taskModal{{ request.id }}">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="task-header">
+                    <h4 class="task-title">{{ request.title }}</h4>
+                    <div class="task-badges">
+                        <span class="status-badge status-completed">
+                            <i class="fas fa-check-circle"></i>
+                            <span>تکمیل شده</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="details-grid">
+                    <div class="detail-section">
+                        <div class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            <span>اطلاعات کلی</span>
+                        </div>
+                        <div class="detail-items">
+                            <div class="detail-item">
+                                <span class="label">دانشجو:</span>
+                                <span class="value">{{ request.student.user.username }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">شماره دانشجویی:</span>
+                                <span class="value persian-number">#{{ request.student.student_number }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">مکان:</span>
+                                <span class="value">{{ request.full_location }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">نوع سرویس:</span>
+                                <span class="value">{{ request.get_service_type_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <div class="section-title">
+                            <i class="fas fa-clock"></i>
+                            <span>زمان‌بندی</span>
+                        </div>
+                        <div class="detail-items">
+                            <div class="detail-item">
+                                <span class="label">تاریخ تکمیل:</span>
+                                <span class="value persian-number">{{ request.completed_at|date:"j F Y H:i" }}</span>
+                            </div>
+                            {% if request.work_started_at %}
+                            <div class="detail-item">
+                                <span class="label">مدت زمان کار:</span>
+                                <span class="value persian-number">{{ request.work_started_at|timesince:request.completed_at }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {% if request.description %}
+                <div class="content-section">
+                    <div class="section-title">
+                        <i class="fas fa-align-right"></i>
+                        <span>توضیحات درخواست</span>
+                    </div>
+                    <div class="content-text">
+                        {{ request.description }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if request.completion_notes %}
+                <div class="content-section">
+                    <div class="section-title">
+                        <i class="fas fa-sticky-note"></i>
+                        <span>یادداشت‌های تکمیل</span>
+                    </div>
+                    <div class="content-text notes-content">
+                        {{ request.completion_notes }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if request.student_feedback %}
+                <div class="content-section feedback-section">
+                    <div class="section-title">
+                        <i class="fas fa-comment-dots"></i>
+                        <span>نظر دانشجو</span>
+                    </div>
+                    <div class="feedback-content">
+                        <div class="feedback-text">{{ request.student_feedback }}</div>
+                        {% if request.student_rating %}
+                        <div class="feedback-rating">
+                            <div class="rating-stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= request.student_rating %}
+                                        <i class="fas fa-star star-filled"></i>
+                                    {% else %}
+                                        <i class="far fa-star star-empty"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="rating-text persian-number">{{ request.student_rating }}/۵</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close-btn" data-modal="taskModal{{ request.id }}">
+                    <i class="fas fa-times"></i>
+                    <span class="btn-text">بستن</span>
+                </button>
+            </div>
+        </div>
     </div>
+    {% endfor %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'service/js/completed_tasks.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 {% endblock %}

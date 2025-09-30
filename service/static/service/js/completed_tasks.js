@@ -1,210 +1,665 @@
 /**
- * Completed Tasks JavaScript
- * Handles modal interactions and task detail viewing
+ * کارهای تکمیل شده - سیستم فارسی پیشرفته
+ * Persian Completed Tasks with Beautiful Animations
  */
 
-class CompletedTasksManager {
+// توابع کمکی فارسی
+const PersianCompletedTasksUtils = {
+    toPersianNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+        str = String(str);
+        for (let i = 0; i < englishDigits.length; i++) {
+            str = str.replace(new RegExp(englishDigits[i], 'g'), persianDigits[i]);
+        }
+        return str;
+    },
+
+    toEnglishNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸ۉ';
+        const englishDigits = '0123456789';
+        str = String(str);
+        for (let i = 0; i < persianDigits.length; i++) {
+            str = str.replace(new RegExp(persianDigits[i], 'g'), englishDigits[i]);
+        }
+        return str;
+    }
+};
+
+// کلاس اصلی مدیریت کارهای تکمیل شده
+class PersianCompletedTasksManager {
     constructor() {
         this.init();
     }
 
-    /**
-     * Initialize the completed tasks functionality
-     */
     init() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.setup());
+        } else {
+            this.setup();
+        }
+    }
+
+    setup() {
+        console.log('📋 راه‌اندازی سیستم کارهای تکمیل شده...');
+
+        this.createBeautifulBackground();
+        this.convertNumbersToPersian();
         this.setupEventListeners();
+        this.setupSearchFunctionality();
+        this.setupModalSystem();
+        this.setupAnimations();
         this.setupKeyboardShortcuts();
-        console.log('Completed Tasks Manager initialized');
+        this.addParallaxEffect();
+
+        console.log('✅ سیستم کارهای تکمیل شده آماده است');
     }
 
     /**
-     * Setup event listeners
+     * ایجاد بک‌گراند زیبا
+     */
+    createBeautifulBackground() {
+        // اشکال هندسی شناور
+        const shapes = [
+            { type: 'circle', size: 120, color: '#4caf50', top: '10%', left: '10%', animation: 'float1 12s' },
+            { type: 'square', size: 80, color: '#2196f3', top: '20%', right: '15%', animation: 'float2 15s' },
+            { type: 'triangle', size: 100, color: '#ff9800', bottom: '20%', left: '20%', animation: 'float3 18s' },
+            { type: 'circle', size: 90, color: '#9c27b0', top: '60%', right: '25%', animation: 'float4 14s' },
+            { type: 'square', size: 70, color: '#00bcd4', top: '70%', left: '60%', animation: 'float5 16s' }
+        ];
+
+        const container = document.createElement('div');
+        container.className = 'geometric-shapes';
+        container.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        `;
+
+        shapes.forEach((shape, index) => {
+            const element = document.createElement('div');
+            element.className = `shape shape-${index + 1}`;
+
+            let shapeStyle = `
+                position: absolute;
+                opacity: 0.1;
+                animation: ${shape.animation} ease-in-out infinite;
+            `;
+
+            if (shape.type === 'circle') {
+                shapeStyle += `
+                    width: ${shape.size}px;
+                    height: ${shape.size}px;
+                    background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                    border-radius: 50%;
+                `;
+            } else if (shape.type === 'square') {
+                shapeStyle += `
+                    width: ${shape.size}px;
+                    height: ${shape.size}px;
+                    background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                    border-radius: 15px;
+                `;
+            } else if (shape.type === 'triangle') {
+                shapeStyle += `
+                    width: ${shape.size}px;
+                    height: ${shape.size}px;
+                    background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+                `;
+            }
+
+            Object.assign(element.style, {
+                cssText: shapeStyle,
+                top: shape.top || 'auto',
+                bottom: shape.bottom || 'auto',
+                left: shape.left || 'auto',
+                right: shape.right || 'auto'
+            });
+
+            container.appendChild(element);
+        });
+
+        document.body.appendChild(container);
+        this.addBackgroundAnimations();
+    }
+
+    addBackgroundAnimations() {
+        if (document.querySelector('#completed-tasks-animations')) return;
+
+        const style = document.createElement('style');
+        style.id = 'completed-tasks-animations';
+        style.textContent = `
+            @keyframes float1 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                33% { transform: translate(30px, -20px) rotate(120deg) scale(1.1); }
+                66% { transform: translate(-20px, 30px) rotate(240deg) scale(0.9); }
+            }
+
+            @keyframes float2 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                25% { transform: translate(-25px, 15px) rotate(90deg) scale(1.2); }
+                50% { transform: translate(35px, -25px) rotate(180deg) scale(0.8); }
+                75% { transform: translate(-15px, -35px) rotate(270deg) scale(1.1); }
+            }
+
+            @keyframes float3 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                50% { transform: translate(40px, -40px) rotate(180deg) scale(1.3); }
+            }
+
+            @keyframes float4 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                20% { transform: translate(20px, 20px) rotate(72deg) scale(1.1); }
+                40% { transform: translate(-30px, 10px) rotate(144deg) scale(0.9); }
+                60% { transform: translate(10px, -30px) rotate(216deg) scale(1.2); }
+                80% { transform: translate(-20px, -20px) rotate(288deg) scale(0.8); }
+            }
+
+            @keyframes float5 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                33% { transform: translate(-40px, 20px) rotate(120deg) scale(1.15); }
+                66% { transform: translate(20px, -40px) rotate(240deg) scale(0.85); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    /**
+     * تبدیل اعداد به فارسی
+     */
+    convertNumbersToPersian() {
+        // تبدیل شماره‌ها
+        document.querySelectorAll('.persian-number').forEach(element => {
+            const text = element.textContent;
+            element.textContent = PersianCompletedTasksUtils.toPersianNumbers(text);
+        });
+
+        // آمار کارت‌ها
+        document.querySelectorAll('.stat-badge, .card-stats').forEach(element => {
+            const text = element.textContent;
+            element.textContent = PersianCompletedTasksUtils.toPersianNumbers(text);
+        });
+
+        // امتیازها
+        document.querySelectorAll('.rating-value, .rating-text').forEach(element => {
+            const text = element.textContent;
+            element.textContent = PersianCompletedTasksUtils.toPersianNumbers(text);
+        });
+    }
+
+    /**
+     * تنظیم رویدادها
      */
     setupEventListeners() {
-        // View details button clicks
-        document.querySelectorAll('.view-details-btn').forEach(btn => {
-            btn.addEventListener('click', this.handleViewDetailsClick.bind(this));
-        });
-
-        // Table row clicks (alternative way to view details)
+        // کلیک روی ردیف‌های جدول
         document.querySelectorAll('.task-row').forEach(row => {
-            row.addEventListener('click', this.handleTableRowClick.bind(this));
+            row.addEventListener('click', (e) => this.handleTableRowClick(e, row));
+            row.addEventListener('mouseenter', () => this.handleRowHover(row, true));
+            row.addEventListener('mouseleave', () => this.handleRowHover(row, false));
         });
 
-        // Modal close buttons
+        // دکمه‌های جزئیات
+        document.querySelectorAll('.btn-details').forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleDetailsClick(e, btn));
+        });
+
+        // دکمه‌های بستن مودال
         document.querySelectorAll('.close-btn').forEach(btn => {
-            btn.addEventListener('click', this.handleModalClose.bind(this));
+            btn.addEventListener('click', (e) => this.handleModalClose(e, btn));
         });
 
-        // Modal background clicks (close modal)
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', this.handleModalBackgroundClick.bind(this));
+        // کلیک روی پس‌زمینه مودال
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => this.handleModalBackgroundClick(e, modal));
         });
 
-        // Prevent modal content clicks from closing modal
-        document.querySelectorAll('.modal-content').forEach(content => {
-            content.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
-        });
-
-        // Search functionality
-        const searchInput = document.querySelector('#taskSearch');
-        if (searchInput) {
-            searchInput.addEventListener('input', this.debounce(this.handleSearch.bind(this), 300));
+        // دکمه بازگشت
+        const backBtn = document.querySelector('.btn-back');
+        if (backBtn) {
+            backBtn.addEventListener('click', (e) => this.handleBackClick(e, backBtn));
         }
     }
 
     /**
-     * Setup keyboard shortcuts
+     * راه‌اندازی جستجو
+     */
+    setupSearchFunctionality() {
+        const searchInput = document.getElementById('taskSearch');
+        if (!searchInput) return;
+
+        searchInput.addEventListener('input', this.debounce((e) => {
+            this.performSearch(e.target.value);
+        }, 300));
+
+        // افکت focus
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.style.transform = 'scale(1.02)';
+            searchInput.parentElement.style.boxShadow = '0 8px 25px rgba(25, 118, 210, 0.15)';
+        });
+
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.style.transform = '';
+            searchInput.parentElement.style.boxShadow = '';
+        });
+    }
+
+    /**
+     * انجام جستجو
+     */
+    performSearch(query) {
+        const searchTerm = query.toLowerCase().trim();
+        const tableRows = document.querySelectorAll('.task-row');
+        let visibleCount = 0;
+
+        tableRows.forEach(row => {
+            const searchText = row.textContent.toLowerCase();
+            const shouldShow = searchTerm === '' || searchText.includes(searchTerm);
+
+            if (shouldShow) {
+                row.style.display = '';
+                visibleCount++;
+
+                // انیمیشن ظاهر شدن
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, 50);
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        this.updateSearchResults(visibleCount, tableRows.length);
+    }
+
+    /**
+     * به‌روزرسانی نتایج جستجو
+     */
+    updateSearchResults(visible, total) {
+        const resultsCount = document.getElementById('resultsCount');
+        const resultsText = document.querySelector('.results-text');
+
+        if (resultsCount) {
+            resultsCount.textContent = PersianCompletedTasksUtils.toPersianNumbers(visible);
+        }
+
+        if (resultsText && visible !== total) {
+            resultsText.innerHTML = `<span id="resultsCount" class="persian-number">${PersianCompletedTasksUtils.toPersianNumbers(visible)}</span> از ${PersianCompletedTasksUtils.toPersianNumbers(total)} کار`;
+        } else if (resultsText) {
+            resultsText.innerHTML = `<span id="resultsCount" class="persian-number">${PersianCompletedTasksUtils.toPersianNumbers(visible)}</span> کار پیدا شد`;
+        }
+    }
+
+    /**
+     * سیستم مودال
+     */
+    setupModalSystem() {
+        // مخفی کردن همه مودال‌ها در ابتدا
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.style.display = 'none';
+        });
+    }
+
+    /**
+     * مدیریت کلیک روی ردیف جدول
+     */
+    handleTableRowClick(event, row) {
+        // عدم تداخل با دکمه‌ها
+        if (event.target.closest('.btn') || event.target.closest('button')) {
+            return;
+        }
+
+        const taskId = row.getAttribute('data-task-id');
+        if (taskId) {
+            this.showTaskModal(taskId);
+        }
+    }
+
+    /**
+     * مدیریت hover روی ردیف
+     */
+    handleRowHover(row, isEntering) {
+        const avatar = row.querySelector('.student-avatar');
+        const priorityBadge = row.querySelector('.priority-badge');
+
+        if (isEntering) {
+            if (avatar) avatar.style.transform = 'scale(1.1) rotate(5deg)';
+            if (priorityBadge) priorityBadge.style.transform = 'scale(1.05)';
+        } else {
+            if (avatar) avatar.style.transform = '';
+            if (priorityBadge) priorityBadge.style.transform = '';
+        }
+    }
+
+    /**
+     * مدیریت کلیک دکمه جزئیات
+     */
+    handleDetailsClick(event, btn) {
+        event.stopPropagation();
+
+        const taskId = btn.getAttribute('data-task-id');
+        if (taskId) {
+            // انیمیشن دکمه
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = '';
+                this.showTaskModal(taskId);
+            }, 150);
+        }
+    }
+
+    /**
+     * نمایش مودال کار
+     */
+    showTaskModal(taskId) {
+        const modal = document.getElementById(`taskModal${taskId}`);
+        if (modal) {
+            // بستن سایر مودال‌ها
+            this.closeAllModals();
+
+            // نمایش مودال
+            modal.style.display = 'flex';
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            // تمرکز روی دکمه بستن
+            const closeBtn = modal.querySelector('.close-btn');
+            if (closeBtn) {
+                setTimeout(() => closeBtn.focus(), 100);
+            }
+
+            // صدای موفقیت
+            this.playSuccessSound();
+
+            console.log(`📋 مودال کار ${taskId} باز شد`);
+        }
+    }
+
+    /**
+     * مدیریت بستن مودال
+     */
+    handleModalClose(event, btn) {
+        event.preventDefault();
+        const modalId = btn.getAttribute('data-modal');
+        const modal = document.getElementById(modalId);
+
+        if (modal) {
+            this.hideModal(modal);
+        }
+    }
+
+    /**
+     * مدیریت کلیک پس‌زمینه مودال
+     */
+    handleModalBackgroundClick(event, modal) {
+        if (event.target === modal) {
+            this.hideModal(modal);
+        }
+    }
+
+    /**
+     * مخفی کردن مودال
+     */
+    hideModal(modal) {
+        modal.classList.remove('show');
+
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }, 300);
+
+        console.log('📋 مودال بسته شد');
+    }
+
+    /**
+     * بستن همه مودال‌ها
+     */
+    closeAllModals() {
+        document.querySelectorAll('.modal-overlay.show').forEach(modal => {
+            this.hideModal(modal);
+        });
+    }
+
+    /**
+     * مدیریت کلیک دکمه بازگشت
+     */
+    handleBackClick(event, btn) {
+        // انیمیشن دکمه
+        btn.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            btn.style.transform = '';
+        }, 150);
+    }
+
+    /**
+     * راه‌اندازی انیمیشن‌ها
+     */
+    setupAnimations() {
+        // انیمیشن کارت‌ها
+        this.animateCards();
+
+        // انیمیشن جدول
+        this.animateTable();
+
+        // انیمیشن اسکرول
+        this.setupScrollAnimations();
+    }
+
+    animateCards() {
+        const cards = [
+            { el: document.querySelector('.page-header'), delay: 100 },
+            { el: document.querySelector('.search-section'), delay: 250 },
+            { el: document.querySelector('.content-section'), delay: 400 }
+        ];
+
+        cards.forEach(({ el, delay }) => {
+            if (el) {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+
+                setTimeout(() => {
+                    el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, delay);
+            }
+        });
+    }
+
+    animateTable() {
+        const rows = document.querySelectorAll('.task-row');
+        rows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(20px)';
+
+            setTimeout(() => {
+                row.style.transition = 'all 0.4s ease';
+                row.style.opacity = '1';
+                row.style.transform = 'translateX(0)';
+            }, 600 + (index * 50));
+        });
+    }
+
+    setupScrollAnimations() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        document.querySelectorAll('.content-card, .search-card').forEach(el => {
+            observer.observe(el);
+        });
+    }
+
+    /**
+     * میانبرهای صفحه‌کلید
      */
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
-            // Escape key closes modals
+            // Escape = بستن مودال‌ها
             if (e.key === 'Escape') {
                 this.closeAllModals();
             }
 
-            // Ctrl/Cmd + B = Back to Dashboard
+            // Ctrl/Cmd + F = تمرکز روی جستجو
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                const searchInput = document.getElementById('taskSearch');
+                if (searchInput) {
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            }
+
+            // Ctrl/Cmd + B = بازگشت
             if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
                 e.preventDefault();
-                const backBtn = document.querySelector('a[href*="service_dashboard"]');
+                const backBtn = document.querySelector('.btn-back');
                 if (backBtn) {
-                    window.location.href = backBtn.href;
+                    backBtn.click();
+                }
+            }
+
+            // Enter = باز کردن اولین نتیجه
+            if (e.key === 'Enter' && document.activeElement.id === 'taskSearch') {
+                const firstVisibleRow = document.querySelector('.task-row[style*="display: none"] ~ .task-row, .task-row:not([style*="display: none"])');
+                if (firstVisibleRow) {
+                    const taskId = firstVisibleRow.getAttribute('data-task-id');
+                    if (taskId) {
+                        this.showTaskModal(taskId);
+                    }
                 }
             }
         });
     }
 
     /**
-     * Handle view details button clicks
+     * افکت parallax
      */
-    handleViewDetailsClick(e) {
-        e.stopPropagation();
-        const btn = e.currentTarget;
-        const taskId = btn.getAttribute('data-task-id');
+    addParallaxEffect() {
+        let ticking = false;
 
-        if (taskId) {
-            this.showTaskModal(taskId);
-        }
-    }
+        const updateParallax = (e) => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    const mouseX = e.clientX / window.innerWidth;
+                    const mouseY = e.clientY / window.innerHeight;
 
-    /**
-     * Handle table row clicks (show modal)
-     */
-    handleTableRowClick(e) {
-        // Don't trigger if clicking on a button
-        if (e.target.closest('.btn') || e.target.closest('button')) {
-            return;
-        }
+                    const shapes = document.querySelectorAll('.shape');
+                    shapes.forEach((shape, index) => {
+                        const speed = (index + 1) * 0.3;
+                        const x = (mouseX - 0.5) * speed * 20;
+                        const y = (mouseY - 0.5) * speed * 20;
 
-        const row = e.currentTarget;
-        const taskId = row.getAttribute('data-task-id');
+                        const currentTransform = shape.style.transform || '';
+                        const baseTransform = currentTransform.replace(/translate\([^)]*\)/g, '');
+                        shape.style.transform = `translate(${x}px, ${y}px) ${baseTransform}`;
+                    });
 
-        if (taskId) {
-            this.showTaskModal(taskId);
-        }
-    }
-
-    /**
-     * Show task modal
-     */
-    showTaskModal(taskId) {
-        const modal = document.getElementById(`taskModal${taskId}`);
-        if (modal) {
-            // Close any other open modals first
-            this.closeAllModals();
-
-            // Show the modal
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
-
-            // Focus management for accessibility
-            const closeBtn = modal.querySelector('.close-btn');
-            if (closeBtn) {
-                closeBtn.focus();
+                    ticking = false;
+                });
+                ticking = true;
             }
+        };
 
-            console.log(`Opened modal for task ${taskId}`);
+        window.addEventListener('mousemove', updateParallax);
+    }
+
+    /**
+     * پخش صدای موفقیت
+     */
+    playSuccessSound() {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        } catch (error) {
+            console.log('🔇 خطا در پخش صدا:', error);
         }
     }
 
     /**
-     * Handle modal close button clicks
+     * نمایش اعلان
      */
-    handleModalClose(e) {
-        const modal = e.currentTarget.closest('.modal');
-        if (modal) {
-            this.hideModal(modal);
-        }
+    showNotification(message, type = 'info') {
+        const colors = {
+            'success': 'linear-gradient(135deg, #4caf50, #388e3c)',
+            'error': 'linear-gradient(135deg, #f44336, #d32f2f)',
+            'warning': 'linear-gradient(135deg, #ff9800, #f57c00)',
+            'info': 'linear-gradient(135deg, #2196f3, #1976d2)'
+        };
+
+        const icons = {
+            'success': '✓',
+            'error': '✕',
+            'warning': '!',
+            'info': 'ℹ'
+        };
+
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: ${colors[type]};
+            color: white;
+            padding: 1.2rem 2rem;
+            border-radius: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            font-family: 'Vazirmatn', sans-serif;
+            direction: rtl;
+            font-weight: 700;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        `;
+
+        notification.innerHTML = `
+            <span style="font-size: 1.3rem;">${icons[type]}</span>
+            <span>${message}</span>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            setTimeout(() => notification.remove(), 400);
+        }, 4000);
     }
 
     /**
-     * Handle modal background clicks
-     */
-    handleModalBackgroundClick(e) {
-        if (e.target === e.currentTarget) {
-            this.hideModal(e.currentTarget);
-        }
-    }
-
-    /**
-     * Hide specific modal
-     */
-    hideModal(modal) {
-        modal.classList.remove('show');
-        document.body.style.overflow = ''; // Restore scrolling
-        console.log('Modal closed');
-    }
-
-    /**
-     * Close all open modals
-     */
-    closeAllModals() {
-        document.querySelectorAll('.modal.show').forEach(modal => {
-            this.hideModal(modal);
-        });
-    }
-
-    /**
-     * Handle search functionality
-     */
-    handleSearch(e) {
-        const query = e.target.value.toLowerCase().trim();
-        const tableRows = document.querySelectorAll('.task-row');
-        let visibleCount = 0;
-
-        tableRows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            const shouldShow = query === '' || text.includes(query);
-
-            row.style.display = shouldShow ? '' : 'none';
-            if (shouldShow) visibleCount++;
-        });
-
-        // Update results count
-        this.updateResultsCount(visibleCount, tableRows.length);
-    }
-
-    /**
-     * Update results count display
-     */
-    updateResultsCount(visible, total) {
-        const resultsCount = document.getElementById('resultsCount');
-        if (resultsCount) {
-            resultsCount.textContent = visible;
-        }
-
-        const resultsSummary = document.querySelector('.results-summary');
-        if (resultsSummary && visible !== total) {
-            resultsSummary.innerHTML = `<span id="resultsCount">${visible}</span> of ${total} tasks shown`;
-        } else if (resultsSummary) {
-            resultsSummary.innerHTML = `<span id="resultsCount">${visible}</span> task${visible !== 1 ? 's' : ''} found`;
-        }
-    }
-
-    /**
-     * Utility: Debounce function
+     * Debounce function
      */
     debounce(func, wait) {
         let timeout;
@@ -219,131 +674,41 @@ class CompletedTasksManager {
     }
 
     /**
-     * Show notification
+     * تنظیم مجدد سیستم
      */
-    showNotification(message, type = 'info') {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `alert alert-${type} notification-toast`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="fas fa-info-circle"></i>
-                <span>${message}</span>
-                <button type="button" class="notification-close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
+    reset() {
+        this.closeAllModals();
 
-        // Add to page
-        document.body.appendChild(notification);
-
-        // Setup close button
-        const closeBtn = notification.querySelector('.notification-close');
-        closeBtn.addEventListener('click', () => {
-            this.hideNotification(notification);
-        });
-
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-            this.hideNotification(notification);
-        }, 5000);
-
-        // Show with animation
-        setTimeout(() => {
-            notification.classList.add('show');
-        }, 100);
-    }
-
-    /**
-     * Hide notification
-     */
-    hideNotification(notification) {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }
-
-    /**
-     * Add loading state to element
-     */
-    addLoadingState(element, text = 'Loading...') {
-        element.classList.add('loading');
-        element.dataset.originalContent = element.innerHTML;
-        element.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${text}`;
-        element.disabled = true;
-    }
-
-    /**
-     * Remove loading state from element
-     */
-    removeLoadingState(element) {
-        element.classList.remove('loading');
-        element.innerHTML = element.dataset.originalContent || element.innerHTML;
-        element.disabled = false;
-        delete element.dataset.originalContent;
-    }
-
-    /**
-     * Smooth scroll to element
-     */
-    scrollToElement(element, offset = 0) {
-        const elementPosition = element.offsetTop - offset;
-        window.scrollTo({
-            top: elementPosition,
-            behavior: 'smooth'
-        });
-    }
-
-    /**
-     * Copy text to clipboard
-     */
-    async copyToClipboard(text) {
-        try {
-            await navigator.clipboard.writeText(text);
-            this.showNotification('Copied to clipboard!', 'success');
-        } catch (err) {
-            console.error('Failed to copy text: ', err);
-            this.showNotification('Failed to copy text', 'danger');
+        const searchInput = document.getElementById('taskSearch');
+        if (searchInput) {
+            searchInput.value = '';
+            this.performSearch('');
         }
-    }
 
-    /**
-     * Format date for display
-     */
-    formatDate(dateString, options = {}) {
-        const defaultOptions = {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        };
-
-        const finalOptions = { ...defaultOptions, ...options };
-        return new Date(dateString).toLocaleDateString('en-US', finalOptions);
-    }
-
-    /**
-     * Animate element
-     */
-    animateElement(element, animation = 'pulse') {
-        element.style.animation = `${animation} 0.3s ease`;
-        setTimeout(() => {
-            element.style.animation = '';
-        }, 300);
+        console.log('📋 سیستم بازنشانی شد');
     }
 }
 
-// Initialize when DOM is loaded
+// راه‌اندازی سیستم
 document.addEventListener('DOMContentLoaded', () => {
-    window.completedTasksManager = new CompletedTasksManager();
+    window.persianCompletedTasksManager = new PersianCompletedTasksManager();
 });
 
-// Export for potential module usage
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CompletedTasksManager;
-}
+// انیمیشن‌های اضافی
+const animStyle = document.createElement('style');
+animStyle.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(animStyle);
+
+// Export
+window.PersianCompletedTasksUtils = PersianCompletedTasksUtils;
+
+console.log('✅ ماژول کارهای تکمیل شده بارگذاری شد');
