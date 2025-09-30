@@ -1,24 +1,29 @@
 <!-- templates/service/login.html -->
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Service Expert Login - Dormitory System</title>
+    <title>ورود متخصصان سرویس - سامانه خوابگاه</title>
     <link rel="stylesheet" href="{% static 'service/css/login.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="description" content="پورتال متخصضان سرویس - سامانه مدیریت تعمیرات خوابگاه">
+    <meta name="theme-color" content="#1976d2">
 </head>
 <body>
+
 <div class="auth-container">
+    <!-- Main Content - سمت راست -->
     <div class="auth-card">
         <div class="auth-header">
             <div class="logo">
-                <i class="icon-tools"></i>
-                <h1>Service Portal</h1>
+                <i class="fas fa-tools"></i>
+                <h1>پورتال سرویس</h1>
             </div>
-            <h2>Expert Login</h2>
-            <p>Access your service dashboard</p>
+            <h2>ورود متخصصان</h2>
+            <p>دسترسی به داشبورد خدمات شما</p>
         </div>
 
         <form method="post" class="auth-form" id="expertLoginForm">
@@ -35,112 +40,109 @@
             </div>
             {% endif %}
 
-            <!-- Employee ID Field -->
+            <!-- فیلد شناسه کارمند -->
             <div class="form-group">
-                <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                <label for="{{ form.username.id_for_label }}">شناسه کارمند</label>
                 <div class="input-wrapper">
-                    <i class="icon-badge"></i>
+                    <i class="fas fa-id-card"></i>
                     {{ form.username }}
-                    {% if form.username.errors %}
+                </div>
+                {% if form.username.errors %}
                     <div class="error-message">{{ form.username.errors.0 }}</div>
-                    {% endif %}
-                </div>
-                <small class="field-hint">Enter your employee identification number</small>
+                {% endif %}
+                <small class="field-hint">شماره شناسایی کارمندی خود را وارد کنید</small>
             </div>
 
-            <!-- Password Field -->
+            <!-- فیلد رمز عبور -->
             <div class="form-group">
-                <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                <label for="{{ form.password.id_for_label }}">رمز عبور</label>
                 <div class="input-wrapper password-input">
-                    <i class="icon-lock"></i>
+                    <i class="fas fa-lock"></i>
                     {{ form.password }}
-                    <button type="button" class="toggle-password"
-                            onclick="togglePassword('{{ form.password.id_for_label }}')">
-                        <i class="icon-eye" id="toggleIcon"></i>
+                    <button type="button" class="toggle-password" onclick="togglePassword('{{ form.password.id_for_label }}')">
+                        <i class="fas fa-eye" id="toggleIcon"></i>
                     </button>
-                    {% if form.password.errors %}
-                    <div class="error-message">{{ form.password.errors.0 }}</div>
-                    {% endif %}
                 </div>
+                {% if form.password.errors %}
+                    <div class="error-message">{{ form.password.errors.0 }}</div>
+                {% endif %}
             </div>
 
-            <!-- Non-field errors (from form.clean()) -->
+            <!-- خطاهای کلی فرم -->
             {% if form.non_field_errors %}
             <div class="form-group">
                 <div class="error-message global-error">
-                    <i class="icon-warning"></i>
+                    <i class="fas fa-exclamation-triangle"></i>
                     {{ form.non_field_errors.0 }}
                 </div>
             </div>
             {% endif %}
 
-            <!-- Form Options -->
+            <!-- گزینه‌های فرم -->
             <div class="form-options">
                 <label class="checkbox-wrapper">
                     {{ form.remember_me }}
                     <span class="checkmark"></span>
-                    {{ form.remember_me.label }}
+                    <span>مرا به خاطر بسپار</span>
                 </label>
-                <a href="{% url 'service:forgot_password' %}" class="forgot-password">Reset password?</a>
+                <a href="{% url 'service:forgot_password' %}" class="forgot-password">بازیابی رمز عبور؟</a>
             </div>
 
-            <!-- Submit Button -->
+            <!-- دکمه ورود -->
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary" id="loginBtn">
-                        <span class="btn-text">
-                            <i class="icon-login"></i>
-                            Access Dashboard
-                        </span>
+                    <span class="btn-text">
+                        <i class="fas fa-sign-in-alt"></i>
+                        ورود به داشبورد
+                    </span>
                     <div class="btn-loader">
                         <div class="spinner"></div>
                     </div>
                 </button>
             </div>
-
         </form>
+
+        <div class="auth-footer">
+            <p>نیاز به کمک دارید؟ با پشتیبانی IT تماس بگیرید</p>
+        </div>
     </div>
 
-    <!-- Expert Features Sidebar -->
+    <!-- Sidebar - سمت چپ -->
     <div class="auth-sidebar">
         <div class="sidebar-content">
-            <h3>Expert Dashboard</h3>
-            <div class="features">
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Manage maintenance requests</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Track work progress</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Upload completion photos</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Receive service ratings</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Real-time notifications</span>
-                </div>
-            </div>
+            <h3>به پورتال متخصصان خوش آمدید</h3>
+            <ul class="feature-list">
+                <li>
+                    <span>مدیریت کارآمد درخواست‌های تعمیرات</span>
+                    <i class="fas fa-check-circle"></i>
+                </li>
+                <li>
+                    <span>پیگیری و به‌روزرسانی وظایف در لحظه</span>
+                    <i class="fas fa-check-circle"></i>
+                </li>
+                <li>
+                    <span>آپلود فوری تصاویر تکمیل کار</span>
+                    <i class="fas fa-check-circle"></i>
+                </li>
+                <li>
+                    <span>دریافت امتیاز خدمات از دانشجویان</span>
+                    <i class="fas fa-check-circle"></i>
+                </li>
+                <li>
+                    <span>دسترسی ۲۴ ساعته به داشبورد شما</span>
+                    <i class="fas fa-check-circle"></i>
+                </li>
+            </ul>
 
-            <div class="expert-stats">
-                <div class="stat-item">
-                    <div class="stat-number">250+</div>
-                    <div class="stat-label">Completed Tasks</div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" data-target="250">۲۵۰+</div>
+                    <div class="stat-label">کار تکمیل شده</div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number">4.8★</div>
-                    <div class="stat-label">Average Rating</div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="48">۴.۸★</div>
+                    <div class="stat-label">میانگین امتیاز</div>
                 </div>
-            </div>
-
-            <div class="specialist-badge">
-                <i class="icon-award"></i>
-                <span>Certified Service Specialist</span>
             </div>
         </div>
     </div>
@@ -150,7 +152,7 @@
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner">
         <div class="spinner-ring"></div>
-        <div class="loading-text">Authenticating...</div>
+        <div class="loading-text">در حال احراز هویت...</div>
     </div>
 </div>
 

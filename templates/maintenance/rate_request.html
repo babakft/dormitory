@@ -1,62 +1,94 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Rate Maintenance Service{% endblock %}
+{% block title %}امتیازدهی به خدمات{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'maintenance/css/rate_request.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="rating-container">
-    <!-- Header Section -->
+    <!-- بخش هدر -->
     <div class="rating-header">
         <div class="header-content">
             <div class="icon-section">
-                <i class="fas fa-star"></i>
+                <div class="header-icon">⭐</div>
             </div>
             <div class="title-section">
-                <h1 class="page-title">Rate Maintenance Service</h1>
-                <p class="page-subtitle">Your feedback helps us improve our services</p>
+                <h1 class="page-title">امتیازدهی به خدمات تعمیرات</h1>
+                <p class="page-subtitle">نظر شما به ما در بهبود خدمات کمک می‌کند</p>
             </div>
+        </div>
+        <div class="breadcrumb">
+            <a href="{% url 'student:student_dashboard' %}" class="breadcrumb-link">
+                <i class="fas fa-home"></i> داشبورد
+            </a>
+            <i class="fas fa-chevron-left breadcrumb-separator"></i>
+            <a href="{% url 'maintenance:detail' maintenance_request.pk %}" class="breadcrumb-link">
+                جزئیات درخواست
+            </a>
+            <i class="fas fa-chevron-left breadcrumb-separator"></i>
+            <span class="breadcrumb-current">امتیازدهی</span>
         </div>
     </div>
 
-    <!-- Request Summary Card -->
+    <!-- خلاصه درخواست -->
     <div class="summary-card">
         <div class="card-header">
             <h2 class="card-title">
                 <i class="fas fa-clipboard-list"></i>
-                Request Summary
+                خلاصه درخواست
             </h2>
         </div>
         <div class="card-body">
             <div class="summary-grid">
                 <div class="summary-item">
-                    <label class="summary-label">Title</label>
-                    <div class="summary-value">{{ maintenance_request.title }}</div>
+                    <div class="summary-icon">
+                        <i class="fas fa-heading"></i>
+                    </div>
+                    <div class="summary-content">
+                        <label class="summary-label">عنوان</label>
+                        <div class="summary-value">{{ maintenance_request.title }}</div>
+                    </div>
                 </div>
                 <div class="summary-item">
-                    <label class="summary-label">Location</label>
-                    <div class="summary-value">{{ maintenance_request.full_location }}</div>
+                    <div class="summary-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="summary-content">
+                        <label class="summary-label">مکان</label>
+                        <div class="summary-value">{{ maintenance_request.full_location }}</div>
+                    </div>
                 </div>
                 <div class="summary-item">
-                    <label class="summary-label">Expert</label>
-                    <div class="summary-value">{{ maintenance_request.assigned_expert.user.username }}</div>
+                    <div class="summary-icon">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <div class="summary-content">
+                        <label class="summary-label">متخصص</label>
+                        <div class="summary-value">{{ maintenance_request.assigned_expert.user.username }}</div>
+                    </div>
                 </div>
                 <div class="summary-item">
-                    <label class="summary-label">Completed</label>
-                    <div class="summary-value">{{ maintenance_request.completed_at|date:"M d, Y" }}</div>
+                    <div class="summary-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="summary-content">
+                        <label class="summary-label">تاریخ تکمیل</label>
+                        <div class="summary-value">{{ maintenance_request.completed_at|date:"d F Y" }}</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Rating Form Card -->
+    <!-- فرم امتیازدهی -->
     <div class="rating-card">
         <div class="card-header">
             <h2 class="card-title">
                 <i class="fas fa-star-half-alt"></i>
-                Your Rating
+                امتیاز و نظر شما
             </h2>
         </div>
         <div class="card-body">
@@ -64,120 +96,119 @@
                 {% csrf_token %}
 
                 {% if form.errors %}
-                <div class="error-container">
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <div class="error-content">
-                            <h4>Please correct the following errors:</h4>
-                            <ul class="error-list">
-                                {% for field, errors in form.errors.items %}
-                                    {% for error in errors %}
-                                        <li>{{ error }}</li>
-                                    {% endfor %}
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="alert-content">
+                        <h4>لطفاً خطاهای زیر را برطرف کنید:</h4>
+                        <ul class="error-list">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <li>{{ error }}</li>
                                 {% endfor %}
-                            </ul>
-                        </div>
+                            {% endfor %}
+                        </ul>
                     </div>
                 </div>
                 {% endif %}
 
-                <!-- Rating Section -->
+                <!-- بخش امتیاز -->
                 <div class="form-group rating-group">
-                    <label class="form-label">{{ form.student_rating.label }}</label>
-                    <div class="rating-options">
+                    <label class="form-label">
+                        <i class="fas fa-star"></i>
+                        {{ form.student_rating.label }}
+                    </label>
+                    <div class="star-rating-container">
+                        <div class="star-rating-display" id="starRatingDisplay">
+                            <span class="star" data-value="1">★</span>
+                            <span class="star" data-value="2">★</span>
+                            <span class="star" data-value="3">★</span>
+                            <span class="star" data-value="4">★</span>
+                            <span class="star" data-value="5">★</span>
+                        </div>
+                        <div class="rating-text" id="ratingText">امتیاز خود را انتخاب کنید</div>
+                    </div>
+
+                    <!-- Hidden radio buttons -->
+                    <div class="rating-options" style="display: none;">
                         {% for choice in form.student_rating %}
-                            <div class="rating-option" data-value="{{ choice.choice_value }}">
-                                {{ choice.tag }}
-                                <div class="rating-visual">
-                                    <div class="stars">
-                                        {% if choice.choice_value == "1" %}★☆☆☆☆{% endif %}
-                                        {% if choice.choice_value == "2" %}★★☆☆☆{% endif %}
-                                        {% if choice.choice_value == "3" %}★★★☆☆{% endif %}
-                                        {% if choice.choice_value == "4" %}★★★★☆{% endif %}
-                                        {% if choice.choice_value == "5" %}★★★★★{% endif %}
-                                    </div>
-                                    <div class="rating-label">{{ choice.choice_label }}</div>
-                                </div>
-                            </div>
+                            {{ choice.tag }}
                         {% endfor %}
                     </div>
+
                     <div class="rating-help">
                         <i class="fas fa-info-circle"></i>
-                        Your rating helps us improve our maintenance services
+                        امتیاز شما به بهبود کیفیت خدمات کمک می‌کند
                     </div>
                 </div>
 
-                <!-- Feedback Section -->
+                <!-- بخش نظرات -->
                 <div class="form-group feedback-group">
                     <label class="form-label" for="{{ form.student_feedback.id_for_label }}">
+                        <i class="fas fa-comment-alt"></i>
                         {{ form.student_feedback.label }}
                     </label>
                     {{ form.student_feedback }}
                     <div class="feedback-help">
-                        Share details about the quality of work, expert's professionalism, timeliness, etc.
+                        جزئیات کیفیت کار، رفتار متخصص، زمان انجام و... را بنویسید
+                    </div>
+                    <div class="char-counter">
+                        <span id="charCount">۰</span> کاراکتر
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
+                <!-- دکمه‌های فرم -->
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary btn-submit" id="submitBtn">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
                         <i class="fas fa-paper-plane"></i>
-                        <span class="btn-text">Submit Rating</span>
-                        <span class="btn-loading">Submitting...</span>
+                        <span class="btn-text">ثبت امتیاز</span>
+                        <div class="btn-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            در حال ارسال...
+                        </div>
                     </button>
-                    <a href="{% url 'maintenance:detail' maintenance_request.pk %}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left"></i>
-                        Back to Request Details
+                    <a href="{% url 'maintenance:detail' maintenance_request.pk %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i>
+                        بازگشت
                     </a>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Rating Guidelines Card -->
+    <!-- راهنمای امتیازدهی -->
     <div class="guidelines-card">
         <div class="card-header">
             <h2 class="card-title">
                 <i class="fas fa-lightbulb"></i>
-                Rating Guidelines
+                راهنمای امتیازدهی
             </h2>
         </div>
         <div class="card-body">
             <div class="guidelines-grid">
                 <div class="guideline-item">
-                    <div class="guideline-rating">
-                        <span class="stars">★★★★★</span>
-                        <span class="rating-text">5 Stars - Excellent</span>
-                    </div>
-                    <div class="guideline-description">Outstanding work, exceeded expectations</div>
+                    <div class="guideline-stars">★★★★★</div>
+                    <div class="guideline-title">۵ ستاره - عالی</div>
+                    <div class="guideline-description">کار فوق‌العاده و فراتر از انتظار</div>
                 </div>
                 <div class="guideline-item">
-                    <div class="guideline-rating">
-                        <span class="stars">★★★★☆</span>
-                        <span class="rating-text">4 Stars - Very Good</span>
-                    </div>
-                    <div class="guideline-description">High quality work, met expectations</div>
+                    <div class="guideline-stars">★★★★☆</div>
+                    <div class="guideline-title">۴ ستاره - خوب</div>
+                    <div class="guideline-description">کار با کیفیت و مطابق انتظار</div>
                 </div>
                 <div class="guideline-item">
-                    <div class="guideline-rating">
-                        <span class="stars">★★★☆☆</span>
-                        <span class="rating-text">3 Stars - Good</span>
-                    </div>
-                    <div class="guideline-description">Satisfactory work, acceptable quality</div>
+                    <div class="guideline-stars">★★★☆☆</div>
+                    <div class="guideline-title">۳ ستاره - متوسط</div>
+                    <div class="guideline-description">کار قابل قبول با کیفیت معمولی</div>
                 </div>
                 <div class="guideline-item">
-                    <div class="guideline-rating">
-                        <span class="stars">★★☆☆☆</span>
-                        <span class="rating-text">2 Stars - Fair</span>
-                    </div>
-                    <div class="guideline-description">Below expectations, some issues</div>
+                    <div class="guideline-stars">★★☆☆☆</div>
+                    <div class="guideline-title">۲ ستاره - ضعیف</div>
+                    <div class="guideline-description">کار زیر انتظار با مشکلاتی</div>
                 </div>
                 <div class="guideline-item">
-                    <div class="guideline-rating">
-                        <span class="stars">★☆☆☆☆</span>
-                        <span class="rating-text">1 Star - Poor</span>
-                    </div>
-                    <div class="guideline-description">Unsatisfactory work, major problems</div>
+                    <div class="guideline-stars">★☆☆☆☆</div>
+                    <div class="guideline-title">۱ ستاره - بسیار ضعیف</div>
+                    <div class="guideline-description">کار نامطلوب با مشکلات جدی</div>
                 </div>
             </div>
         </div>

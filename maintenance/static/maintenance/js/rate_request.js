@@ -1,436 +1,425 @@
 /**
- * Rate Request JavaScript Module
- * Handles interactive functionality for the maintenance rating form
+ * امتیازدهی به خدمات - سیستم فارسی پیشرفته
  */
-class RateRequest {
+
+// توابع کمکی فارسی
+const PersianRatingUtils = {
+    toPersianNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+        str = String(str);
+        for (let i = 0; i < englishDigits.length; i++) {
+            str = str.replace(new RegExp(englishDigits[i], 'g'), persianDigits[i]);
+        }
+        return str;
+    },
+
+    toEnglishNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+        str = String(str);
+        for (let i = 0; i < persianDigits.length; i++) {
+            str = str.replace(new RegExp(persianDigits[i], 'g'), englishDigits[i]);
+        }
+        return str;
+    }
+};
+
+class PersianRatingSystem {
     constructor() {
-        this.form = null;
-        this.submitBtn = null;
-        this.ratingOptions = [];
+        this.selectedRating = 0;
+        this.ratingTexts = {
+            0: 'امتیاز خود را انتخاب کنید',
+            1: '۱ ستاره - بسیار ضعیف',
+            2: '۲ ستاره - ضعیف',
+            3: '۳ ستاره - متوسط',
+            4: '۴ ستاره - خوب',
+            5: '۵ ستاره - عالی'
+        };
+
         this.init();
     }
 
-    /**
-     * Initialize the rate request functionality
-     */
     init() {
-        this.bindElements();
-        this.bindEvents();
-        this.enhanceForm();
-        this.addAnimations();
-        console.log('Rate Request module initialized');
-    }
-
-    /**
-     * Bind DOM elements
-     */
-    bindElements() {
-        this.form = document.getElementById('ratingForm');
-        this.submitBtn = document.getElementById('submitBtn');
-        this.ratingOptions = document.querySelectorAll('.rating-option');
-        this.textArea = document.querySelector('textarea[name="student_feedback"]');
-    }
-
-    /**
-     * Bind event listeners
-     */
-    bindEvents() {
-        if (this.form) {
-            this.form.addEventListener('submit', this.handleFormSubmit.bind(this));
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.setup());
+        } else {
+            this.setup();
         }
+    }
 
-        // Enhanced rating option interactions
-        this.ratingOptions.forEach(option => {
-            const radio = option.querySelector('input[type="radio"]');
+    setup() {
+        console.log('⭐ راه‌اندازی سیستم امتیازدهی فارسی');
 
-            // Click on entire option
-            option.addEventListener('click', () => {
-                if (radio && !radio.checked) {
-                    radio.checked = true;
-                    this.handleRatingSelect(radio);
-                }
+        this.createBeautifulBackground();
+        this.setupStarRating();
+        this.setupCharacterCounter();
+        this.setupFormValidation();
+        this.animateElements();
+        this.setupKeyboardShortcuts();
+
+        console.log('✅ سیستم امتیازدهی آماده است');
+    }
+
+    createBeautifulBackground() {
+        // اشکال هندسی شناور
+        const shapes = [
+            { size: 120, color: '#ff6b6b', top: '10%', left: '10%' },
+            { size: 80, color: '#4834d4', top: '20%', right: '15%' },
+            { size: 100, color: '#00d2d3', bottom: '20%', left: '20%' },
+            { size: 90, color: '#feca57', top: '70%', right: '25%' }
+        ];
+
+        shapes.forEach((shape, index) => {
+            const element = document.createElement('div');
+            element.style.cssText = `
+                position: fixed;
+                width: ${shape.size}px;
+                height: ${shape.size}px;
+                background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                border-radius: 50%;
+                opacity: 0.1;
+                pointer-events: none;
+                z-index: 0;
+                animation: float${index + 1} ${12 + index * 2}s ease-in-out infinite;
+            `;
+
+            Object.assign(element.style, {
+                top: shape.top || 'auto',
+                bottom: shape.bottom || 'auto',
+                left: shape.left || 'auto',
+                right: shape.right || 'auto'
             });
 
-            // Radio button change
-            if (radio) {
-                radio.addEventListener('change', () => {
-                    this.handleRatingSelect(radio);
-                });
+            document.body.appendChild(element);
+        });
+
+        // اضافه کردن انیمیشن‌ها
+        this.addBackgroundAnimations();
+    }
+
+    addBackgroundAnimations() {
+        if (document.querySelector('#rating-animations')) return;
+
+        const style = document.createElement('style');
+        style.id = 'rating-animations';
+        style.textContent = `
+            @keyframes float1 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg); }
+                33% { transform: translate(30px, -20px) rotate(120deg); }
+                66% { transform: translate(-20px, 30px) rotate(240deg); }
             }
+            @keyframes float2 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg); }
+                50% { transform: translate(40px, -40px) rotate(180deg); }
+            }
+            @keyframes float3 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg); }
+                33% { transform: translate(-40px, 20px) rotate(120deg); }
+                66% { transform: translate(20px, -40px) rotate(240deg); }
+            }
+            @keyframes float4 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg); }
+                50% { transform: translate(-30px, 30px) rotate(180deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
 
-            // Keyboard navigation
-            option.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    if (radio) {
-                        radio.checked = true;
-                        this.handleRatingSelect(radio);
-                    }
-                }
+    setupStarRating() {
+        const stars = document.querySelectorAll('.star');
+        const ratingText = document.getElementById('ratingText');
+        const radioButtons = document.querySelectorAll('input[name="student_rating"]');
+
+        if (!stars.length || !ratingText) return;
+
+        // کلیک روی ستاره
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                const value = parseInt(star.dataset.value);
+                this.setRating(value, stars, ratingText, radioButtons);
             });
 
-            // Make option focusable
-            option.setAttribute('tabindex', '0');
+            // هاور
+            star.addEventListener('mouseenter', () => {
+                const value = parseInt(star.dataset.value);
+                this.highlightStars(value, stars);
+            });
         });
 
-        // Enhanced textarea interactions
-        if (this.textArea) {
-            this.textArea.addEventListener('focus', this.handleTextareaFocus.bind(this));
-            this.textArea.addEventListener('blur', this.handleTextareaBlur.bind(this));
-            this.textArea.addEventListener('input', this.handleTextareaInput.bind(this));
+        // خارج شدن از ناحیه ستاره‌ها
+        const starContainer = document.querySelector('.star-rating-display');
+        if (starContainer) {
+            starContainer.addEventListener('mouseleave', () => {
+                this.highlightStars(this.selectedRating, stars);
+            });
         }
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', this.handleKeyboardShortcuts.bind(this));
-
-        // Form validation on input change
-        this.bindFormValidation();
+        // بررسی مقدار از پیش انتخاب شده
+        radioButtons.forEach(radio => {
+            if (radio.checked) {
+                const value = parseInt(radio.value);
+                this.setRating(value, stars, ratingText, radioButtons, false);
+            }
+        });
     }
 
-    /**
-     * Handle rating selection
-     */
-    handleRatingSelect(radio) {
-        const value = parseInt(radio.value);
-        const option = radio.closest('.rating-option');
+    setRating(value, stars, ratingText, radioButtons, animate = true) {
+        this.selectedRating = value;
 
-        // Remove previous selections
-        this.ratingOptions.forEach(opt => {
-            opt.classList.remove('selected', 'animate-selection');
+        // به‌روزرسانی ستاره‌ها
+        this.highlightStars(value, stars);
+
+        // به‌روزرسانی متن
+        ratingText.textContent = this.ratingTexts[value];
+
+        // به‌روزرسانی radio button
+        radioButtons.forEach(radio => {
+            radio.checked = (parseInt(radio.value) === value);
         });
 
-        // Add selection to current option
-        if (option) {
-            option.classList.add('selected');
-            setTimeout(() => {
-                option.classList.add('animate-selection');
-            }, 50);
+        // انیمیشن
+        if (animate) {
+            this.animateRatingSelection(value);
+            this.playSuccessSound();
         }
 
-        // Show contextual feedback message
-        this.showRatingFeedback(value);
-
-        // Enable submit button if it was disabled
-        if (this.submitBtn) {
-            this.submitBtn.disabled = false;
-            this.submitBtn.classList.remove('btn-disabled');
-        }
-
-        // Scroll to feedback section for ratings 1-3
-        if (value <= 3 && this.textArea) {
-            setTimeout(() => {
-                this.textArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                this.textArea.focus();
-            }, 500);
-        }
+        console.log(`⭐ امتیاز انتخاب شده: ${value}`);
     }
 
-    /**
-     * Show contextual feedback based on rating
-     */
-    showRatingFeedback(rating) {
-        const messages = {
-            1: "We're sorry to hear about your experience. Please provide details so we can improve.",
-            2: "Thank you for your feedback. Please let us know how we can do better.",
-            3: "Thanks for rating our service. Any additional feedback would be helpful.",
-            4: "Great to hear you're satisfied! Feel free to share what went well.",
-            5: "Excellent! We're thrilled you had a great experience. Tell us more!"
+    highlightStars(value, stars) {
+        stars.forEach((star, index) => {
+            if (index < value) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    animateRatingSelection(value) {
+        const container = document.querySelector('.star-rating-container');
+        if (!container) return;
+
+        // افکت موقت
+        container.style.transform = 'scale(1.05)';
+        container.style.borderColor = '#ffd700';
+
+        setTimeout(() => {
+            container.style.transform = '';
+            container.style.borderColor = '';
+        }, 300);
+    }
+
+    setupCharacterCounter() {
+        const textarea = document.querySelector('textarea[name="student_feedback"]');
+        const charCount = document.getElementById('charCount');
+
+        if (!textarea || !charCount) return;
+
+        const updateCounter = () => {
+            const count = textarea.value.length;
+            charCount.textContent = PersianRatingUtils.toPersianNumbers(count);
+
+            // تغییر رنگ
+            const parent = charCount.parentElement;
+            if (count > 900) {
+                parent.style.color = 'var(--error)';
+            } else if (count > 800) {
+                parent.style.color = 'var(--warning)';
+            } else {
+                parent.style.color = 'var(--text-secondary)';
+            }
         };
 
-        const message = messages[rating];
-        if (message && this.textArea) {
-            const placeholder = this.textArea.getAttribute('placeholder');
-            this.textArea.setAttribute('data-original-placeholder', placeholder);
-            this.textArea.setAttribute('placeholder', message);
-        }
+        textarea.addEventListener('input', updateCounter);
+        updateCounter();
     }
 
-    /**
-     * Handle form submission
-     */
-    handleFormSubmit(event) {
-        event.preventDefault();
+    setupFormValidation() {
+        const form = document.getElementById('ratingForm');
+        if (!form) return;
 
-        // Check if rating is selected
-        const selectedRating = this.form.querySelector('input[name="student_rating"]:checked');
-        if (!selectedRating) {
-            this.showNotification('Please select a rating before submitting.', 'warning');
-            this.focusFirstRatingOption();
-            return;
-        }
-
-        // Show loading state
-        this.setLoadingState(true);
-
-        // Add slight delay for better UX
-        setTimeout(() => {
-            this.form.submit();
-        }, 500);
-    }
-
-    /**
-     * Set loading state for form submission
-     */
-    setLoadingState(loading) {
-        if (!this.submitBtn) return;
-
-        if (loading) {
-            this.submitBtn.classList.add('loading');
-            this.submitBtn.disabled = true;
-        } else {
-            this.submitBtn.classList.remove('loading');
-            this.submitBtn.disabled = false;
-        }
-    }
-
-    /**
-     * Handle textarea interactions
-     */
-    handleTextareaFocus() {
-        if (this.textArea) {
-            this.textArea.parentElement.classList.add('focused');
-        }
-    }
-
-    handleTextareaBlur() {
-        if (this.textArea) {
-            this.textArea.parentElement.classList.remove('focused');
-        }
-    }
-
-    handleTextareaInput(event) {
-        const textarea = event.target;
-        const counter = textarea.parentElement.querySelector('.character-counter');
-
-        if (counter) {
-            counter.textContent = `${textarea.value.length} characters`;
-        }
-
-        // Auto-resize textarea
-        this.autoResizeTextarea(textarea);
-    }
-
-    /**
-     * Auto-resize textarea based on content
-     */
-    autoResizeTextarea(textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = Math.max(textarea.scrollHeight, 120) + 'px';
-    }
-
-    /**
-     * Focus first rating option
-     */
-    focusFirstRatingOption() {
-        const firstOption = this.ratingOptions[0];
-        if (firstOption) {
-            firstOption.focus();
-            firstOption.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }
-
-    /**
-     * Handle keyboard shortcuts
-     */
-    handleKeyboardShortcuts(event) {
-        // Number keys for quick rating (1-5)
-        if (event.key >= '1' && event.key <= '5' && !event.target.matches('textarea, input')) {
-            const ratingValue = event.key;
-            const radio = this.form.querySelector(`input[name="student_rating"][value="${ratingValue}"]`);
-            if (radio) {
-                radio.checked = true;
-                this.handleRatingSelect(radio);
+        form.addEventListener('submit', (e) => {
+            if (!this.validateForm()) {
+                e.preventDefault();
+                this.showNotification('لطفاً همه فیلدهای الزامی را پر کنید', 'error');
+            } else {
+                this.setLoadingState(true);
             }
-        }
-
-        // Ctrl/Cmd + Enter to submit
-        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-            event.preventDefault();
-            if (this.form) {
-                this.handleFormSubmit(event);
-            }
-        }
-
-        // Escape to focus back to rating options
-        if (event.key === 'Escape' && event.target.matches('textarea')) {
-            const selectedRating = this.form.querySelector('input[name="student_rating"]:checked');
-            if (selectedRating) {
-                const option = selectedRating.closest('.rating-option');
-                if (option) {
-                    option.focus();
-                }
-            }
-        }
-    }
-
-    /**
-     * Bind form validation
-     */
-    bindFormValidation() {
-        const radioButtons = this.form.querySelectorAll('input[name="student_rating"]');
-        radioButtons.forEach(radio => {
-            radio.addEventListener('change', () => {
-                this.validateForm();
-            });
         });
     }
 
-    /**
-     * Validate form
-     */
     validateForm() {
-        const selectedRating = this.form.querySelector('input[name="student_rating"]:checked');
-        const isValid = !!selectedRating;
+        let isValid = true;
 
-        if (this.submitBtn) {
-            this.submitBtn.disabled = !isValid;
-            if (isValid) {
-                this.submitBtn.classList.remove('btn-disabled');
-            } else {
-                this.submitBtn.classList.add('btn-disabled');
-            }
+        // بررسی امتیاز
+        if (this.selectedRating === 0) {
+            this.showNotification('لطفاً امتیاز خود را انتخاب کنید', 'error');
+            isValid = false;
+        }
+
+        // بررسی نظرات (اختیاری - بسته به نیاز)
+        const textarea = document.querySelector('textarea[name="student_feedback"]');
+        if (textarea && textarea.required && !textarea.value.trim()) {
+            this.showNotification('لطفاً نظر خود را بنویسید', 'error');
+            isValid = false;
         }
 
         return isValid;
     }
 
-    /**
-     * Enhance form with additional features
-     */
-    enhanceForm() {
-        // Add character counter to textarea
-        if (this.textArea) {
-            this.addCharacterCounter();
-            this.autoResizeTextarea(this.textArea);
-        }
+    setLoadingState(loading) {
+        const submitBtn = document.getElementById('submitBtn');
+        if (!submitBtn) return;
 
-        // Initial form validation
-        this.validateForm();
-
-        // Add helpful tooltips
-        this.addTooltips();
-    }
-
-    /**
-     * Add character counter to textarea
-     */
-    addCharacterCounter() {
-        if (!this.textArea) return;
-
-        const counter = document.createElement('div');
-        counter.className = 'character-counter';
-        counter.style.cssText = `
-            font-size: 0.75rem;
-            color: var(--gray-500);
-            text-align: right;
-            margin-top: 0.25rem;
-        `;
-        counter.textContent = '0 characters';
-
-        this.textArea.parentElement.appendChild(counter);
-
-        // Update counter on input
-        this.textArea.addEventListener('input', () => {
-            counter.textContent = `${this.textArea.value.length} characters`;
-        });
-    }
-
-    /**
-     * Add helpful tooltips
-     */
-    addTooltips() {
-        // Add tooltips to rating stars
-        const starElements = document.querySelectorAll('.stars');
-        starElements.forEach(stars => {
-            stars.setAttribute('title', 'Click to select this rating');
-        });
-
-        // Add tooltip to submit button
-        if (this.submitBtn) {
-            this.submitBtn.setAttribute('title', 'Submit your rating and feedback');
+        if (loading) {
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        } else {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
         }
     }
 
-    /**
-     * Add entrance animations
-     */
-    addAnimations() {
-        // Stagger animation for cards
-        const cards = document.querySelectorAll('.summary-card, .rating-card, .guidelines-card');
-        cards.forEach((card, index) => {
-            card.style.animationDelay = `${index * 0.1}s`;
-        });
+    animateElements() {
+        const elements = [
+            { el: document.querySelector('.rating-header'), delay: 100 },
+            { el: document.querySelector('.summary-card'), delay: 250 },
+            { el: document.querySelector('.rating-card'), delay: 400 },
+            { el: document.querySelector('.guidelines-card'), delay: 550 }
+        ];
 
-        // Animate rating options
-        setTimeout(() => {
-            this.ratingOptions.forEach((option, index) => {
-                option.style.animationDelay = `${index * 0.1}s`;
-                option.classList.add('animate-in');
-            });
-        }, 300);
+        elements.forEach(({ el, delay }) => {
+            if (el) {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+
+                setTimeout(() => {
+                    el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, delay);
+            }
+        });
     }
 
-    /**
-     * Show notification message
-     */
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // اعداد 1-5 برای انتخاب امتیاز
+            if (e.key >= '1' && e.key <= '5') {
+                const value = parseInt(e.key);
+                const stars = document.querySelectorAll('.star');
+                const ratingText = document.getElementById('ratingText');
+                const radioButtons = document.querySelectorAll('input[name="student_rating"]');
+
+                if (stars.length && ratingText) {
+                    this.setRating(value, stars, ratingText, radioButtons);
+                }
+            }
+
+            // Enter برای submit (اگر فرم valid باشد)
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                const form = document.getElementById('ratingForm');
+                if (form && this.validateForm()) {
+                    form.submit();
+                }
+            }
+        });
+    }
+
+    playSuccessSound() {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        } catch (error) {
+            console.log('🔇 خطا در پخش صدا:', error);
+        }
+    }
+
     showNotification(message, type = 'info') {
+        const colors = {
+            'success': 'linear-gradient(135deg, #4caf50, #388e3c)',
+            'error': 'linear-gradient(135deg, #f44336, #d32f2f)',
+            'warning': 'linear-gradient(135deg, #ff9800, #f57c00)',
+            'info': 'linear-gradient(135deg, #2196f3, #1976d2)'
+        };
+
+        const icons = {
+            'success': '✓',
+            'error': '✕',
+            'warning': '!',
+            'info': 'ℹ'
+        };
+
         const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
         notification.style.cssText = `
             position: fixed;
             top: 20px;
-            right: 20px;
-            background: ${type === 'warning' ? 'var(--warning-color)' : 'var(--info-color)'};
+            left: 20px;
+            background: ${colors[type]};
             color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            box-shadow: var(--shadow-lg);
-            z-index: 1000;
-            animation: slideInRight 0.3s ease;
+            padding: 1.2rem 2rem;
+            border-radius: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            font-family: 'Vazirmatn', sans-serif;
+            direction: rtl;
+            font-weight: 700;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         `;
-        notification.textContent = message;
+
+        notification.innerHTML = `
+            <span style="font-size: 1.3rem;">${icons[type]}</span>
+            <span>${message}</span>
+        `;
 
         document.body.appendChild(notification);
 
-        // Auto-remove notification
         setTimeout(() => {
-            notification.style.animation = 'slideOutRight 0.3s ease';
-            setTimeout(() => {
-                if (notification.parentElement) {
-                    notification.parentElement.removeChild(notification);
-                }
-            }, 300);
-        }, 5000);
-    }
-
-    /**
-     * Get CSRF token for AJAX requests
-     */
-    getCSRFToken() {
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-        return csrfToken ? csrfToken.value : '';
-    }
-
-    /**
-     * Utility method for debouncing
-     */
-    debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
+            notification.style.animation = 'slideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            setTimeout(() => notification.remove(), 400);
+        }, 4000);
     }
 }
 
-// Initialize when DOM is ready
+// راه‌اندازی
 document.addEventListener('DOMContentLoaded', () => {
-    new RateRequest();
+    window.persianRatingSystem = new PersianRatingSystem();
 });
 
-// Export for external use
-window.RateRequest = RateRequest;
+// انیمیشن‌های اضافی
+const animStyle = document.createElement('style');
+animStyle.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(animStyle);
+
+window.PersianRatingUtils = PersianRatingUtils;
+
+console.log('✅ ماژول امتیازدهی فارسی بارگذاری شد');
