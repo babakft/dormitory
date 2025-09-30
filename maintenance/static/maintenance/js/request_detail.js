@@ -1,4 +1,33 @@
-class RequestDetail {
+/**
+ * صفحه جزئیات درخواست تعمیرات - سیستم فارسی
+ * Persian Request Detail with Beautiful Animations
+ */
+
+// توابع کمکی فارسی
+const PersianRequestUtils = {
+    toPersianNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+        str = String(str);
+        for (let i = 0; i < englishDigits.length; i++) {
+            str = str.replace(new RegExp(englishDigits[i], 'g'), persianDigits[i]);
+        }
+        return str;
+    },
+
+    toEnglishNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+        str = String(str);
+        for (let i = 0; i < persianDigits.length; i++) {
+            str = str.replace(new RegExp(persianDigits[i], 'g'), englishDigits[i]);
+        }
+        return str;
+    }
+};
+
+// کلاس اصلی
+class PersianRequestDetail {
     constructor() {
         this.init();
     }
@@ -12,537 +41,395 @@ class RequestDetail {
     }
 
     setup() {
-        this.setupImageGallery();
+        console.log('🔧 راه‌اندازی صفحه جزئیات درخواست...');
+
+        this.createBeautifulBackground();
+        this.convertNumbersToPersian();
+        this.setupEventListeners();
         this.setupAnimations();
-        this.setupTooltips();
-        this.setupScrollEffects();
+        this.setupImageGallery();
         this.setupKeyboardShortcuts();
-        this.setupTimelineAnimation();
-        this.setupStatusUpdates();
+        this.addParallaxEffect();
+
+        console.log('✅ صفحه جزئیات درخواست آماده است');
     }
 
-    // ===== IMAGE GALLERY ===== //
-    setupImageGallery() {
-        const images = document.querySelectorAll('.gallery-image');
+    /**
+     * ایجاد بک‌گراند زیبا با اشکال هندسی
+     */
+    createBeautifulBackground() {
+        // اشکال هندسی شناور
+        const shapes = [
+            { type: 'circle', size: 120, color: '#ff6b6b', top: '10%', left: '10%', animation: 'float1 12s' },
+            { type: 'square', size: 80, color: '#4834d4', top: '20%', right: '15%', animation: 'float2 15s' },
+            { type: 'ellipse', size: '150px 60px', color: '#00d2d3', bottom: '20%', left: '20%', animation: 'float3 18s' },
+            { type: 'triangle', size: 100, color: '#ff9ff3', top: '60%', right: '25%', animation: 'float4 14s' },
+            { type: 'square', size: 90, color: '#feca57', top: '70%', left: '60%', animation: 'float5 16s' }
+        ];
 
-        images.forEach((image, index) => {
-            image.addEventListener('click', () => this.openImageModal(image, index));
-            image.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    this.openImageModal(image, index);
-                }
+        const container = document.createElement('div');
+        container.className = 'geometric-shapes';
+        container.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        `;
+
+        shapes.forEach((shape, index) => {
+            const element = document.createElement('div');
+            element.className = `shape shape-${index + 1}`;
+
+            let shapeStyle = `
+                position: absolute;
+                opacity: 0.1;
+                animation: ${shape.animation} ease-in-out infinite;
+            `;
+
+            if (shape.type === 'circle') {
+                shapeStyle += `
+                    width: ${shape.size}px;
+                    height: ${shape.size}px;
+                    background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                    border-radius: 50%;
+                `;
+            } else if (shape.type === 'square') {
+                shapeStyle += `
+                    width: ${shape.size}px;
+                    height: ${shape.size}px;
+                    background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                    border-radius: 15px;
+                `;
+            } else if (shape.type === 'ellipse') {
+                shapeStyle += `
+                    width: 150px;
+                    height: 60px;
+                    background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                    border-radius: 50px;
+                `;
+            } else if (shape.type === 'triangle') {
+                shapeStyle += `
+                    width: ${shape.size}px;
+                    height: ${shape.size}px;
+                    background: linear-gradient(45deg, ${shape.color}, ${shape.color}88);
+                    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+                `;
+            }
+
+            Object.assign(element.style, {
+                cssText: shapeStyle,
+                top: shape.top || 'auto',
+                bottom: shape.bottom || 'auto',
+                left: shape.left || 'auto',
+                right: shape.right || 'auto'
             });
 
-            // Make images focusable for accessibility
-            image.setAttribute('tabindex', '0');
-            image.setAttribute('role', 'button');
-            image.setAttribute('aria-label', 'Click to view full size image');
+            container.appendChild(element);
         });
+
+        document.body.appendChild(container);
+
+        // اضافه کردن انیمیشن‌ها
+        this.addBackgroundAnimations();
     }
 
-    openImageModal(image, index) {
-        // Create modal if it doesn't exist
-        let modal = document.getElementById('imageModal');
-        if (!modal) {
-            modal = this.createImageModal();
-            document.body.appendChild(modal);
-        }
+    addBackgroundAnimations() {
+        if (document.querySelector('#request-background-animations')) return;
 
-        const modalImage = modal.querySelector('.modal-image');
-        const modalCounter = modal.querySelector('.modal-counter');
+        const style = document.createElement('style');
+        style.id = 'request-background-animations';
+        style.textContent = `
+            @keyframes float1 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                33% { transform: translate(30px, -20px) rotate(120deg) scale(1.1); }
+                66% { transform: translate(-20px, 30px) rotate(240deg) scale(0.9); }
+            }
 
-        modalImage.src = image.src;
-        modalImage.alt = image.alt || 'Full size image';
+            @keyframes float2 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                25% { transform: translate(-25px, 15px) rotate(90deg) scale(1.2); }
+                50% { transform: translate(35px, -25px) rotate(180deg) scale(0.8); }
+                75% { transform: translate(-15px, -35px) rotate(270deg) scale(1.1); }
+            }
 
-        if (modalCounter) {
-            const totalImages = document.querySelectorAll('.gallery-image').length;
-            modalCounter.textContent = `${index + 1} / ${totalImages}`;
-        }
+            @keyframes float3 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                50% { transform: translate(40px, -40px) rotate(180deg) scale(1.3); }
+            }
 
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+            @keyframes float4 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                20% { transform: translate(20px, 20px) rotate(72deg) scale(1.1); }
+                40% { transform: translate(-30px, 10px) rotate(144deg) scale(0.9); }
+                60% { transform: translate(10px, -30px) rotate(216deg) scale(1.2); }
+                80% { transform: translate(-20px, -20px) rotate(288deg) scale(0.8); }
+            }
 
-        // Focus management
-        modalImage.focus();
-    }
-
-    createImageModal() {
-        const modal = document.createElement('div');
-        modal.id = 'imageModal';
-        modal.className = 'image-modal';
-        modal.innerHTML = `
-            <div class="image-modal-content">
-                <button class="image-modal-close" aria-label="Close image">&times;</button>
-                <img class="modal-image" alt="Full size image">
-                <div class="modal-counter"></div>
-                <div class="modal-navigation">
-                    <button class="modal-nav-btn modal-prev" aria-label="Previous image">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="modal-nav-btn modal-next" aria-label="Next image">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-        `;
-
-        // Add modal styles
-        const modalStyles = `
-            .image-modal {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.9);
-                z-index: 9999;
-                align-items: center;
-                justify-content: center;
-            }
-            .image-modal-content {
-                position: relative;
-                max-width: 90vw;
-                max-height: 90vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .modal-image {
-                max-width: 100%;
-                max-height: 90vh;
-                object-fit: contain;
-                border-radius: 8px;
-            }
-            .image-modal-close {
-                position: absolute;
-                top: -40px;
-                right: 0;
-                background: none;
-                border: none;
-                color: white;
-                font-size: 2rem;
-                cursor: pointer;
-                padding: 8px;
-                border-radius: 4px;
-                transition: background 0.2s;
-            }
-            .image-modal-close:hover {
-                background: rgba(255, 255, 255, 0.1);
-            }
-            .modal-counter {
-                position: absolute;
-                bottom: -40px;
-                left: 50%;
-                transform: translateX(-50%);
-                color: white;
-                background: rgba(0, 0, 0, 0.7);
-                padding: 8px 16px;
-                border-radius: 20px;
-                font-size: 14px;
-            }
-            .modal-navigation {
-                position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-                pointer-events: none;
-            }
-            .modal-nav-btn {
-                background: rgba(0, 0, 0, 0.5);
-                border: none;
-                color: white;
-                padding: 16px;
-                border-radius: 50%;
-                cursor: pointer;
-                font-size: 18px;
-                pointer-events: auto;
-                transition: background 0.2s;
-            }
-            .modal-nav-btn:hover {
-                background: rgba(0, 0, 0, 0.7);
+            @keyframes float5 {
+                0%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+                33% { transform: translate(-40px, 20px) rotate(120deg) scale(1.15); }
+                66% { transform: translate(20px, -40px) rotate(240deg) scale(0.85); }
             }
         `;
-
-        if (!document.getElementById('image-modal-styles')) {
-            const styleSheet = document.createElement('style');
-            styleSheet.id = 'image-modal-styles';
-            styleSheet.textContent = modalStyles;
-            document.head.appendChild(styleSheet);
-        }
-
-        // Event listeners
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                this.closeImageModal();
-            }
-        });
-
-        modal.querySelector('.image-modal-close').addEventListener('click', () => {
-            this.closeImageModal();
-        });
-
-        // Keyboard navigation
-        modal.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.closeImageModal();
-            }
-        });
-
-        return modal;
+        document.head.appendChild(style);
     }
 
-    closeImageModal() {
-        const modal = document.getElementById('imageModal');
-        if (modal) {
-            modal.style.display = 'none';
-            document.body.style.overflow = '';
+    /**
+     * تبدیل اعداد به فارسی
+     */
+    convertNumbersToPersian() {
+        // شماره درخواست
+        const requestId = document.querySelector('.request-id');
+        if (requestId) {
+            const text = requestId.textContent;
+            requestId.textContent = PersianRequestUtils.toPersianNumbers(text);
+        }
+
+        // تاریخ‌ها
+        document.querySelectorAll('.time-ago, .timeline-date').forEach(element => {
+            const text = element.textContent;
+            element.textContent = PersianRequestUtils.toPersianNumbers(text);
+        });
+
+        // امتیاز
+        const ratingText = document.querySelector('.rating-text');
+        if (ratingText) {
+            const text = ratingText.textContent;
+            ratingText.textContent = PersianRequestUtils.toPersianNumbers(text);
         }
     }
 
-    // ===== ANIMATIONS ===== //
+    /**
+     * تنظیم رویدادها
+     */
+    setupEventListeners() {
+        // کلیک روی تصاویر
+        const galleryImages = document.querySelectorAll('.gallery-image');
+        galleryImages.forEach(image => {
+            image.addEventListener('click', () => this.openImageModal(image));
+        });
+
+        // دکمه‌ها
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleButtonClick(e, btn));
+        });
+    }
+
+    /**
+     * راه‌اندازی انیمیشن‌ها
+     */
     setupAnimations() {
-        // Stagger animation for cards
+        // انیمیشن کارت‌ها
+        this.animateCards();
+
+        // انیمیشن timeline
+        this.animateTimeline();
+
+        // انیمیشن اسکرول
+        this.setupScrollAnimations();
+    }
+
+    animateCards() {
         const cards = document.querySelectorAll('.detail-card');
         cards.forEach((card, index) => {
-            card.style.animationDelay = `${index * 0.1}s`;
-        });
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
 
-        // Animate status badge
-        const statusBadge = document.querySelector('.status-badge');
-        if (statusBadge) {
-            statusBadge.addEventListener('mouseenter', () => {
-                statusBadge.style.transform = 'scale(1.05)';
-            });
-            statusBadge.addEventListener('mouseleave', () => {
-                statusBadge.style.transform = 'scale(1)';
-            });
-        }
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 150 + (index * 100));
+        });
     }
 
-    setupTimelineAnimation() {
-        const timelineItems = document.querySelectorAll('.timeline-item');
+    animateTimeline() {
+        const items = document.querySelectorAll('.timeline-item');
+        items.forEach((item, index) => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(20px)';
 
-        // Animate timeline items on scroll
+            setTimeout(() => {
+                item.style.transition = 'all 0.5s ease';
+                item.style.opacity = '1';
+                item.style.transform = 'translateX(0)';
+            }, 300 + (index * 150));
+        });
+    }
+
+    setupScrollAnimations() {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateX(0)';
+                    entry.target.classList.add('animate-in');
                 }
             });
-        }, { threshold: 0.1 });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
 
-        timelineItems.forEach((item, index) => {
-            item.style.opacity = '0';
-            item.style.transform = 'translateX(-20px)';
-            item.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
-            observer.observe(item);
+        document.querySelectorAll('.detail-card, .sidebar-content > *').forEach(el => {
+            observer.observe(el);
         });
     }
 
-    // ===== TOOLTIPS ===== //
-    setupTooltips() {
-        const elementsWithTooltips = document.querySelectorAll('[title], .priority-badge, .status-badge');
+    /**
+     * تنظیم گالری تصاویر
+     */
+    setupImageGallery() {
+        // افزودن افکت hover
+        const imageItems = document.querySelectorAll('.image-item');
+        imageItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                item.style.transform = 'scale(1.05)';
+            });
 
-        elementsWithTooltips.forEach(element => {
-            const title = element.getAttribute('title') || this.getTooltipContent(element);
-            if (title) {
-                element.addEventListener('mouseenter', (e) => this.showTooltip(e, title));
-                element.addEventListener('mouseleave', () => this.hideTooltip());
+            item.addEventListener('mouseleave', () => {
+                item.style.transform = 'scale(1)';
+            });
+        });
+    }
+
+    /**
+     * باز کردن مودال تصویر
+     */
+    openImageModal(image) {
+        // می‌توانید از Bootstrap Modal استفاده کنید
+        console.log('Opening image:', image.src);
+        // یا یک lightbox سفارشی
+    }
+
+    /**
+     * مدیریت کلیک دکمه
+     */
+    handleButtonClick(event, button) {
+        // افکت کلیک
+        button.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            button.style.transform = '';
+        }, 150);
+    }
+
+    /**
+     * میانبرهای صفحه‌کلید
+     */
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // B = بازگشت
+            if (e.key === 'b' || e.key === 'B') {
+                const backBtn = document.querySelector('.btn-outline-primary');
+                if (backBtn) backBtn.click();
+            }
+
+            // R = امتیازدهی
+            if (e.key === 'r' || e.key === 'R') {
+                const rateBtn = document.querySelector('a[href*="rate"]');
+                if (rateBtn) rateBtn.click();
+            }
+
+            // Escape = بازگشت
+            if (e.key === 'Escape') {
+                history.back();
             }
         });
     }
 
-    getTooltipContent(element) {
-        if (element.classList.contains('priority-badge')) {
-            const priority = element.textContent.toLowerCase();
-            const tooltips = {
-                'high priority': 'This request requires immediate attention',
-                'medium priority': 'This request will be processed with normal priority',
-                'low priority': 'This request will be processed when resources are available',
-                'priority not decided': 'Priority level has not been determined yet'
-            };
-            return tooltips[priority] || '';
-        }
-
-        if (element.classList.contains('status-badge')) {
-            const status = element.textContent.toLowerCase();
-            const tooltips = {
-                'pending': 'Waiting for approval',
-                'approved': 'Approved and ready for assignment',
-                'in progress': 'Work is currently in progress',
-                'completed': 'Request has been completed',
-                'rejected': 'Request was rejected'
-            };
-            return tooltips[status] || '';
-        }
-
-        return '';
-    }
-
-    showTooltip(event, text) {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'custom-tooltip';
-        tooltip.textContent = text;
-        tooltip.style.cssText = `
-            position: absolute;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            z-index: 10000;
-            pointer-events: none;
-            white-space: nowrap;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        `;
-
-        document.body.appendChild(tooltip);
-
-        const rect = event.target.getBoundingClientRect();
-        tooltip.style.left = `${rect.left + rect.width / 2 - tooltip.offsetWidth / 2}px`;
-        tooltip.style.top = `${rect.top - tooltip.offsetHeight - 8}px`;
-
-        this.currentTooltip = tooltip;
-    }
-
-    hideTooltip() {
-        if (this.currentTooltip) {
-            this.currentTooltip.remove();
-            this.currentTooltip = null;
-        }
-    }
-
-    // ===== SCROLL EFFECTS ===== //
-    setupScrollEffects() {
+    /**
+     * افکت Parallax
+     */
+    addParallaxEffect() {
         let ticking = false;
 
-        window.addEventListener('scroll', () => {
+        const updateParallax = (e) => {
             if (!ticking) {
                 requestAnimationFrame(() => {
-                    this.handleScroll();
+                    const mouseX = e.clientX / window.innerWidth;
+                    const mouseY = e.clientY / window.innerHeight;
+
+                    const shapes = document.querySelectorAll('.shape');
+                    shapes.forEach((shape, index) => {
+                        const speed = (index + 1) * 0.3;
+                        const x = (mouseX - 0.5) * speed * 20;
+                        const y = (mouseY - 0.5) * speed * 20;
+
+                        const currentTransform = shape.style.transform || '';
+                        const baseTransform = currentTransform.replace(/translate\([^)]*\)/g, '');
+                        shape.style.transform = `translate(${x}px, ${y}px) ${baseTransform}`;
+                    });
+
                     ticking = false;
                 });
                 ticking = true;
             }
-        });
+        };
+
+        window.addEventListener('mousemove', updateParallax);
     }
 
-    handleScroll() {
-        const scrolled = window.pageYOffset;
-        const header = document.querySelector('.request-header');
-
-        if (header && scrolled > 100) {
-            header.style.transform = `translateY(${-scrolled * 0.1}px)`;
-        }
-
-        // Animate elements on scroll
-        const animateElements = document.querySelectorAll('.detail-card:not(.animated)');
-        const windowHeight = window.innerHeight;
-
-        animateElements.forEach(element => {
-            const rect = element.getBoundingClientRect();
-            if (rect.top < windowHeight * 0.8) {
-                element.classList.add('animated');
-                element.style.opacity = '1';
-                element.style.transform = 'translateY(0)';
-            }
-        });
-    }
-
-    // ===== KEYBOARD SHORTCUTS ===== //
-    setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-            // Escape key - close modals
-            if (e.key === 'Escape') {
-                this.closeImageModal();
-                this.hideTooltip();
-            }
-
-            // Ctrl/Cmd + B - Back to dashboard
-            if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-                e.preventDefault();
-                const backButton = document.querySelector('a[href*="dashboard"]');
-                if (backButton) {
-                    backButton.click();
-                }
-            }
-
-            // Ctrl/Cmd + R - Rate service (if available)
-            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-                e.preventDefault();
-                const rateButton = document.querySelector('a[href*="rate"]');
-                if (rateButton) {
-                    rateButton.click();
-                }
-            }
-        });
-    }
-
-    // ===== STATUS UPDATES ===== //
-    setupStatusUpdates() {
-        // Auto-refresh status every 5 minutes if user is active
-        this.lastActivity = Date.now();
-        this.setupActivityTracking();
-
-        setInterval(() => {
-            if (Date.now() - this.lastActivity < 10 * 60 * 1000) { // 10 minutes
-                this.checkForUpdates();
-            }
-        }, 5 * 60 * 1000); // 5 minutes
-    }
-
-    setupActivityTracking() {
-        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
-        events.forEach(event => {
-            document.addEventListener(event, () => {
-                this.lastActivity = Date.now();
-            }, true);
-        });
-    }
-
-    async checkForUpdates() {
-        try {
-            const requestId = this.getRequestId();
-            if (!requestId) return;
-
-            const response = await fetch(`/maintenance/api/request/${requestId}/status/`, {
-                headers: {
-                    'X-CSRFToken': this.getCSRFToken(),
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                this.updateStatusIfChanged(data);
-            }
-        } catch (error) {
-            console.log('Status update check failed:', error);
-        }
-    }
-
-    getRequestId() {
-        // Extract request ID from URL or page data
-        const match = window.location.pathname.match(/\/(\d+)\//);
-        return match ? match[1] : null;
-    }
-
-    getCSRFToken() {
-        const token = document.querySelector('[name=csrfmiddlewaretoken]');
-        return token ? token.value : '';
-    }
-
-    updateStatusIfChanged(data) {
-        const currentStatus = document.querySelector('.status-badge');
-        if (currentStatus && data.status !== currentStatus.textContent.toLowerCase().replace(' ', '_')) {
-            this.showNotification(`Status updated to: ${data.status_display}`, 'info');
-            // Optionally reload the page or update specific elements
-            setTimeout(() => window.location.reload(), 2000);
-        }
-    }
-
+    /**
+     * نمایش اعلان
+     */
     showNotification(message, type = 'info') {
+        const colors = {
+            'success': 'linear-gradient(135deg, #4caf50, #388e3c)',
+            'error': 'linear-gradient(135deg, #f44336, #d32f2f)',
+            'warning': 'linear-gradient(135deg, #ff9800, #f57c00)',
+            'info': 'linear-gradient(135deg, #2196f3, #1976d2)'
+        };
+
         const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="fas fa-info-circle"></i>
-                <span>${message}</span>
-                <button class="notification-close">&times;</button>
-            </div>
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: ${colors[type]};
+            color: white;
+            padding: 1.2rem 2rem;
+            border-radius: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            font-family: 'Vazirmatn', sans-serif;
+            direction: rtl;
+            font-weight: 700;
+            animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         `;
 
-        const styles = `
-            .notification {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: white;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                padding: 16px;
-                z-index: 10000;
-                min-width: 300px;
-                animation: slideInRight 0.3s ease;
-                border-left: 4px solid #007bff;
-            }
-            .notification-info { border-left-color: #007bff; }
-            .notification-success { border-left-color: #28a745; }
-            .notification-warning { border-left-color: #ffc107; }
-            .notification-error { border-left-color: #dc3545; }
-            .notification-content {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            }
-            .notification-close {
-                margin-left: auto;
-                background: none;
-                border: none;
-                font-size: 18px;
-                cursor: pointer;
-                padding: 4px;
-                border-radius: 4px;
-            }
-            .notification-close:hover {
-                background: rgba(0, 0, 0, 0.1);
-            }
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-
-        if (!document.getElementById('notification-styles')) {
-            const styleSheet = document.createElement('style');
-            styleSheet.id = 'notification-styles';
-            styleSheet.textContent = styles;
-            document.head.appendChild(styleSheet);
-        }
-
+        notification.textContent = message;
         document.body.appendChild(notification);
 
-        // Auto dismiss
-        const dismissTimer = setTimeout(() => {
-            this.dismissNotification(notification);
-        }, 5000);
-
-        // Manual dismiss
-        notification.querySelector('.notification-close').addEventListener('click', () => {
-            clearTimeout(dismissTimer);
-            this.dismissNotification(notification);
-        });
-    }
-
-    dismissNotification(notification) {
-        notification.style.animation = 'slideOutRight 0.3s ease';
         setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-
-        // Add slide out animation
-        if (!document.getElementById('slideout-styles')) {
-            const styleSheet = document.createElement('style');
-            styleSheet.id = 'slideout-styles';
-            styleSheet.textContent = `
-                @keyframes slideOutRight {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-            `;
-            document.head.appendChild(styleSheet);
-        }
+            notification.style.animation = 'slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            setTimeout(() => notification.remove(), 400);
+        }, 4000);
     }
 }
 
-// Initialize when DOM is ready
-const requestDetail = new RequestDetail();
+// راه‌اندازی
+document.addEventListener('DOMContentLoaded', () => {
+    window.persianRequestDetail = new PersianRequestDetail();
+});
 
-// Make it globally accessible for debugging
-window.RequestDetail = RequestDetail;
+// انیمیشن‌های اضافی
+const animStyle = document.createElement('style');
+animStyle.textContent = `
+    @keyframes slideInLeft {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOutLeft {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(animStyle);
+
+// Export
+window.PersianRequestUtils = PersianRequestUtils;
+
+console.log('✅ ماژول جزئیات درخواست بارگذاری شد');

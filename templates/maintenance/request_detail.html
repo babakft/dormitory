@@ -1,20 +1,22 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Maintenance Request Details{% endblock %}
+
+{% block title %}جزئیات درخواست تعمیرات{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'maintenance/css/request_detail.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="request-detail-container">
-    <!-- Header Section -->
+    <!-- ===== HEADER SECTION ===== -->
     <div class="request-header">
         <div class="header-main">
             <div class="request-title-section">
                 <h1 class="request-title">{{ request.title }}</h1>
                 <div class="request-meta">
-                    <span class="request-id">Request #{{ request.id }}</span>
+                    <span class="request-id">{{ request.id }}</span>
                     <span class="service-type">{{ request.get_service_type_display }}</span>
                 </div>
             </div>
@@ -22,42 +24,43 @@
                 <div class="status-badge status-{{ request.status }}">
                     <i class="fas fa-circle status-icon"></i>
                     {% if request.status == 'pending' %}
-                        Pending
+                        در انتظار
                     {% elif request.status == 'approved' %}
-                        Approved
+                        تأیید شده
                     {% elif request.status == 'in_progress' %}
-                        In Progress
+                        در حال انجام
                     {% elif request.status == 'completed' %}
-                        Completed
+                        تکمیل شده
                     {% elif request.status == 'rejected' %}
-                        Rejected
+                        رد شده
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Content Grid -->
+    <!-- ===== CONTENT GRID ===== -->
     <div class="content-grid">
-        <!-- Left Column - Main Details -->
+        <!-- ===== MAIN CONTENT (ستون چپ) ===== -->
         <div class="main-content">
-            <!-- Request Details Card -->
+
+            <!-- کارت جزئیات درخواست -->
             <div class="detail-card animate-in">
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-info-circle"></i>
-                        Request Details
+                        جزئیات درخواست
                     </h3>
                 </div>
                 <div class="card-body">
                     <div class="detail-grid">
                         <div class="detail-item">
-                            <label>Description</label>
+                            <label>توضیحات</label>
                             <div class="detail-content">{{ request.description }}</div>
                         </div>
 
                         <div class="detail-item">
-                            <label>Location</label>
+                            <label>مکان</label>
                             <div class="detail-content">
                                 <i class="fas fa-map-marker-alt"></i>
                                 {{ request.full_location }}
@@ -65,21 +68,21 @@
                         </div>
 
                         <div class="detail-item">
-                            <label>Priority</label>
+                            <label>اولویت</label>
                             <div class="detail-content">
                                 <span class="priority-badge priority-{{ request.priority }}">
                                     {% if request.priority == 'high' %}
                                         <i class="fas fa-exclamation-triangle"></i>
-                                        High Priority
+                                        اولویت بالا
                                     {% elif request.priority == 'medium' %}
                                         <i class="fas fa-exclamation-circle"></i>
-                                        Medium Priority
+                                        اولویت متوسط
                                     {% elif request.priority == 'low' %}
                                         <i class="fas fa-info-circle"></i>
-                                        Low Priority
+                                        اولویت پایین
                                     {% elif request.priority == 'not_decided' %}
                                         <i class="fas fa-question-circle"></i>
-                                        Priority Not Decided
+                                        اولویت تعیین نشده
                                     {% else %}
                                         {{ request.get_priority_display }}
                                     {% endif %}
@@ -88,33 +91,54 @@
                         </div>
 
                         <div class="detail-item">
-                            <label>Created</label>
+                            <label>تاریخ ایجاد</label>
                             <div class="detail-content">
                                 <i class="fas fa-calendar-alt"></i>
-                                {{ request.created_at|date:"F d, Y at H:i" }}
-                                <span class="time-ago">({{ request.days_since_created }} days ago)</span>
+                                {{ request.created_at|date:"j F Y - H:i" }}
+                                <span class="time-ago">({{ request.days_since_created }} روز پیش)</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Issue Images -->
+            <!-- کارت تصاویر مشکل -->
             {% if issue_images %}
             <div class="detail-card animate-in">
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-images"></i>
-                        Issue Images
+                        تصاویر مشکل
                     </h3>
                 </div>
                 <div class="card-body">
                     <div class="image-gallery">
                         {% for image in issue_images %}
                         <div class="image-item">
-                            <img src="{{ image.image.url }}" alt="Issue Image" class="gallery-image" data-bs-toggle="modal" data-bs-target="#imageModal{{ forloop.counter }}">
+                            <img src="{{ image.image.url }}"
+                                 alt="تصویر مشکل"
+                                 class="gallery-image"
+                                 data-bs-toggle="modal"
+                                 data-bs-target="#imageModal{{ forloop.counter }}">
                             <div class="image-overlay">
                                 <i class="fas fa-expand"></i>
+                            </div>
+                        </div>
+
+                        <!-- مودال تصویر -->
+                        <div class="modal fade" id="imageModal{{ forloop.counter }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">تصویر مشکل</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img src="{{ image.image.url }}"
+                                             alt="تصویر مشکل"
+                                             class="img-fluid">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         {% endfor %}
@@ -123,13 +147,13 @@
             </div>
             {% endif %}
 
-            <!-- Expert Notes -->
+            <!-- کارت یادداشت‌های متخصص -->
             {% if request.expert_notes %}
             <div class="detail-card animate-in">
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-clipboard-list"></i>
-                        Expert Notes
+                        یادداشت‌های متخصص
                     </h3>
                 </div>
                 <div class="card-body">
@@ -138,7 +162,7 @@
                         {% if request.work_started_at %}
                         <div class="work-started-info">
                             <i class="fas fa-play-circle"></i>
-                            Work started: {{ request.work_started_at|date:"F d, Y at H:i" }}
+                            کار آغاز شد: {{ request.work_started_at|date:"j F Y - H:i" }}
                         </div>
                         {% endif %}
                     </div>
@@ -146,32 +170,53 @@
             </div>
             {% endif %}
 
-            <!-- Completion Details -->
+            <!-- کارت جزئیات تکمیل -->
             {% if request.status == 'completed' %}
             <div class="detail-card animate-in completion-card">
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-check-circle"></i>
-                        Completion Details
+                        جزئیات تکمیل کار
                     </h3>
                 </div>
                 <div class="card-body">
                     {% if request.completion_notes %}
                     <div class="completion-notes">
-                        <label>Completion Notes</label>
+                        <label>یادداشت‌های تکمیل</label>
                         <p>{{ request.completion_notes }}</p>
                     </div>
                     {% endif %}
 
                     {% if completion_images %}
                     <div class="completion-images">
-                        <label>Completion Images</label>
+                        <label>تصاویر پس از تعمیر</label>
                         <div class="image-gallery">
                             {% for image in completion_images %}
                             <div class="image-item">
-                                <img src="{{ image.image.url }}" alt="Completion Image" class="gallery-image">
+                                <img src="{{ image.image.url }}"
+                                     alt="تصویر تکمیل"
+                                     class="gallery-image"
+                                     data-bs-toggle="modal"
+                                     data-bs-target="#completionModal{{ forloop.counter }}">
                                 <div class="image-overlay">
                                     <i class="fas fa-expand"></i>
+                                </div>
+                            </div>
+
+                            <!-- مودال تصویر تکمیل -->
+                            <div class="modal fade" id="completionModal{{ forloop.counter }}" tabindex="-1">
+                                <div class="modal-dialog modal-lg modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">تصویر پس از تعمیر</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body text-center">
+                                            <img src="{{ image.image.url }}"
+                                                 alt="تصویر تکمیل"
+                                                 class="img-fluid">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             {% endfor %}
@@ -181,25 +226,25 @@
 
                     <div class="completed-info">
                         <i class="fas fa-calendar-check"></i>
-                        Completed: {{ request.completed_at|date:"F d, Y at H:i" }}
+                        تکمیل شده در: {{ request.completed_at|date:"j F Y - H:i" }}
                     </div>
                 </div>
             </div>
             {% endif %}
 
-            <!-- Student Feedback -->
+            <!-- کارت نظر دانشجو -->
             {% if request.student_rating or request.student_feedback %}
             <div class="detail-card animate-in feedback-card">
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-star"></i>
-                        Your Feedback
+                        نظر شما
                     </h3>
                 </div>
                 <div class="card-body">
                     {% if request.student_rating %}
                     <div class="rating-display">
-                        <label>Rating</label>
+                        <label>امتیاز</label>
                         <div class="star-rating">
                             {% for i in "12345" %}
                                 {% if forloop.counter <= request.student_rating %}
@@ -215,7 +260,7 @@
 
                     {% if request.student_feedback %}
                     <div class="feedback-text">
-                        <label>Your Comments</label>
+                        <label>نظر شما</label>
                         <blockquote>"{{ request.student_feedback }}"</blockquote>
                     </div>
                     {% endif %}
@@ -223,20 +268,20 @@
                     {% if request.feedback_at %}
                     <div class="feedback-date">
                         <i class="fas fa-clock"></i>
-                        Feedback given: {{ request.feedback_at|date:"F d, Y at H:i" }}
+                        نظر ثبت شده در: {{ request.feedback_at|date:"j F Y - H:i" }}
                     </div>
                     {% endif %}
                 </div>
             </div>
             {% endif %}
 
-            <!-- Rejection Reason -->
+            <!-- کارت دلیل رد -->
             {% if request.status == 'rejected' and request.rejection_reason %}
             <div class="detail-card animate-in rejection-card">
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-times-circle"></i>
-                        Rejection Reason
+                        دلیل رد درخواست
                     </h3>
                 </div>
                 <div class="card-body">
@@ -244,24 +289,24 @@
                     {% if request.approved_at %}
                     <div class="rejection-date">
                         <i class="fas fa-calendar-times"></i>
-                        Processed: {{ request.approved_at|date:"F d, Y at H:i" }}
+                        پردازش شده در: {{ request.approved_at|date:"j F Y - H:i" }}
                     </div>
                     {% endif %}
                 </div>
             </div>
             {% endif %}
 
-            <!-- Rate Service CTA -->
+            <!-- کارت امتیازدهی (اگر هنوز امتیاز نداده) -->
             {% if can_provide_feedback %}
             <div class="detail-card animate-in rate-service-card">
                 <div class="card-body text-center">
                     <div class="rate-service-content">
                         <i class="fas fa-star rate-icon"></i>
-                        <h4>Rate This Service</h4>
-                        <p>Help us improve our maintenance services by rating the work completed by <strong>{{ request.assigned_expert.user.username }}</strong>.</p>
+                        <h4>امتیازدهی به خدمات</h4>
+                        <p>با امتیازدهی به کار انجام شده توسط <strong>{{ request.assigned_expert.user.username }}</strong> به بهبود خدمات ما کمک کنید.</p>
                         <a href="{% url 'maintenance:rate' request.pk %}" class="btn btn-primary btn-lg">
                             <i class="fas fa-star"></i>
-                            Rate Service
+                            ثبت امتیاز
                         </a>
                     </div>
                 </div>
@@ -269,28 +314,31 @@
             {% endif %}
         </div>
 
-        <!-- Right Sidebar -->
+        <!-- ===== SIDEBAR (ستون راست) ===== -->
         <div class="sidebar-content">
-            <!-- Status Timeline -->
+
+            <!-- کارت Timeline وضعیت -->
             <div class="detail-card timeline-card animate-in">
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-history"></i>
-                        Status Timeline
+                        تاریخچه وضعیت
                     </h3>
                 </div>
                 <div class="card-body">
                     <div class="timeline">
+                        <!-- ثبت درخواست -->
                         <div class="timeline-item active">
                             <div class="timeline-marker">
                                 <i class="fas fa-plus"></i>
                             </div>
                             <div class="timeline-content">
-                                <h5>Submitted</h5>
-                                <span class="timeline-date">{{ request.created_at|date:"M d, Y H:i" }}</span>
+                                <h5>ثبت درخواست</h5>
+                                <span class="timeline-date">{{ request.created_at|date:"j M Y H:i" }}</span>
                             </div>
                         </div>
 
+                        <!-- تأیید/رد -->
                         {% if request.approved_at %}
                         <div class="timeline-item {% if request.status != 'rejected' %}active{% endif %}">
                             <div class="timeline-marker">
@@ -301,59 +349,63 @@
                                 {% endif %}
                             </div>
                             <div class="timeline-content">
-                                <h5>{% if request.status == 'rejected' %}Rejected{% else %}Approved{% endif %}</h5>
-                                <span class="timeline-date">{{ request.approved_at|date:"M d, Y H:i" }}</span>
+                                <h5>{% if request.status == 'rejected' %}رد شده{% else %}تأیید شده{% endif %}</h5>
+                                <span class="timeline-date">{{ request.approved_at|date:"j M Y H:i" }}</span>
                                 {% if request.approved_by_name %}
-                                <span class="timeline-by">by {{ request.approved_by_name }}</span>
+                                <span class="timeline-by">توسط {{ request.approved_by_name }}</span>
                                 {% endif %}
                             </div>
                         </div>
                         {% endif %}
 
+                        <!-- اختصاص به متخصص -->
                         {% if request.assigned_at %}
                         <div class="timeline-item active">
                             <div class="timeline-marker">
                                 <i class="fas fa-user-cog"></i>
                             </div>
                             <div class="timeline-content">
-                                <h5>Assigned to Expert</h5>
-                                <span class="timeline-date">{{ request.assigned_at|date:"M d, Y H:i" }}</span>
+                                <h5>اختصاص به متخصص</h5>
+                                <span class="timeline-date">{{ request.assigned_at|date:"j M Y H:i" }}</span>
                             </div>
                         </div>
                         {% endif %}
 
+                        <!-- شروع کار -->
                         {% if request.work_started_at %}
                         <div class="timeline-item active">
                             <div class="timeline-marker">
                                 <i class="fas fa-play"></i>
                             </div>
                             <div class="timeline-content">
-                                <h5>Work Started</h5>
-                                <span class="timeline-date">{{ request.work_started_at|date:"M d, Y H:i" }}</span>
+                                <h5>شروع کار</h5>
+                                <span class="timeline-date">{{ request.work_started_at|date:"j M Y H:i" }}</span>
                             </div>
                         </div>
                         {% endif %}
 
+                        <!-- تکمیل کار -->
                         {% if request.completed_at %}
                         <div class="timeline-item active">
                             <div class="timeline-marker">
                                 <i class="fas fa-flag-checkered"></i>
                             </div>
                             <div class="timeline-content">
-                                <h5>Completed</h5>
-                                <span class="timeline-date">{{ request.completed_at|date:"M d, Y H:i" }}</span>
+                                <h5>تکمیل کار</h5>
+                                <span class="timeline-date">{{ request.completed_at|date:"j M Y H:i" }}</span>
                             </div>
                         </div>
                         {% endif %}
 
+                        <!-- امتیازدهی -->
                         {% if request.student_rating %}
                         <div class="timeline-item active">
                             <div class="timeline-marker">
                                 <i class="fas fa-star"></i>
                             </div>
                             <div class="timeline-content">
-                                <h5>Rated by Student</h5>
-                                <span class="timeline-date">{{ request.feedback_at|date:"M d, Y H:i" }}</span>
+                                <h5>امتیازدهی توسط دانشجو</h5>
+                                <span class="timeline-date">{{ request.feedback_at|date:"j M Y H:i" }}</span>
                             </div>
                         </div>
                         {% endif %}
@@ -361,13 +413,13 @@
                 </div>
             </div>
 
-            <!-- Assigned Expert -->
+            <!-- کارت متخصص -->
             {% if request.assigned_expert %}
             <div class="detail-card expert-card animate-in">
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-user-cog"></i>
-                        Assigned Expert
+                        متخصص مسئول
                     </h3>
                 </div>
                 <div class="card-body">
@@ -381,7 +433,7 @@
 
                             {% if request.assigned_expert.average_rating %}
                             <div class="expert-rating">
-                                <span class="rating-label">Expert Rating:</span>
+                                <span class="rating-label">امتیاز متخصص:</span>
                                 <div class="rating-stars">
                                     {{ request.assigned_expert.rating_display }}
                                 </div>
@@ -391,7 +443,7 @@
                             {% if request.assigned_at %}
                             <div class="assignment-date">
                                 <i class="fas fa-calendar"></i>
-                                Assigned: {{ request.assigned_at|date:"M d, Y H:i" }}
+                                اختصاص داده شده: {{ request.assigned_at|date:"j M Y H:i" }}
                             </div>
                             {% endif %}
                         </div>
@@ -400,30 +452,30 @@
             </div>
             {% endif %}
 
-            <!-- Actions -->
+            <!-- کارت اکشن‌ها -->
             <div class="detail-card actions-card animate-in">
                 <div class="card-header">
                     <h3 class="card-title">
                         <i class="fas fa-cog"></i>
-                        Actions
+                        عملیات
                     </h3>
                 </div>
                 <div class="card-body">
                     <div class="action-buttons">
                         <a href="{% url 'student:student_dashboard' %}" class="btn btn-outline-primary btn-block">
-                            <i class="fas fa-arrow-left"></i>
-                            Back to Dashboard
+                            <i class="fas fa-arrow-right"></i>
+                            بازگشت به داشبورد
                         </a>
 
                         {% if can_provide_feedback %}
                         <a href="{% url 'maintenance:rate' request.pk %}" class="btn btn-primary btn-block">
                             <i class="fas fa-star"></i>
-                            Rate Service
+                            ثبت امتیاز
                         </a>
                         {% elif request.student_rating %}
                         <div class="feedback-status">
                             <i class="fas fa-check-circle"></i>
-                            You have rated this service
+                            امتیاز ثبت شده است
                         </div>
                         {% endif %}
                     </div>
@@ -436,4 +488,5 @@
 
 {% block extra_js %}
 <script src="{% static 'maintenance/js/request_detail.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 {% endblock %}
