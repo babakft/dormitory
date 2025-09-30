@@ -1,79 +1,542 @@
 /**
- * Service Expert Dashboard JavaScript
- * Handles interactive functionality for the service expert dashboard
+ * داشبورد متخصص سرویس - طراحی فارسی زیبا
+ * Persian Service Expert Dashboard with Beautiful Animations
  */
 
-class ServiceDashboard {
+// توابع کمکی فارسی
+const PersianDashboardUtils = {
+    // تبدیل اعداد انگلیسی به فارسی
+    toPersianNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+
+        str = String(str);
+        for (let i = 0; i < englishDigits.length; i++) {
+            str = str.replace(new RegExp(englishDigits[i], 'g'), persianDigits[i]);
+        }
+        return str;
+    },
+
+    // تبدیل اعداد فارسی به انگلیسی
+    toEnglishNumbers: function(str) {
+        const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+        const englishDigits = '0123456789';
+
+        str = String(str);
+        for (let i = 0; i < persianDigits.length; i++) {
+            str = str.replace(new RegExp(persianDigits[i], 'g'), englishDigits[i]);
+        }
+        return str;
+    }
+};
+
+class ServiceExpertDashboard {
     constructor() {
         this.init();
     }
 
-    /**
-     * Initialize dashboard functionality
-     */
     init() {
-        this.setupEventListeners();
-        this.setupKeyboardShortcuts();
-        this.setupFormValidation();
-        this.setupTableInteractions();
-        this.setupNotifications();
-        console.log('Service Dashboard initialized');
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.setup());
+        } else {
+            this.setup();
+        }
     }
 
-    /**
-     * Setup all event listeners
-     */
-    setupEventListeners() {
-        // Stat card clicks
-        document.querySelectorAll('.stat-card').forEach(card => {
-            card.addEventListener('click', this.handleStatCardClick.bind(this));
+    setup() {
+        console.log('🔧 داشبورد متخصص سرویس در حال بارگذاری...');
+
+        this.convertNumbersToPersian();
+        this.createBeautifulBackground();
+        this.setupEventListeners();
+        this.setupAnimations();
+        this.setupStatCards();
+        this.setupTableInteractions();
+        this.setupNavigationButtons();
+        this.setupKeyboardShortcuts();
+        this.setupParallaxEffects();
+        this.addTooltips();
+
+        console.log('✅ داشبورد متخصص سرویس آماده است');
+    }
+
+    // تبدیل تمام اعداد به فارسی
+    convertNumbersToPersian() {
+        const statNumbers = document.querySelectorAll('.stat-number');
+        statNumbers.forEach(element => {
+            const number = element.textContent.trim();
+            element.textContent = PersianDashboardUtils.toPersianNumbers(number);
+            element.classList.add('persian-number');
         });
 
-        // Table row clicks
-        document.querySelectorAll('.table-row').forEach(row => {
+        const dateElements = document.querySelectorAll('.days-ago');
+        dateElements.forEach(element => {
+            const text = element.textContent;
+            element.textContent = PersianDashboardUtils.toPersianNumbers(text);
+        });
+
+        const performanceValues = document.querySelectorAll('.performance-value');
+        performanceValues.forEach(element => {
+            const text = element.textContent;
+            element.textContent = PersianDashboardUtils.toPersianNumbers(text);
+        });
+    }
+
+    // ایجاد بک‌گراند زیبا
+    createBeautifulBackground() {
+        this.createGeometricShapes();
+        this.createFloatingParticles();
+        this.initializeBackgroundAnimations();
+    }
+
+    createGeometricShapes() {
+        const existingShapes = document.querySelector('.geometric-shapes');
+        if (existingShapes) return;
+
+        const shapesContainer = document.createElement('div');
+        shapesContainer.className = 'geometric-shapes';
+        shapesContainer.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        `;
+
+        const shapes = [
+            { size: 120, color: '#667eea', top: '10%', right: '10%', delay: 0 },
+            { size: 80, color: '#764ba2', top: '30%', left: '15%', delay: 2 },
+            { size: 150, color: '#f093fb', bottom: '20%', right: '20%', delay: 4 }
+        ];
+
+        shapes.forEach((config, index) => {
+            const shape = document.createElement('div');
+            shape.style.cssText = `
+                position: absolute;
+                width: ${config.size}px;
+                height: ${config.size}px;
+                background: linear-gradient(45deg, ${config.color}, ${config.color}88);
+                border-radius: ${index % 2 === 0 ? '50%' : '20%'};
+                opacity: 0.1;
+                animation: floatShape 12s ease-in-out infinite;
+                animation-delay: ${config.delay}s;
+            `;
+
+            Object.assign(shape.style, {
+                top: config.top || 'auto',
+                bottom: config.bottom || 'auto',
+                left: config.left || 'auto',
+                right: config.right || 'auto'
+            });
+
+            shapesContainer.appendChild(shape);
+        });
+
+        document.body.appendChild(shapesContainer);
+    }
+
+    createFloatingParticles() {
+        const existingParticles = document.querySelector('.floating-particles');
+        if (existingParticles) return;
+
+        const particlesContainer = document.createElement('div');
+        particlesContainer.className = 'floating-particles';
+        particlesContainer.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        `;
+
+        for (let i = 1; i <= 10; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: 4px;
+                height: 4px;
+                background: radial-gradient(circle, rgba(255,255,255,0.8), transparent);
+                border-radius: 50%;
+                right: ${i * 10}%;
+                animation: floatParticle ${8 + (i % 5)}s linear infinite;
+                animation-delay: ${i * 0.5}s;
+            `;
+            particlesContainer.appendChild(particle);
+        }
+
+        document.body.appendChild(particlesContainer);
+    }
+
+    initializeBackgroundAnimations() {
+        if (document.querySelector('#background-animations')) return;
+
+        const style = document.createElement('style');
+        style.id = 'background-animations';
+        style.textContent = `
+            @keyframes floatShape {
+                0%, 100% { transform: translate(0, 0) rotate(0deg); }
+                33% { transform: translate(30px, -20px) rotate(120deg); }
+                66% { transform: translate(-20px, 30px) rotate(240deg); }
+            }
+
+            @keyframes floatParticle {
+                0% { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
+                10% { opacity: 1; transform: scale(1); }
+                90% { opacity: 1; }
+                100% { transform: translateY(-100px) translateX(50px) scale(0); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    setupParallaxEffects() {
+        let ticking = false;
+
+        const updateParallax = (e) => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    const mouseX = e.clientX / window.innerWidth;
+                    const mouseY = e.clientY / window.innerHeight;
+
+                    const shapes = document.querySelectorAll('.geometric-shapes > div');
+                    shapes.forEach((shape, index) => {
+                        const speed = (index + 1) * 0.3;
+                        const x = (mouseX - 0.5) * speed * 20;
+                        const y = (mouseY - 0.5) * speed * 20;
+
+                        const currentTransform = shape.style.transform || '';
+                        const baseTransform = currentTransform.replace(/translate\([^)]*\)/g, '');
+                        shape.style.transform = `translate(${x}px, ${y}px) ${baseTransform}`;
+                    });
+
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+
+        window.addEventListener('mousemove', updateParallax);
+    }
+
+    // راه‌اندازی رویدادها
+    setupEventListeners() {
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach(card => {
+            card.addEventListener('click', this.handleStatCardClick.bind(this));
+            card.addEventListener('mouseenter', this.handleStatCardHover.bind(this));
+            card.addEventListener('mouseleave', this.handleStatCardLeave.bind(this));
+        });
+
+        const tableRows = document.querySelectorAll('.table-row');
+        tableRows.forEach(row => {
             row.addEventListener('click', this.handleTableRowClick.bind(this));
         });
 
-        // Navigation button hover effects
-        document.querySelectorAll('.nav-btn').forEach(btn => {
+        const navButtons = document.querySelectorAll('.nav-btn');
+        navButtons.forEach(btn => {
             btn.addEventListener('mouseenter', this.handleNavButtonHover.bind(this));
         });
 
-        // Logout confirmation
-        document.querySelectorAll('.logout-btn').forEach(btn => {
-            btn.addEventListener('click', this.handleLogoutConfirmation.bind(this));
-        });
+        const logoutBtn = document.querySelector('.logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', this.handleLogoutConfirmation.bind(this));
+        }
 
-        // Claim button handling (no processing state)
-        document.querySelectorAll('.btn-claim').forEach(btn => {
+        const claimButtons = document.querySelectorAll('.btn-claim');
+        claimButtons.forEach(btn => {
             btn.addEventListener('click', this.handleClaimClick.bind(this));
         });
 
-        // Search functionality
         const searchInput = document.querySelector('#requestSearch');
         if (searchInput) {
             searchInput.addEventListener('input', this.debounce(this.handleSearch.bind(this), 300));
         }
+    }
 
-        // Refresh button
-        const refreshBtn = document.querySelector('[onclick="location.reload()"]');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', this.handleRefresh.bind(this));
+    // راه‌اندازی انیمیشن‌ها
+    setupAnimations() {
+        this.animateStatCards();
+        this.setupScrollAnimations();
+        this.animateHeader();
+    }
+
+    animateStatCards() {
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px) scale(0.95)';
+
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0) scale(1)';
+            }, 150 + (index * 100));
+        });
+    }
+
+    animateHeader() {
+        const header = document.querySelector('.dashboard-header');
+        if (header) {
+            header.style.opacity = '0';
+            header.style.transform = 'translateY(-20px)';
+
+            setTimeout(() => {
+                header.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                header.style.opacity = '1';
+                header.style.transform = 'translateY(0)';
+            }, 100);
         }
     }
 
-    /**
-     * Setup keyboard shortcuts
-     */
+    setupScrollAnimations() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                    entry.target.style.opacity = '1';
+                }
+            });
+        }, observerOptions);
+
+        const sections = document.querySelectorAll('.requests-section, .nav-section');
+        sections.forEach(section => {
+            section.style.opacity = '0';
+            observer.observe(section);
+        });
+    }
+
+    // راه‌اندازی کارت‌های آمار
+    setupStatCards() {
+        const statCards = document.querySelectorAll('.stat-card');
+
+        statCards.forEach(card => {
+            const statNumber = card.querySelector('.stat-number');
+            if (statNumber) {
+                const targetValue = parseInt(PersianDashboardUtils.toEnglishNumbers(statNumber.textContent));
+                if (!isNaN(targetValue)) {
+                    statNumber.setAttribute('data-target', targetValue);
+                    this.animateCounter(statNumber, targetValue);
+                }
+            }
+        });
+    }
+
+    animateCounter(element, target, duration = 2000) {
+        const startTime = Date.now();
+        const startValue = 0;
+
+        const updateCounter = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const current = Math.floor(easeOut * target);
+
+            element.textContent = PersianDashboardUtils.toPersianNumbers(current);
+
+            if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+            } else {
+                element.textContent = PersianDashboardUtils.toPersianNumbers(target);
+                element.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    element.style.transform = 'scale(1)';
+                }, 200);
+            }
+        };
+
+        requestAnimationFrame(updateCounter);
+    }
+
+    // راه‌اندازی تعاملات جدول
+    setupTableInteractions() {
+        const tableRows = document.querySelectorAll('.table-row');
+
+        tableRows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.transform = 'scale(1.01)';
+            });
+
+            row.addEventListener('mouseleave', () => {
+                row.style.transform = 'scale(1)';
+            });
+        });
+    }
+
+    // راه‌اندازی دکمه‌های ناوبری
+    setupNavigationButtons() {
+        const navButtons = document.querySelectorAll('.nav-btn');
+
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    btn.style.transform = '';
+                }, 150);
+            });
+        });
+    }
+
+    // مدیریت کلیک روی کارت آمار
+    handleStatCardClick(e) {
+        const card = e.currentTarget;
+
+        card.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+            card.style.transform = '';
+        }, 150);
+
+        if (card.classList.contains('stat-card--primary')) {
+            const ticketsBtn = document.querySelector('a[href*="ticket:list"]');
+            if (ticketsBtn) {
+                window.location.href = ticketsBtn.href;
+            }
+        } else if (card.classList.contains('stat-card--warning')) {
+            const assignedSection = document.querySelector('.requests-section');
+            if (assignedSection) {
+                assignedSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        } else if (card.classList.contains('stat-card--success')) {
+            const completedBtn = document.querySelector('a[href*="completed_tasks"]');
+            if (completedBtn) {
+                window.location.href = completedBtn.href;
+            }
+        }
+    }
+
+    handleStatCardHover(e) {
+        const card = e.currentTarget;
+        const icon = card.querySelector('.stat-icon');
+
+        if (icon) {
+            icon.style.transform = 'scale(1.15) rotate(5deg)';
+        }
+    }
+
+    handleStatCardLeave(e) {
+        const card = e.currentTarget;
+        const icon = card.querySelector('.stat-icon');
+
+        if (icon) {
+            icon.style.transform = '';
+        }
+    }
+
+    // مدیریت کلیک روی ردیف جدول
+    handleTableRowClick(e) {
+        if (e.target.closest('.btn') || e.target.closest('form')) return;
+
+        const row = e.currentTarget;
+        const viewBtn = row.querySelector('a[href*="detail"]');
+
+        if (viewBtn) {
+            row.style.opacity = '0.7';
+            row.style.transform = 'scale(0.98)';
+
+            setTimeout(() => {
+                window.location.href = viewBtn.href;
+            }, 200);
+        }
+    }
+
+    handleNavButtonHover(e) {
+        const btn = e.currentTarget;
+        const icon = btn.querySelector('i');
+
+        if (icon) {
+            icon.style.transform = 'scale(1.15) rotate(5deg)';
+        }
+    }
+
+    handleLogoutConfirmation(e) {
+        const confirmed = confirm('آیا مطمئن هستید که می‌خواهید خارج شوید؟');
+        if (!confirmed) {
+            e.preventDefault();
+        }
+    }
+
+    handleClaimClick(e) {
+        const btn = e.currentTarget;
+        btn.style.transform = 'scale(0.95)';
+
+        setTimeout(() => {
+            btn.style.transform = '';
+        }, 100);
+    }
+
+    handleSearch(e) {
+        const query = e.target.value.toLowerCase();
+        const tableRows = document.querySelectorAll('.table-row');
+        let visibleCount = 0;
+
+        tableRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const shouldShow = text.includes(query);
+
+            if (shouldShow) {
+                row.style.display = '';
+                visibleCount++;
+
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, 50);
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        this.updateSearchResults(visibleCount, tableRows.length);
+    }
+
+    updateSearchResults(visible, total) {
+        let resultsEl = document.querySelector('.search-results');
+
+        if (!resultsEl) {
+            resultsEl = document.createElement('div');
+            resultsEl.className = 'search-results';
+            resultsEl.style.cssText = `
+                text-align: center;
+                padding: 1rem;
+                color: var(--text-secondary);
+                font-size: 0.95rem;
+                font-weight: 600;
+            `;
+
+            const searchInput = document.querySelector('#requestSearch');
+            if (searchInput) {
+                searchInput.parentNode.insertBefore(resultsEl, searchInput.nextSibling);
+            }
+        }
+
+        if (visible !== total) {
+            resultsEl.textContent = `نمایش ${PersianDashboardUtils.toPersianNumbers(visible)} از ${PersianDashboardUtils.toPersianNumbers(total)} درخواست`;
+            resultsEl.style.display = 'block';
+        } else {
+            resultsEl.style.display = 'none';
+        }
+    }
+
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + R = Refresh Dashboard
             if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
                 e.preventDefault();
                 location.reload();
             }
 
-            // Ctrl/Cmd + T = My Tickets
             if ((e.ctrlKey || e.metaKey) && e.key === 't') {
                 e.preventDefault();
                 const ticketsBtn = document.querySelector('a[href*="ticket:list"]');
@@ -82,232 +545,37 @@ class ServiceDashboard {
                 }
             }
 
-            // Escape = Close any open modals/dropdowns
             if (e.key === 'Escape') {
                 this.closeOpenElements();
             }
         });
     }
 
-    /**
-     * Setup form validation enhancements
-     */
-    setupFormValidation() {
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            // Skip claim forms - they should submit immediately
-            if (form.querySelector('input[name="action"][value="claim"]')) {
-                return;
+    addTooltips() {
+        const badges = document.querySelectorAll('.priority-badge, .status-badge');
+        badges.forEach(badge => {
+            const text = badge.textContent.trim();
+
+            const tooltips = {
+                'high': 'اولویت بالا - فوری',
+                'medium': 'اولویت متوسط',
+                'low': 'اولویت پایین',
+                'approved': 'تأیید شده و آماده شروع کار',
+                'in progress': 'در حال انجام'
+            };
+
+            const lowerText = text.toLowerCase();
+            for (const key in tooltips) {
+                if (lowerText.includes(key)) {
+                    badge.setAttribute('title', tooltips[key]);
+                    badge.style.cursor = 'help';
+                    break;
+                }
             }
-            form.addEventListener('submit', this.handleFormSubmit.bind(this));
         });
     }
 
-    /**
-     * Setup table interactions
-     */
-    setupTableInteractions() {
-        // Add row hover effects
-        document.querySelectorAll('.table-row').forEach(row => {
-            row.addEventListener('mouseenter', () => {
-                row.style.backgroundColor = 'var(--gray-50)';
-            });
-
-            row.addEventListener('mouseleave', () => {
-                row.style.backgroundColor = '';
-            });
-        });
-    }
-
-    /**
-     * Setup notification system
-     */
-    setupNotifications() {
-        // Check for Django messages and display them
-        const messages = document.querySelectorAll('.alert');
-        messages.forEach(message => {
-            this.enhanceNotification(message);
-        });
-    }
-
-    /**
-     * Handle stat card clicks
-     */
-    handleStatCardClick(e) {
-        const card = e.currentTarget;
-
-        // Add click effect
-        card.style.transform = 'scale(0.98)';
-        setTimeout(() => {
-            card.style.transform = '';
-        }, 150);
-
-        // Navigate based on card type
-        if (card.classList.contains('stat-card--primary')) {
-            // Navigate to tickets
-            const ticketsBtn = document.querySelector('a[href*="ticket:list"]');
-            if (ticketsBtn) {
-                window.location.href = ticketsBtn.href;
-            }
-        } else if (card.classList.contains('stat-card--warning')) {
-            // Scroll to assigned requests
-            const assignedSection = document.querySelector('.requests-section');
-            if (assignedSection) {
-                assignedSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        } else if (card.classList.contains('stat-card--success')) {
-            // Navigate to completed tasks
-            const completedBtn = document.querySelector('a[href*="completed_tasks"]');
-            if (completedBtn) {
-                window.location.href = completedBtn.href;
-            }
-        } else if (card.classList.contains('stat-card--info')) {
-            // Scroll to available requests
-            const availableSection = document.querySelectorAll('.requests-section')[1];
-            if (availableSection) {
-                availableSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-    }
-
-    /**
-     * Handle table row clicks
-     */
-    handleTableRowClick(e) {
-        // Don't trigger if clicking on a button or form
-        if (e.target.closest('.btn') || e.target.closest('form')) return;
-
-        const row = e.currentTarget;
-        const viewBtn = row.querySelector('a[href*="detail"]');
-        if (viewBtn) {
-            window.location.href = viewBtn.href;
-        }
-    }
-
-    /**
-     * Handle navigation button hover effects
-     */
-    handleNavButtonHover(e) {
-        const btn = e.currentTarget;
-        const icon = btn.querySelector('.nav-icon i');
-
-        if (icon) {
-            icon.style.transform = 'scale(1.1)';
-            setTimeout(() => {
-                icon.style.transform = '';
-            }, 200);
-        }
-    }
-
-    /**
-     * Handle logout confirmation
-     */
-    handleLogoutConfirmation(e) {
-        if (!confirm('Are you sure you want to logout?')) {
-            e.preventDefault();
-        }
-    }
-
-    /**
-     * Handle claim button clicks (immediate submission)
-     */
-    handleClaimClick(e) {
-        const btn = e.currentTarget;
-
-        // Simple visual feedback without processing state
-        btn.style.transform = 'scale(0.95)';
-
-        setTimeout(() => {
-            btn.style.transform = '';
-        }, 100);
-
-        // Form will submit naturally - no processing state needed
-    }
-
-    /**
-     * Handle search functionality
-     */
-    handleSearch(e) {
-        const query = e.target.value.toLowerCase();
-        const tableRows = document.querySelectorAll('.table-row');
-
-        tableRows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            const shouldShow = text.includes(query);
-            row.style.display = shouldShow ? '' : 'none';
-        });
-
-        // Update results count
-        const visibleRows = document.querySelectorAll('.table-row:not([style*="display: none"])');
-        this.updateSearchResults(visibleRows.length, tableRows.length);
-    }
-
-    /**
-     * Update search results display
-     */
-    updateSearchResults(visible, total) {
-        let resultsEl = document.querySelector('.search-results');
-        if (!resultsEl) {
-            resultsEl = document.createElement('div');
-            resultsEl.className = 'search-results text-muted mt-2';
-            const searchInput = document.querySelector('#requestSearch');
-            if (searchInput) {
-                searchInput.parentNode.insertBefore(resultsEl, searchInput.nextSibling);
-            }
-        }
-
-        if (visible !== total) {
-            resultsEl.textContent = `Showing ${visible} of ${total} requests`;
-            resultsEl.style.display = 'block';
-        } else {
-            resultsEl.style.display = 'none';
-        }
-    }
-
-    /**
-     * Handle form submissions (excluding claim forms)
-     */
-    handleFormSubmit(e) {
-        const form = e.currentTarget;
-        const submitBtn = form.querySelector('button[type="submit"]');
-
-        if (submitBtn && !submitBtn.classList.contains('btn-claim')) {
-            submitBtn.disabled = true;
-            const originalText = submitBtn.textContent;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
-            // Re-enable after 5 seconds if form hasn't been submitted
-            setTimeout(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-            }, 5000);
-        }
-    }
-
-    /**
-     * Handle refresh button
-     */
-    handleRefresh(e) {
-        e.preventDefault();
-
-        // Add loading state to refresh button
-        const btn = e.currentTarget;
-        const originalContent = btn.innerHTML;
-
-        btn.innerHTML = '<div class="nav-icon"><i class="fas fa-spinner fa-spin"></i></div><span class="nav-text">Refreshing...</span>';
-        btn.disabled = true;
-
-        // Reload after short delay
-        setTimeout(() => {
-            location.reload();
-        }, 500);
-    }
-
-    /**
-     * Close any open elements (modals, dropdowns, etc.)
-     */
     closeOpenElements() {
-        // Close any Bootstrap modals
         const modals = document.querySelectorAll('.modal.show');
         modals.forEach(modal => {
             const modalInstance = bootstrap?.Modal?.getInstance(modal);
@@ -315,51 +583,8 @@ class ServiceDashboard {
                 modalInstance.hide();
             }
         });
-
-        // Close any dropdowns
-        const dropdowns = document.querySelectorAll('.dropdown-menu.show');
-        dropdowns.forEach(dropdown => {
-            dropdown.classList.remove('show');
-        });
     }
 
-    /**
-     * Enhance notification display
-     */
-    enhanceNotification(notification) {
-        // Add close functionality if not present
-        if (!notification.querySelector('.btn-close')) {
-            const closeBtn = document.createElement('button');
-            closeBtn.className = 'btn-close';
-            closeBtn.setAttribute('aria-label', 'Close');
-            closeBtn.addEventListener('click', () => {
-                notification.remove();
-            });
-            notification.appendChild(closeBtn);
-        }
-
-        // Auto-remove after 8 seconds
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.style.opacity = '0';
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }
-        }, 8000);
-    }
-
-    /**
-     * Get CSRF token for AJAX requests
-     */
-    getCSRFToken() {
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-        return csrfToken ? csrfToken.value : '';
-    }
-
-    /**
-     * Debounce function to limit API calls
-     */
     debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -372,67 +597,74 @@ class ServiceDashboard {
         };
     }
 
-    /**
-     * Utility method to show notifications
-     */
     showNotification(message, type = 'info') {
-        // Create notification element
         const notification = document.createElement('div');
-        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        notification.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" aria-label="Close"></button>
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: ${type === 'error' ? 'linear-gradient(135deg, #f44336, #d32f2f)' :
+                        type === 'success' ? 'linear-gradient(135deg, #4caf50, #388e3c)' :
+                        'linear-gradient(135deg, #2196f3, #1976d2)'};
+            color: white;
+            padding: 1.2rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            font-family: 'Vazirmatn', sans-serif;
+            direction: rtl;
+            font-weight: 600;
+            animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
         `;
 
-        // Add close functionality
-        notification.querySelector('.btn-close').addEventListener('click', () => {
-            notification.remove();
-        });
-
+        notification.textContent = message;
         document.body.appendChild(notification);
 
-        // Auto-remove after 5 seconds
         setTimeout(() => {
-            if (notification.parentNode) {
-                notification.style.opacity = '0';
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }
-        }, 5000);
-    }
-
-    /**
-     * Add loading state to element
-     */
-    addLoadingState(element, text = 'Loading...') {
-        element.classList.add('loading');
-        element.dataset.originalContent = element.innerHTML;
-        element.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${text}`;
-        element.disabled = true;
-    }
-
-    /**
-     * Remove loading state from element
-     */
-    removeLoadingState(element) {
-        element.classList.remove('loading');
-        element.innerHTML = element.dataset.originalContent || element.innerHTML;
-        element.disabled = false;
-        delete element.dataset.originalContent;
+            notification.style.animation = 'slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            setTimeout(() => {
+                notification.remove();
+            }, 400);
+        }, 4000);
     }
 }
 
-// Initialize dashboard when DOM is ready
+// راه‌اندازی داشبورد
 document.addEventListener('DOMContentLoaded', () => {
-    const dashboard = new ServiceDashboard();
-
-    // Make dashboard globally available
-    window.serviceDashboard = dashboard;
+    window.serviceExpertDashboard = new ServiceExpertDashboard();
 });
 
-// Export for potential external use
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ServiceDashboard;
+// افزودن انیمیشن‌ها به استایل‌ها
+if (!document.querySelector('#dashboard-animations-extra')) {
+    const style = document.createElement('style');
+    style.id = 'dashboard-animations-extra';
+    style.textContent = `
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutLeft {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 }
+
+window.PersianDashboardUtils = PersianDashboardUtils;
+
+console.log('🔧 سیستم داشبورد فارسی متخصص سرویس آماده است');
