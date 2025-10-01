@@ -1,517 +1,446 @@
-<!-- templates/admin/chat_interface.html (Updated with Close Functionality) -->
+<!-- templates/admin/chat_interface.html -->
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="fa" dir="rtl">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>Admin Chat - Ticket #{{ ticket.id }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>چت مدیریت - تیکت #{{ ticket.id }}</title>
+    <link rel="stylesheet" href="{% static 'ticket/css/ticket_chat.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .chat-container {
-            max-width: 900px;
-            margin: 0 auto;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        /* استایل‌های اضافی مخصوص صفحه مدیر */
+        .admin-header-special {
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(176, 42, 55, 0.1) 100%);
+            border: 2px solid rgba(220, 53, 69, 0.3);
         }
 
-        .admin-header {
+        .admin-title {
+    background: linear-gradient(135deg, #1976d2, #1565c0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+F
+        .admin-badge-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
             background: linear-gradient(135deg, #dc3545, #b02a37);
             color: white;
-            padding: 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-right: 1rem;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
         }
 
-        .ticket-info {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-bottom: 1px solid #dee2e6;
+        /* کارت اطلاعات کاربر */
+        .user-info-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: 2rem;
+            animation: slideInUp 0.6s ease 0.2s backwards;
+            overflow: hidden;
         }
 
-        .chat-messages {
-            height: 500px;
-            overflow-y: auto;
-            padding: 20px;
-            background-color: #f8f9fa;
+        .user-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            padding: 0;
         }
 
-        .message {
-            margin-bottom: 15px;
+        .info-item {
             display: flex;
-            align-items: flex-start;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 10px;
+            transition: all 0.3s ease;
         }
 
-        .message.admin {
-            justify-content: flex-end;
+        .info-item:hover {
+            background: rgba(0, 0, 0, 0.04);
+            transform: translateY(-2px);
         }
 
-        .message.user {
-            justify-content: flex-start;
+        .info-item label {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .message-content {
-            max-width: 70%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            word-wrap: break-word;
-            position: relative;
+        .info-item span {
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: 500;
+            line-height: 1.6;
         }
 
-        .message.admin .message-content {
-            background: #dc3545;
+        /* Badge داخل info-item */
+        .info-item .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            width: fit-content;
+        }
+
+        .badge-primary {
+            background: linear-gradient(135deg, #1976d2, #1565c0);
             color: white;
         }
 
-        .message.user .message-content {
-            background: white;
-            border: 1px solid #ddd;
-            color: #333;
-        }
-
-        .message-info {
-            font-size: 11px;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-
-        .chat-input {
-            padding: 20px;
-            border-top: 2px solid #dee2e6;
-            background: white;
-        }
-
-        .connection-status {
-            padding: 8px;
-            font-size: 12px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .connected {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .disconnected {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .connecting {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .closed {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .admin-badge {
-            background: #dc3545;
+        .badge-success {
+            background: linear-gradient(135deg, #4caf50, #388e3c);
             color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            margin-left: 8px;
+        }
+
+        /* ورودی مدیر */
+        .admin-input-section {
+            border-top: 3px solid #dc3545;
+        }
+
+        .admin-input-notice {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            background: rgba(220, 53, 69, 0.1);
+            border-radius: var(--border-radius);
+            color: #dc3545;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-right: 4px solid #dc3545;
+        }
+
+        .admin-message-input {
+            border: 2px solid rgba(220, 53, 69, 0.3);
+        }
+
+        .admin-message-input:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.12);
+        }
+
+        .admin-send-button {
+            background: linear-gradient(135deg, #dc3545, #b02a37) !important;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .admin-send-button:hover:not(:disabled) {
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+        }
+
+        /* اکشن‌های مدیر */
+        .admin-actions {
+            border-top: 3px solid #dc3545;
+        }
+
+        .admin-info {
+            color: #dc3545;
+            font-weight: 700;
+        }
+
+        .btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .user-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-badge-title {
+                display: block;
+                margin-right: 0;
+                margin-top: 0.5rem;
+                text-align: center;
+            }
+
+            .chat-title {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="chat-container mt-4">
-            <!-- Connection Status -->
-            <div id="connectionStatus" class="connection-status connecting">
-                Connecting to chat...
-            </div>
+<!-- اشکال هندسی متحرک -->
+<div class="geometric-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+    <div class="shape shape-5"></div>
+    <div class="shape shape-6"></div>
+</div>
 
-            <!-- Admin Header -->
-            <div class="admin-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4 class="mb-1">
-                            <i class="fas fa-shield-alt"></i> Admin Chat - Ticket #{{ ticket.id }}
-                        </h4>
-                        <h6 class="mb-0">{{ ticket.title }}</h6>
-                    </div>
-                    <div>
-                        {% if ticket.status != 'closed' %}
-                        <a href="{% url 'ticket:admin_close_ticket' ticket.id %}"
-                           class="btn btn-warning btn-sm me-2"
-                           onclick="return confirm('Are you sure you want to close this ticket?')">
-                            <i class="fas fa-lock"></i> Close Ticket
-                        </a>
-                        {% else %}
-                        <span class="badge bg-secondary me-2">
-                            <i class="fas fa-lock"></i> Ticket Closed
+<!-- ذرات شناور -->
+<div class="floating-particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+</div>
+
+<div class="chat-container">
+    <!-- هدر چت مدیریت -->
+    <header class="chat-header admin-header-special">
+        <div class="header-content">
+            <div class="header-info">
+                <nav class="breadcrumb">
+                    <a href="/ticket/admin-chat/" class="breadcrumb-link">
+                        <i class="fas fa-arrow-right"></i>
+                        داشبورد مدیریت
+                    </a>
+                    <span class="breadcrumb-separator">|</span>
+                    <a href="/admin/" class="breadcrumb-link">
+                        <i class="fas fa-cog"></i>
+                        پنل ادمین
+                    </a>
+                    <span class="breadcrumb-separator">|</span>
+                    <span class="breadcrumb-current">تیکت #{{ ticket.id }}</span>
+                </nav>
+                <h1 class="chat-title admin-title">
+                    {{ ticket.title }}
+                    <span class="admin-badge-title">
+                            <i class="fas fa-shield-alt"></i>
+                            مدیریت
                         </span>
-                        {% endif %}
-                        <a href="/ticket/admin-chat/" class="btn btn-light btn-sm">
-                            <i class="fas fa-arrow-left"></i> Back to Dashboard
-                        </a>
-                        <a href="/admin/" class="btn btn-outline-light btn-sm">
-                            <i class="fas fa-cog"></i> Admin Panel
-                        </a>
-                    </div>
-                </div>
+                </h1>
+                <p class="chat-subtitle">{{ ticket.description|truncatechars:100 }}</p>
             </div>
 
-            <!-- Ticket Information -->
-            <div class="ticket-info">
-                <div class="row">
-                    <div class="col-md-6">
-                        <strong>User:</strong> {{ ticket.created_by.username }}
-                        {% if ticket.created_by.student_profile %}
-                            <span class="badge bg-primary">Student</span>
-                        {% elif ticket.created_by.expert_profile %}
-                            <span class="badge bg-success">Expert</span>
-                        {% endif %}
-                        <br>
-                        <strong>Email:</strong> {{ ticket.created_by.email }}<br>
-                        <strong>Status:</strong>
-                        <span class="badge
-                            {% if ticket.status == 'pending' %}bg-warning
-                            {% elif ticket.status == 'answered' %}bg-success
-                            {% elif ticket.status == 'closed' %}bg-secondary
-                            {% else %}bg-secondary{% endif %}">
-                            {{ ticket.get_status_display }}
+            <div class="header-status">
+                <div class="status-info">
+                        <span class="status-badge status-{{ ticket.status }}">
+                            <i class="fas fa-circle status-icon"></i>
+                            {% if ticket.status == 'pending' %}
+                                در انتظار پاسخ
+                            {% elif ticket.status == 'answered' %}
+                                پاسخ داده شده
+                            {% elif ticket.status == 'closed' %}
+                                بسته شده
+                            {% endif %}
                         </span>
-                    </div>
-                    <div class="col-md-6">
-                        <strong>Created:</strong> {{ ticket.created_at|date:"M d, Y H:i" }}<br>
-                        <strong>Last Updated:</strong> {{ ticket.updated_at|date:"M d, Y H:i" }}<br>
-                        <strong>Description:</strong> {{ ticket.description|truncatechars:80 }}
-                    </div>
                 </div>
             </div>
+        </div>
+    </header>
 
-            <!-- Chat Messages -->
-            <div id="chatMessages" class="chat-messages">
-                <div class="text-center text-muted">
-                    <i class="fas fa-comments fa-2x mb-2"></i>
-                    <p>Loading chat history...</p>
-                </div>
-            </div>
-
-            <!-- Chat Input -->
-            {% if ticket.status != 'closed' %}
-            <div class="chat-input">
-                <div class="row">
-                    <div class="col-md-9">
-                        <textarea id="messageInput" class="form-control" rows="3"
-                            placeholder="Type your admin response here..."></textarea>
-                    </div>
-                    <div class="col-md-3 d-flex flex-column gap-2">
-                        <button id="sendButton" class="btn btn-danger h-100">
-                            <i class="fas fa-paper-plane"></i><br>Send as Admin
-                        </button>
-                    </div>
+    <!-- کارت اطلاعات کاربر -->
+    <div class="user-info-card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-user-circle"></i>
+                اطلاعات کاربر
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="user-info-grid">
+                <div class="info-item">
+                    <label>
+                        <i class="fas fa-user"></i>
+                        نام کاربری
+                    </label>
+                    <span>{{ ticket.created_by.username }}</span>
                 </div>
 
-                <div class="row mt-2">
-                    <div class="col-12">
-                        <small class="text-muted">
-                            <i class="fas fa-info-circle"></i>
-                            User will receive email notification when you send a message.
-                            Press Ctrl+Enter to send quickly.
-                        </small>
-                    </div>
+                <div class="info-item">
+                    <label>
+                        <i class="fas fa-envelope"></i>
+                        ایمیل
+                    </label>
+                    <span>{{ ticket.created_by.email }}</span>
+                </div>
+
+                <div class="info-item">
+                    <label>
+                        <i class="fas fa-id-badge"></i>
+                        نقش کاربر
+                    </label>
+                    <span>
+                            {% if ticket.created_by.student_profile %}
+                                <span class="badge badge-primary">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    دانشجو
+                                </span>
+                            {% elif ticket.created_by.expert_profile %}
+                                <span class="badge badge-success">
+                                    <i class="fas fa-user-tie"></i>
+                                    کارشناس
+                                </span>
+                            {% else %}
+                                <span class="badge badge-secondary">
+                                    <i class="fas fa-user"></i>
+                                    کاربر
+                                </span>
+                            {% endif %}
+                        </span>
+                </div>
+
+                <div class="info-item">
+                    <label>
+                        <i class="fas fa-calendar-plus"></i>
+                        تاریخ ایجاد
+                    </label>
+                    <span>{{ ticket.created_at|date:"d F Y - H:i" }}</span>
+                </div>
+
+                <div class="info-item">
+                    <label>
+                        <i class="fas fa-sync"></i>
+                        آخرین به‌روزرسانی
+                    </label>
+                    <span>{{ ticket.updated_at|date:"d F Y - H:i" }}</span>
+                </div>
+
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <label>
+                        <i class="fas fa-align-right"></i>
+                        شرح کامل مشکل
+                    </label>
+                    <span>{{ ticket.description }}</span>
                 </div>
             </div>
-            {% else %}
-            <div class="alert alert-warning m-3">
-                <i class="fas fa-lock"></i> This ticket is closed and no longer accepts messages.
-            </div>
-            {% endif %}
         </div>
     </div>
 
-    <script>
-        class AdminTicketChat {
-            constructor(ticketId) {
-                this.ticketId = ticketId;
-                this.ws = null;
-                this.reconnectAttempts = 0;
-                this.maxReconnectAttempts = 5;
-                this.isConnecting = false;
+    <!-- بخش اصلی چت -->
+    <main class="chat-main">
+        <!-- وضعیت اتصال -->
+        <div class="connection-status connecting" id="connectionStatus">
+            <div class="status-content">
+                <span class="status-indicator"></span>
+                <span class="status-text">در حال اتصال...</span>
+            </div>
+        </div>
 
-                this.init();
-            }
-
-            init() {
-                this.connectWebSocket();
-                this.bindEvents();
-                this.requestNotificationPermission();
-            }
-
-            connectWebSocket() {
-                if (this.isConnecting) return;
-
-                this.isConnecting = true;
-                this.updateConnectionStatus('connecting');
-
-                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const wsUrl = `${protocol}//${window.location.host}/ws/ticket/${this.ticketId}/`;
-
-                console.log('🔗 Admin connecting to WebSocket:', wsUrl);
-                this.ws = new WebSocket(wsUrl);
-
-                this.ws.onopen = () => {
-                    console.log('✅ Admin WebSocket connected');
-                    this.updateConnectionStatus('connected');
-                    this.reconnectAttempts = 0;
-                    this.isConnecting = false;
-                };
-
-                this.ws.onmessage = (event) => {
-                    const data = JSON.parse(event.data);
-                    console.log('📨 Admin received:', data);
-                    this.handleMessage(data);
-                };
-
-                this.ws.onclose = (event) => {
-                    console.log('❌ Admin WebSocket disconnected:', event.code, event.reason);
-                    this.updateConnectionStatus('disconnected');
-                    this.isConnecting = false;
-                    this.attemptReconnect();
-                };
-
-                this.ws.onerror = (error) => {
-                    console.error('🚨 Admin WebSocket error:', error);
-                    this.isConnecting = false;
-                };
-            }
-
-            handleMessage(data) {
-                switch(data.type) {
-                    case 'message_history':
-                        this.displayMessageHistory(data.messages);
-                        break;
-                    case 'message':
-                        this.displayMessage(data.message);
-                        this.showNotification(data.message);
-                        break;
-                    case 'ticket_closed':
-                        this.handleTicketClosed(data.message);
-                        break;
-                    case 'error':
-                        this.showError(data.message);
-                        break;
-                    default:
-                        console.log('Unknown message type:', data.type);
-                }
-            }
-
-            handleTicketClosed(message) {
-                // Disable chat input
-                const input = document.getElementById('messageInput');
-                const sendButton = document.getElementById('sendButton');
-
-                if (input) {
-                    input.disabled = true;
-                    input.placeholder = 'This ticket is closed';
-                }
-                if (sendButton) sendButton.disabled = true;
-
-                // Show closure message
-                this.showError(message);
-
-                // Update connection status
-                this.updateConnectionStatus('closed');
-
-                // Reload page to show updated UI
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
-            }
-
-            displayMessageHistory(messages) {
-                const container = document.getElementById('chatMessages');
-                container.innerHTML = '';
-
-                if (messages.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-comments fa-2x mb-2"></i>
-                            <p>No messages yet. Start the conversation!</p>
-                        </div>
-                    `;
-                } else {
-                    messages.forEach(message => this.displayMessage(message));
-                }
-
-                this.scrollToBottom();
-            }
-
-            displayMessage(message) {
-                const container = document.getElementById('chatMessages');
-
-                const placeholder = container.querySelector('.text-center.text-muted');
-                if (placeholder) {
-                    placeholder.remove();
-                }
-
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${message.author_type}`;
-
-                const date = new Date(message.created_at);
-                const timeString = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                const dateString = date.toLocaleDateString();
-
-                const adminBadge = message.is_admin_message ? '<span class="admin-badge">ADMIN</span>' : '';
-
-                const contentHtml = `
-                    <div>${this.escapeHtml(message.content)}</div>
-                    <div class="message-info">
-                        ${this.escapeHtml(message.author)}${adminBadge} • ${timeString} • ${dateString}
+        <!-- محتوای پیام‌ها -->
+        <div class="chat-messages-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="loading-state">
+                    <i class="fas fa-comments loading-icon"></i>
+                    <p class="loading-text">در حال بارگذاری تاریخچه چت...</p>
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
                     </div>
-                `;
+                </div>
+            </div>
+        </div>
 
-                messageDiv.innerHTML = `<div class="message-content">${contentHtml}</div>`;
+        <!-- بخش ورودی پیام -->
+        {% if ticket.status != 'closed' %}
+        <section class="chat-input-section admin-input-section">
+            <div class="chat-input-container">
+                <div class="admin-input-notice">
+                    <i class="fas fa-info-circle"></i>
+                    <span>کاربر پس از ارسال پیام، اعلان ایمیل دریافت خواهد کرد</span>
+                </div>
 
-                container.appendChild(messageDiv);
-                this.scrollToBottom();
-            }
+                <div class="input-wrapper">
+                        <textarea
+                                id="messageInput"
+                                class="message-input admin-message-input"
+                                placeholder="پاسخ خود را به عنوان مدیر بنویسید..."
+                                maxlength="1000"
+                                rows="1"></textarea>
 
-            async sendMessage() {
-                const input = document.getElementById('messageInput');
-                const message = input.value.trim();
+                    <button type="button" id="sendButton" class="send-button admin-send-button">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>ارسال به عنوان مدیر</span>
+                    </button>
+                </div>
 
-                if (!message) return;
+                <div class="input-help">
+                        <span class="help-text">
+                            <i class="fas fa-keyboard"></i>
+                            Ctrl+Enter برای ارسال سریع
+                        </span>
+                    <span class="char-counter" id="charCount">0</span> / 1000
+                </div>
+            </div>
+        </section>
+        {% else %}
+        <div class="chat-closed-notice">
+            <div class="closed-content">
+                <i class="fas fa-lock"></i>
+                <h3>این تیکت بسته شده است</h3>
+                <p>امکان ارسال پیام جدید وجود ندارد</p>
+            </div>
+        </div>
+        {% endif %}
+    </main>
 
-                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                    console.log('📤 Admin sending message:', message);
-                    this.ws.send(JSON.stringify({
-                        type: 'chat_message',
-                        message: message
-                    }));
-                    input.value = '';
-                } else {
-                    this.showError('Not connected. Please wait for reconnection.');
-                }
-            }
+    <!-- دکمه‌های مدیریت -->
+    <footer class="chat-actions admin-actions">
+        <div class="actions-content">
+            <div class="action-buttons">
+                {% if ticket.status != 'closed' %}
+                <a href="{% url 'ticket:admin_close_ticket' ticket.id %}"
+                   class="btn btn-outline-warning"
+                   onclick="return confirm('آیا مطمئن هستید که می‌خواهید این تیکت را ببندید؟')">
+                    <i class="fas fa-lock"></i>
+                    بستن تیکت
+                </a>
+                {% else %}
+                <span class="btn btn-outline-secondary disabled">
+                        <i class="fas fa-lock"></i>
+                        تیکت بسته شده
+                    </span>
+                {% endif %}
 
-            bindEvents() {
-                const input = document.getElementById('messageInput');
-                const sendButton = document.getElementById('sendButton');
+                <a href="/ticket/admin-chat/" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-right"></i>
+                    داشبورد مدیریت
+                </a>
 
-                if (sendButton) {
-                    sendButton.addEventListener('click', () => this.sendMessage());
-                }
+                <a href="/admin/" class="btn btn-outline-secondary">
+                    <i class="fas fa-cog"></i>
+                    پنل ادمین
+                </a>
+            </div>
 
-                if (input) {
-                    input.addEventListener('keydown', (e) => {
-                        if (e.ctrlKey && e.key === 'Enter') {
-                            e.preventDefault();
-                            this.sendMessage();
-                        }
-                    });
-                    input.focus();
-                }
-            }
+            <small class="chat-info admin-info">
+                <i class="fas fa-shield-alt"></i>
+                شما در حال چت به عنوان مدیر هستید
+            </small>
+        </div>
+    </footer>
+</div>
 
-            updateConnectionStatus(status) {
-                const statusElement = document.getElementById('connectionStatus');
-                const input = document.getElementById('messageInput');
-                const sendButton = document.getElementById('sendButton');
-
-                switch(status) {
-                    case 'connected':
-                        statusElement.textContent = '🟢 Admin Connected - Real-time chat active';
-                        statusElement.className = 'connection-status connected';
-                        if (input) input.disabled = false;
-                        if (sendButton) sendButton.disabled = false;
-                        break;
-                    case 'closed':
-                        statusElement.textContent = '🔒 Ticket Closed - No messages can be sent';
-                        statusElement.className = 'connection-status closed';
-                        if (input) {
-                            input.disabled = true;
-                            input.placeholder = 'This ticket is closed';
-                        }
-                        if (sendButton) sendButton.disabled = true;
-                        break;
-                    case 'disconnected':
-                        statusElement.textContent = '🔴 Disconnected - Attempting to reconnect...';
-                        statusElement.className = 'connection-status disconnected';
-                        if (input) input.disabled = true;
-                        if (sendButton) sendButton.disabled = true;
-                        break;
-                    case 'connecting':
-                        statusElement.textContent = '🟡 Connecting...';
-                        statusElement.className = 'connection-status connecting';
-                        if (input) input.disabled = true;
-                        if (sendButton) sendButton.disabled = true;
-                        break;
-                }
-            }
-
-            attemptReconnect() {
-                if (this.reconnectAttempts < this.maxReconnectAttempts) {
-                    this.reconnectAttempts++;
-                    const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 10000);
-
-                    console.log(`🔄 Admin reconnection attempt ${this.reconnectAttempts} in ${delay}ms`);
-
-                    setTimeout(() => {
-                        if (!this.isConnecting) {
-                            this.connectWebSocket();
-                        }
-                    }, delay);
-                } else {
-                    this.updateConnectionStatus('disconnected');
-                    this.showError('Connection lost. Please refresh the page.');
-                }
-            }
-
-            requestNotificationPermission() {
-                if (Notification.permission === 'default') {
-                    Notification.requestPermission();
-                }
-            }
-
-            showNotification(message) {
-                if (!message.is_admin_message && Notification.permission === 'granted') {
-                    new Notification(`New message in Ticket #${this.ticketId}`, {
-                        body: `${message.author}: ${message.content.substring(0, 50)}...`,
-                        icon: '/static/admin/img/icon-admin.svg'
-                    });
-                }
-            }
-
-            scrollToBottom() {
-                const container = document.getElementById('chatMessages');
-                container.scrollTop = container.scrollHeight;
-            }
-
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            showError(message) {
-                const container = document.getElementById('chatMessages');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'alert alert-danger mx-3 my-2';
-                errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${this.escapeHtml(message)}`;
-                container.appendChild(errorDiv);
-                this.scrollToBottom();
-
-                setTimeout(() => {
-                    if (errorDiv.parentNode) {
-                        errorDiv.remove();
-                    }
-                }, 5000);
-            }
-        }
-
-        // Initialize admin chat when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            const ticketId = {{ ticket.id }};
-            console.log('🚀 Initializing admin chat for ticket #' + ticketId);
-            window.adminTicketChat = new AdminTicketChat(ticketId);
-        });
-    </script>
+<script>
+    const TICKET_ID = {{ ticket.id }};
+    const CSRF_TOKEN = '{{ csrf_token }}';
+    const IS_STAFF = true;
+    const TICKET_STATUS = '{{ ticket.status }}';
+</script>
+<script src="{% static 'ticket/js/ticket_chat.js' %}"></script>
 </body>
 </html>
