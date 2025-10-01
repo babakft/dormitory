@@ -97,6 +97,11 @@ class MaintenanceRequest(models.Model):
     def __str__(self):
         return f"{self.title} - {self.student.user.username} ({self.get_status_display()})"
 
+    class Meta:
+        verbose_name = 'درخواست تعمیرات'
+        verbose_name_plural = 'درخواست‌های تعمیرات'
+        ordering = ['-created_at']
+
     def save(self, *args, **kwargs):
         """Override save to ALWAYS update updated_at timestamp"""
         self.updated_at = timezone.now()
@@ -176,3 +181,7 @@ class MaintenanceImage(models.Model):
 
     def __str__(self):
         return f"{self.get_image_type_display()} - {self.maintenance_request.title}"
+
+    class Meta:
+        verbose_name = 'تصویر تعمیرات'
+        verbose_name_plural = 'تصاویر تعمیرات'

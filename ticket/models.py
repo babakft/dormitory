@@ -24,6 +24,12 @@ class Ticket(models.Model):
     def __str__(self):
         return f"#{self.id} - {self.title}"
 
+    class Meta:
+        verbose_name = 'تیکت'
+        verbose_name_plural = 'تیکت‌ها'
+        ordering = ['-created_at']
+
+
     @property
     def days_since_created(self):
         return (timezone.now() - self.created_at).days
@@ -99,6 +105,11 @@ class TicketMessage(models.Model):
     def __str__(self):
         message_type = "Admin" if self.is_admin_message else "User"
         return f"{message_type} message in ticket #{self.ticket.id}"
+
+    class Meta:
+        verbose_name = 'پیام تیکت'
+        verbose_name_plural = 'پیام‌های تیکت'
+        ordering = ['created_at']
 
     def save(self, *args, **kwargs):
         """Automatically detect if message is from admin"""

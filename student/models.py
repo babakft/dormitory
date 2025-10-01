@@ -50,6 +50,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        verbose_name = 'کاربر'
+        verbose_name_plural = 'کاربران'
+
+
     groups = models.ManyToManyField(
         'auth.Group',
         verbose_name='groups',
@@ -75,6 +80,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         user_type_display = self.get_user_type_display() if self.user_type else 'Superuser'
         return f"{self.username} ({self.email}) - {user_type_display}"
+
+
 
     @property
     def display_name(self):
@@ -106,6 +113,10 @@ class Building(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'ساختمان'
+        verbose_name_plural = 'ساختمان‌ها'
+        ordering = ['name']
 
 class Room(models.Model):
     """Room information"""
@@ -115,6 +126,8 @@ class Room(models.Model):
     capacity = models.IntegerField(default=6)
 
     class Meta:
+        verbose_name = 'اتاق'
+        verbose_name_plural = 'اتاق‌ها'
         unique_together = ['number', 'building', 'floor']
         ordering = ['building', 'floor', 'number']
 
@@ -133,6 +146,8 @@ class Student(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile')
     student_number = models.IntegerField(unique=True)
+
+
 
     @property
     def display_name(self):
@@ -162,6 +177,11 @@ class Student(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.student_number}"
+
+    class Meta:
+        verbose_name = 'دانشجو'
+        verbose_name_plural = 'دانشجویان'
+        ordering = ['-created_at']
 
     @property
     def is_approved(self):

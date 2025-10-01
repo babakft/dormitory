@@ -1,54 +1,86 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Complete Work{% endblock %}
+
+{% block title %}تکمیل کار{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'service/css/complete_work.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="complete-work-container">
-    <!-- Header Section -->
+    <!-- ===== PAGE HEADER ===== -->
     <div class="page-header">
         <div class="header-content">
             <div class="header-info">
                 <h1 class="page-title">
                     <i class="fas fa-check-circle"></i>
-                    Complete Work
+                    تکمیل کار تعمیرات
                 </h1>
                 <div class="breadcrumb">
-                    <span class="breadcrumb-item">Dashboard</span>
-                    <i class="fas fa-chevron-right"></i>
-                    <span class="breadcrumb-item active">Complete Work</span>
+                    <div class="breadcrumb-item">
+                        <a href="{% url 'service:service_dashboard' %}" class="breadcrumb-link">
+                            <i class="fas fa-home"></i>
+                            داشبورد
+                        </a>
+                    </div>
+                    <div class="breadcrumb-item">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                    <div class="breadcrumb-item active">
+                        تکمیل کار
+                    </div>
                 </div>
             </div>
             <div class="header-actions">
-                <a href="{% url 'service:service_dashboard' %}" class="btn btn-outline">
-                    <i class="fas fa-arrow-left"></i>
-                    Back to Dashboard
+                <a href="{% url 'service:service_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-right"></i>
+                    <span>بازگشت</span>
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Work Details Card -->
+    <!-- ===== ALERTS ===== -->
+    {% if form.errors %}
+    <div class="alert alert-error">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div class="alert-content">
+            <h4>خطاهای فرم</h4>
+            <ul class="error-list">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ===== WORK DETAILS CARD ===== -->
     <div class="work-details-card">
         <div class="card-header">
             <h2 class="card-title">
                 <i class="fas fa-info-circle"></i>
-                Work Details
+                جزئیات درخواست
             </h2>
         </div>
         <div class="card-body">
             <div class="details-grid">
                 <div class="detail-item">
-                    <div class="detail-label">Request Title</div>
-                    <div class="detail-value">{{ maintenance_request.title }}</div>
+                    <div class="detail-label">عنوان درخواست</div>
+                    <div class="detail-value">
+                        <i class="fas fa-clipboard"></i>
+                        {{ maintenance_request.title }}
+                    </div>
                 </div>
 
                 <div class="detail-item">
-                    <div class="detail-label">Student</div>
+                    <div class="detail-label">دانشجو</div>
                     <div class="detail-value">
+                        <i class="fas fa-user"></i>
                         <div class="student-info">
                             <span class="student-name">{{ maintenance_request.student.user.username }}</span>
                             <span class="student-number">#{{ maintenance_request.student.student_number }}</span>
@@ -57,7 +89,7 @@
                 </div>
 
                 <div class="detail-item">
-                    <div class="detail-label">Location</div>
+                    <div class="detail-label">مکان</div>
                     <div class="detail-value">
                         <i class="fas fa-map-marker-alt"></i>
                         {{ maintenance_request.full_location }}
@@ -65,18 +97,26 @@
                 </div>
 
                 <div class="detail-item">
-                    <div class="detail-label">Work Started</div>
+                    <div class="detail-label">نوع خدمات</div>
                     <div class="detail-value">
-                        <i class="fas fa-clock"></i>
-                        {{ maintenance_request.work_started_at|date:"M d, Y H:i" }}
+                        <i class="fas fa-tools"></i>
+                        {{ maintenance_request.get_service_type_display }}
+                    </div>
+                </div>
+
+                <div class="detail-item detail-item--full">
+                    <div class="detail-label">توضیحات درخواست</div>
+                    <div class="detail-value">
+                        <i class="fas fa-align-right"></i>
+                        {{ maintenance_request.description }}
                     </div>
                 </div>
 
                 {% if maintenance_request.expert_notes %}
                 <div class="detail-item detail-item--full">
-                    <div class="detail-label">Your Initial Notes</div>
-                    <div class="detail-value">
-                        <div class="notes-display">{{ maintenance_request.expert_notes }}</div>
+                    <div class="detail-label">یادداشت‌های شروع کار</div>
+                    <div class="notes-display">
+                        {{ maintenance_request.expert_notes }}
                     </div>
                 </div>
                 {% endif %}
@@ -84,98 +124,112 @@
         </div>
     </div>
 
-    <!-- Completion Form Card -->
+    <!-- ===== COMPLETION FORM CARD ===== -->
     <div class="completion-form-card">
         <div class="card-header">
             <h2 class="card-title">
-                <i class="fas fa-edit"></i>
-                Complete Work Report
+                <i class="fas fa-check-double"></i>
+                اطلاعات تکمیل کار
             </h2>
             <div class="required-notice">
-                <i class="fas fa-exclamation-circle"></i>
-                All fields are required
+                <i class="fas fa-asterisk"></i>
+                <span>تکمیل تمام فیلدها الزامی است</span>
             </div>
         </div>
         <div class="card-body">
             <form method="post" enctype="multipart/form-data" class="completion-form" id="completeWorkForm">
                 {% csrf_token %}
 
-                <!-- Form Errors -->
-                {% if form.errors %}
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <div class="alert-content">
-                        <h4>Please correct the following errors:</h4>
-                        <ul class="error-list">
-                            {% for field, errors in form.errors.items %}
-                                {% for error in errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Completion Notes Field -->
+                <!-- یادداشت‌های تکمیل -->
                 <div class="form-group">
-                    <label for="{{ form.completion_notes.id_for_label }}" class="form-label">
-                        <i class="fas fa-file-alt"></i>
-                        {{ form.completion_notes.label }}
+                    <label for="id_completion_notes" class="form-label">
+                        <i class="fas fa-clipboard-check"></i>
+                        یادداشت‌های تکمیل کار
                         <span class="required">*</span>
                     </label>
-                    {{ form.completion_notes }}
-                    {% if form.completion_notes.help_text %}
+                    <textarea
+                        name="completion_notes"
+                        id="id_completion_notes"
+                        class="form-control"
+                        required
+                        placeholder="لطفاً توضیحات کامل از کار انجام شده را بنویسید...
+
+مثال:
+- مشکل چه بود؟
+- چه اقداماتی انجام شد؟
+- آیا قطعه‌ای تعویض شد؟
+- وضعیت نهایی چگونه است؟"
+                    >{{ form.completion_notes.value|default:'' }}</textarea>
                     <div class="form-help">
                         <i class="fas fa-info-circle"></i>
-                        {{ form.completion_notes.help_text }}
+                        <span>حداقل ۲۰ کاراکتر - حداکثر ۱۰۰۰ کاراکتر</span>
                     </div>
-                    {% endif %}
                     <div class="char-counter">
-                        <span id="charCount">0</span> characters (minimum 10 required)
+                        <span id="charCount">۰</span> / ۱۰۰۰ کاراکتر
                     </div>
                 </div>
 
-                <!-- Completion Image Field -->
+                <!-- تصویر تکمیل -->
                 <div class="form-group">
-                    <label for="{{ form.completion_image.id_for_label }}" class="form-label">
+                    <label for="id_completion_image" class="form-label">
                         <i class="fas fa-camera"></i>
-                        {{ form.completion_image.label }}
+                        تصویر پس از تعمیر
                         <span class="required">*</span>
                     </label>
-
                     <div class="file-upload-wrapper">
-                        {{ form.completion_image }}
-                        <div class="file-upload-display" id="fileUploadDisplay">
-                            <div class="upload-placeholder">
+                        <input
+                            type="file"
+                            name="completion_image"
+                            id="id_completion_image"
+                            accept="image/*"
+                            required
+                        >
+                        <div class="file-upload-display" id="fileUploadArea">
+                            <div class="upload-placeholder" id="uploadPlaceholder">
                                 <i class="fas fa-cloud-upload-alt"></i>
-                                <span class="upload-text">Click to select image or drag and drop</span>
-                                <span class="upload-formats">PNG, JPG, JPEG up to 10MB</span>
+                                <div class="upload-text">
+                                    <strong>کلیک کنید</strong> یا تصویر را اینجا بکشید
+                                </div>
+                                <div class="upload-formats">
+                                    فرمت‌های مجاز: JPG, PNG, GIF - حداکثر ۵ مگابایت
+                                </div>
+                            </div>
+
+                            <div class="file-preview" id="filePreview" style="display: none;">
+                                <div class="preview-image">
+                                    <img id="previewImg" src="" alt="پیش‌نمایش">
+                                </div>
+                                <div class="file-info">
+                                    <div class="file-name" id="fileName"></div>
+                                    <div class="file-size" id="fileSize"></div>
+                                </div>
+                                <div class="file-actions">
+                                    <button type="button" class="btn-remove-file" id="removeFile" title="حذف تصویر">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    {% if form.completion_image.help_text %}
                     <div class="form-help">
                         <i class="fas fa-info-circle"></i>
-                        {{ form.completion_image.help_text }}
+                        <span>تصویر کامل و واضح از کار انجام شده را آپلود کنید</span>
                     </div>
-                    {% endif %}
                 </div>
 
-                <!-- Form Actions -->
+                <!-- دکمه‌های عملیات -->
                 <div class="form-actions">
-                    <button type="button" class="btn btn-outline" onclick="history.back()">
+                    <a href="{% url 'service:service_dashboard' %}" class="btn btn-secondary">
                         <i class="fas fa-times"></i>
-                        Cancel
-                    </button>
+                        <span class="btn-text">انصراف</span>
+                    </a>
                     <button type="submit" class="btn btn-primary" id="submitBtn">
-                        <i class="fas fa-check"></i>
-                        <span class="btn-text">Complete Work</span>
-                        <div class="btn-loading">
+                        <i class="fas fa-check-circle"></i>
+                        <span class="btn-text">تکمیل کار</span>
+                        <span class="btn-loading">
                             <i class="fas fa-spinner fa-spin"></i>
-                            Processing...
-                        </div>
+                            در حال ارسال...
+                        </span>
                     </button>
                 </div>
             </form>
@@ -186,4 +240,5 @@
 
 {% block extra_js %}
 <script src="{% static 'service/js/complete_work.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
 {% endblock %}

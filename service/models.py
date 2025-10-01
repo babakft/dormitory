@@ -40,8 +40,9 @@ class ServiceExpert(models.Model):
         return f"{self.user.username} - {self.get_specialization_display()}"
 
     class Meta:
-        verbose_name = 'Service Expert'
-        verbose_name_plural = 'Service Experts'
+        verbose_name = 'متخصص خدمات'
+        verbose_name_plural = 'متخصصان خدمات'
+
 
     @property
     def rating_display(self):

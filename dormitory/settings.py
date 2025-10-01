@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 from dormitory.local_setting import *
-
+from dormitory.JAZZMIN_SETTING import *
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -147,6 +147,13 @@ USE_I18N = True
 
 USE_TZ = True
 
+
+LANGUAGES = [
+    ('fa', 'فارسی'),
+    ('en', 'English'),
+]
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
@@ -184,55 +191,4 @@ SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection
 
 
 
-## JAZZMIN ##
-JAZZMIN_SETTINGS = {
-    "site_title": "Dormitory Management",
-    "site_header": "Dormitory Admin",
-    "site_brand": "DMS",
-    "welcome_sign": "Welcome to Dormitory Management System",
-
-    # Keep it simple initially
-    "copyright": "Dormitory Management System",
-    "show_ui_builder": False,
-    "navigation_expanded": True,
-
-    # Icons for your models (optional)
-    "icons": {
-        "student.Student": "fas fa-user-graduate",
-        "maintenance.MaintenanceRequest": "fas fa-tools",
-        "service.ServiceExpert": "fas fa-user-cog",
-        "notification.AdminActivityTracker": "fas fa-bell",
-    },
-}
-
-# UI customization (optional)
-JAZZMIN_UI_TWEAKS = {
-    "navbar_small_text": False,
-    "footer_small_text": False,
-    "body_small_text": False,
-    "brand_small_text": False,
-    "brand_colour": "navbar-primary",
-    "accent": "accent-primary",
-    "navbar": "navbar-primary navbar-dark",
-    "no_navbar_border": False,
-    "navbar_fixed": False,
-    "layout_boxed": False,
-    "footer_fixed": False,
-    "sidebar_fixed": False,
-    "sidebar": "sidebar-dark-primary",
-    "sidebar_nav_small_text": False,
-    "sidebar_disable_expand": False,
-    "sidebar_nav_legacy_style": False,
-    "sidebar_nav_flat_style": False,
-    "theme": "default",
-    "dark_mode_theme": None,
-    "button_classes": {
-        "primary": "btn-primary",
-        "secondary": "btn-secondary",
-        "info": "btn-info",
-        "warning": "btn-warning",
-        "danger": "btn-danger",
-        "success": "btn-success"
-    }
-}
 
