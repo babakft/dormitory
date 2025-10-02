@@ -1,32 +1,32 @@
-Dear {{ user.username }},
+{{ user.username }} عزیز،
 
-An administrator has responded to your ticket.
+مدیر به تیکت شما پاسخ داده است.
 
-TICKET DETAILS:
-- Ticket ID: #{{ ticket.id }}
-- Title: {{ ticket.title }}
-- Status: {{ ticket.get_status_display }}
-- Created: {{ ticket.created_at|date:"F d, Y at H:i" }}
+جزئیات تیکت:
+- شناسه تیکت: #{{ ticket.id }}
+- عنوان: {{ ticket.title }}
+- وضعیت: {{ ticket.get_status_display }}
+- ایجاد شده: {{ ticket.created_at|date:"d F Y ساعت H:i" }}
 
-You can view the admin's response and continue the conversation by logging in to your account.
+می‌توانید پاسخ مدیر را مشاهده کنید و با ورود به حساب کاربری خود، گفتگو را ادامه دهید.
 
-VIEW TICKET: {{ ticket_url }}
+مشاهده تیکت: {{ ticket_url }}
 
-LOGIN INFORMATION:
+اطلاعات ورود:
 {% if user_type == "Student" %}
-- Use your student number and password to log in
-- Go to "My Tickets" section to view the response
+- از شماره دانشجویی و رمز عبور خود برای ورود استفاده کنید
+- به بخش "تیکت‌های من" بروید تا پاسخ را مشاهده کنید
 {% elif user_type == "Service Expert" %}
-- Use your employee ID and password to log in
-- Go to "My Tickets" section to view the response
+- از شماره پرسنلی و رمز عبور خود برای ورود استفاده کنید
+- به بخش "تیکت‌های من" بروید تا پاسخ را مشاهده کنید
 {% endif %}
 
-If you have additional questions or need further assistance, you can reply to this ticket through the system.
+اگر سؤالات بیشتری دارید یا به کمک بیشتری نیاز دارید، می‌توانید از طریق سامانه به این تیکت پاسخ دهید.
 
-Best regards,
-Dormitory Management Team
-Shahid Bahonar University
+با احترام،
+تیم مدیریت خوابگاه
+دانشگاه شهید باهنر
 
 ---
-This is an automated message. Please do not reply to this email.
-To respond, please log in to the system and use the ticket interface.
+این پیام به صورت خودکار ارسال شده است. لطفاً به این ایمیل پاسخ ندهید.
+برای پاسخ، لطفاً وارد سامانه شوید و از رابط تیکت استفاده کنید.

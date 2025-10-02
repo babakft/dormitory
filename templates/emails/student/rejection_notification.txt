@@ -1,28 +1,28 @@
-Dear {{ student.user.username }},
+{{ student.user.username }} عزیز،
 
-We regret to inform you that your dormitory registration has been declined.
+متأسفانه ثبت‌نام شما در خوابگاه رد شد.
 
-REGISTRATION DETAILS:
-- Student Number: {{ student.student_number }}
-- Username: {{ student.user.username }}
-- Email: {{ student.user.email }}
-- Processed by: {{ processed_by }}
-- Date: {{ processed_at|date:"F d, Y at H:i" }}
+جزئیات ثبت‌نام:
+- شماره دانشجویی: {{ student.student_number }}
+- نام کاربری: {{ student.user.username }}
+- ایمیل: {{ student.user.email }}
+- بررسی شده توسط: {{ processed_by }}
+- تاریخ: {{ processed_at|date:"d F Y ساعت H:i" }}
 
-REASON:
+دلیل:
 {{ rejection_reason }}
 
-NEXT STEPS:
-If you believe this decision was made in error or if you have additional information to support your application, please contact the dormitory administration at {{ contact_email }}.
+مراحل بعدی:
+اگر فکر می‌کنید این تصمیم اشتباه بوده یا اطلاعات تکمیلی برای پشتیبانی از درخواستتان دارید، لطفاً با مدیریت خوابگاه از طریق ایمیل {{ contact_email }} تماس بگیرید.
 
-You may also be eligible to reapply in the future. Please check with the administration office for reapplication procedures and requirements.
+همچنین ممکن است در آینده واجد شرایط ثبت‌نام مجدد باشید. لطفاً برای اطلاع از رویه‌ها و الزامات ثبت‌نام مجدد با دفتر مدیریت تماس بگیرید.
 
-We appreciate your interest in our dormitory facilities.
+از علاقه شما به امکانات خوابگاه ما قدردانی می‌کنیم.
 
-Best regards,
-Dormitory Management Team
-Shahid Bahonar University
+با احترام،
+تیم مدیریت خوابگاه
+دانشگاه شهید باهنر
 
 ---
-This is an automated message. Please do not reply to this email.
-For inquiries, please contact: {{ contact_email }}
+این پیام به صورت خودکار ارسال شده است. لطفاً به این ایمیل پاسخ ندهید.
+برای سؤالات، با ایمیل {{ contact_email }} تماس بگیرید.

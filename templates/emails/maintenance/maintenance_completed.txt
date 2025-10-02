@@ -1,44 +1,44 @@
-Dear {{ student.user.username }},
+{{ student.user.username }} عزیز،
 
-Your maintenance request has been completed!
+درخواست تعمیراتی شما تکمیل شد!
 
-REQUEST DETAILS:
-- Title: {{ request.title }}
-- Location: {{ request.full_location }}
-- Service Type: {{ request.get_service_type_display }}
-- Request ID: #{{ request.id }}
+جزئیات درخواست:
+- عنوان: {{ request.title }}
+- مکان: {{ request.full_location }}
+- نوع سرویس: {{ request.get_service_type_display }}
+- شناسه درخواست: #{{ request.id }}
 
-COMPLETION INFORMATION:
-- Completed by: {{ assigned_expert.user.username }}
-- Completed on: {{ completed_at|date:"F d, Y at H:i" }}
+اطلاعات تکمیل:
+- تکمیل شده توسط: {{ assigned_expert.user.username }}
+- تکمیل شده در: {{ completed_at|date:"d F Y ساعت H:i" }}
 {% if completion_notes %}
-- Work Summary: {{ completion_notes }}
+- خلاصه کار: {{ completion_notes }}
 {% endif %}
 
-RATE THE SERVICE:
-We would appreciate your feedback on the service provided. Please rate the work and leave comments to help us improve our maintenance services.
+ارزیابی سرویس:
+از بازخورد شما درباره سرویس ارائه شده سپاسگزاریم. لطفاً کار انجام شده را ارزیابی کنید و نظراتتان را برای کمک به بهبود خدمات تعمیراتی ما بنویسید.
 
-⭐ REVIEW LINK: {{ review_url }}
+⭐ لینک ارزیابی: {{ review_url }}
 
-ALTERNATIVE ACCESS:
-You can also provide feedback by:
-1. Logging in to your student dashboard
-2. Finding your completed maintenance request
-3. Clicking "Rate Service" to provide your rating and comments
+دسترسی جایگزین:
+همچنین می‌توانید بازخورد خود را به این روش ارائه دهید:
+۱. وارد داشبورد دانشجویی خود شوید
+۲. درخواست تعمیراتی تکمیل شده خود را پیدا کنید
+۳. روی "ارزیابی سرویس" کلیک کنید تا امتیاز و نظرات خود را ثبت کنید
 
-IMPORTANCE OF YOUR FEEDBACK:
-Your feedback helps us:
-- Improve our maintenance services
-- Recognize excellent work by our experts
-- Address any service quality issues
-- Better serve all dormitory residents
+اهمیت بازخورد شما:
+بازخورد شما به ما کمک می‌کند:
+- خدمات تعمیراتی خود را بهبود دهیم
+- کار عالی متخصصان خود را تشخیص دهیم
+- مشکلات کیفیت سرویس را برطرف کنیم
+- به همه ساکنان خوابگاه خدمات بهتری ارائه دهیم
 
-Thank you for reporting the issue and helping us maintain our dormitory facilities. We look forward to your feedback!
+از گزارش مشکل و کمک به نگهداری تسهیلات خوابگاه متشکریم. منتظر بازخورد شما هستیم!
 
-Best regards,
-Dormitory Management Team
-Shahid Bahonar University
+با احترام،
+تیم مدیریت خوابگاه
+دانشگاه شهید باهنر
 
 ---
-This is an automated message. Please do not reply to this email.
-For support, contact: administration@dormitory.edu
+این پیام به صورت خودکار ارسال شده است. لطفاً به این ایمیل پاسخ ندهید.
+برای پشتیبانی، تماس بگیرید: administration@dormitory.edu

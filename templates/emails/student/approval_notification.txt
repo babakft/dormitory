@@ -1,38 +1,38 @@
-Dear {{ student.user.username }},
+{{ student.user.username }} عزیز،
 
-Congratulations! Your dormitory registration has been approved.
+تبریک! ثبت‌نام شما در خوابگاه تأیید شد.
 
-ACCOUNT DETAILS:
-- Student Number: {{ student.student_number }}
-- Username: {{ student.user.username }}
-- Email: {{ student.user.email }}
+اطلاعات حساب:
+- شماره دانشجویی: {{ student.student_number }}
+- نام کاربری: {{ student.user.username }}
+- ایمیل: {{ student.user.email }}
 {% if student.room %}
-- Assigned Room: {{ student.room }}
+- اتاق اختصاص داده شده: {{ student.room }}
 {% else %}
-- Room: Not assigned yet
+- اتاق: هنوز اختصاص داده نشده است
 {% endif %}
-- Approved by: {{ processed_by }}
-- Approval Date: {{ processed_at|date:"F d, Y at H:i" }}
+- تأیید شده توسط: {{ processed_by }}
+- تاریخ تأیید: {{ processed_at|date:"d F Y ساعت H:i" }}
 
-You can now log in to the Dormitory Management System using your student number and password.
+اکنون می‌توانید با استفاده از شماره دانشجویی و رمز عبور خود وارد سامانه مدیریت خوابگاه شوید.
 
-WHAT YOU CAN DO NOW:
-- Submit maintenance requests
-- Track request status
-- Communicate with service experts
-- Update your profile information
+امکانات قابل دسترس:
+- ثبت درخواست تعمیرات
+- پیگیری وضعیت درخواست‌ها
+- ارتباط با متخصصان خدمات
+- به‌روزرسانی اطلاعات پروفایل
 
-LOGIN INFORMATION:
-- Student Number: {{ student.student_number }}
-- Use the password you created during registration
+اطلاعات ورود:
+- شماره دانشجویی: {{ student.student_number }}
+- از رمز عبوری که هنگام ثبت‌نام ایجاد کردید استفاده کنید
 
-If you have any questions or need assistance, please contact the dormitory administration.
+در صورت داشتن هرگونه سؤال یا نیاز به راهنمایی، لطفاً با مدیریت خوابگاه تماس بگیرید.
 
-Welcome to our dormitory community!
+به جامعه خوابگاهی ما خوش آمدید!
 
-Best regards,
-Dormitory Management Team
-Shahid Bahonar University
+با احترام،
+تیم مدیریت خوابگاه
+دانشگاه شهید باهنر
 
 ---
-This is an automated message. Please do not reply to this email.
+این پیام به صورت خودکار ارسال شده است. لطفاً به این ایمیل پاسخ ندهید.

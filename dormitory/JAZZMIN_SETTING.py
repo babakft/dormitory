@@ -42,12 +42,13 @@ JAZZMIN_SETTINGS = {
         "student.Room": "fas fa-door-open",
         "student.User": "fas fa-user",
 
+
         # تعمیرات
         "maintenance.MaintenanceRequest": "fas fa-tools",
         "maintenance.MaintenanceImage": "fas fa-images",
 
         # خدمات
-        "service.ServiceExpert": "fas fa-user-hard-hat",
+        "service.ServiceExpert": "fas fa-hard-hat",
 
         # تیکت
         "ticket.Ticket": "fas fa-ticket-alt",

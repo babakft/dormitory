@@ -24,7 +24,7 @@ class TicketAdmin(admin.ModelAdmin):
 
     def title_short(self, obj):
         return obj.title[:40] + '...' if len(obj.title) > 40 else obj.title
-    title_short.short_description = 'Title'
+    title_short.short_description = 'عنوان'
 
     def creator_info(self, obj):
         user_type = obj.get_creator_type()
@@ -32,11 +32,11 @@ class TicketAdmin(admin.ModelAdmin):
             '<strong>{}</strong><br><small>{}</small>',
             obj.created_by.username, user_type
         )
-    creator_info.short_description = 'Created By'
+    creator_info.short_description = 'ایجادکننده'
 
     def message_count(self, obj):
         return obj.messages.count()
-    message_count.short_description = 'Messages'
+    message_count.short_description = 'تعداد پیام‌ها'
 
 
 @admin.register(TicketMessage)
@@ -49,8 +49,8 @@ class TicketMessageAdmin(admin.ModelAdmin):
 
     def content_short(self, obj):
         return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
-    content_short.short_description = 'Content'
+    content_short.short_description = 'محتوا'
 
     def ticket_id(self, obj):
         return f"#{obj.ticket.id}"
-    ticket_id.short_description = 'Ticket'
+    ticket_id.short_description = 'تیکت'

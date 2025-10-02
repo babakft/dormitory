@@ -1,32 +1,32 @@
-Dear {{ student.user.username }},
+{{ student.user.username }} عزیز،
 
-Great news! Your maintenance request has been approved.
+خبر خوب! درخواست تعمیراتی شما تأیید شد.
 
-REQUEST DETAILS:
-- Title: {{ request.title }}
-- Description: {{ request.description }}
-- Location: {{ request.full_location }}
-- Service Type: {{ request.get_service_type_display }}
-- Priority: {{ priority }}
-- Request ID: #{{ request.id }}
+جزئیات درخواست:
+- عنوان: {{ request.title }}
+- توضیحات: {{ request.description }}
+- مکان: {{ request.full_location }}
+- نوع سرویس: {{ request.get_service_type_display }}
+- اولویت: {{ priority }}
+- شناسه درخواست: #{{ request.id }}
 
-APPROVAL INFORMATION:
-- Approved by: {{ approved_by }}
-- Approved on: {{ approved_at|date:"F d, Y at H:i" }}
+اطلاعات تأیید:
+- تأیید شده توسط: {{ approved_by }}
+- تأیید شده در: {{ approved_at|date:"d F Y ساعت H:i" }}
 
-WHAT HAPPENS NEXT:
-1. Your request will be assigned to a qualified expert
-2. The expert will contact you or begin work
-3. You'll receive updates as work progresses
-4. You can track progress on your dashboard
+مراحل بعدی:
+۱. درخواست شما به یک متخصص واجد شرایط اختصاص داده می‌شود
+۲. متخصص با شما تماس می‌گیرد یا کار را شروع می‌کند
+۳. در طول پیشرفت کار، به‌روزرسانی دریافت خواهید کرد
+۴. می‌توانید پیشرفت کار را در داشبورد خود پیگیری کنید
 
-You can view your request details at any time through your student dashboard.
+می‌توانید جزئیات درخواست خود را در هر زمان از طریق داشبورد دانشجویی مشاهده کنید.
 
-If you have any questions, please contact the dormitory administration.
+در صورت داشتن هرگونه سؤال، لطفاً با مدیریت خوابگاه تماس بگیرید.
 
-Best regards,
-Dormitory Management Team
-Shahid Bahonar University
+با احترام،
+تیم مدیریت خوابگاه
+دانشگاه شهید باهنر
 
 ---
-This is an automated message. Please do not reply to this email.
+این پیام به صورت خودکار ارسال شده است. لطفاً به این ایمیل پاسخ ندهید.

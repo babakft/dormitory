@@ -65,21 +65,21 @@ class ServiceExpertAdmin(admin.ModelAdmin):
         """Display user information"""
         return f"{obj.user.username} ({obj.user.email})"
 
-    user_info.short_description = 'Expert Info'
+    user_info.short_description = 'اطلاعات کارشناس'
 
     def current_workload(self, obj):
         """Display current assigned requests count"""
         workload = getattr(obj, 'assigned_requests_count', 0)
         return workload
 
-    current_workload.short_description = 'Current Workload'
+    current_workload.short_description = 'تعداد درخواست‌های جاری'
 
     def completed_count(self, obj):
         """Display total completed requests from annotation"""
         completed = getattr(obj, 'total_completed', 0)
         return completed
 
-    completed_count.short_description = 'Completed'
+    completed_count.short_description = 'تعداد تکمیل‌شده'
 
     def average_rating_stars(self, obj):
         """Display average rating with stars"""
@@ -92,7 +92,7 @@ class ServiceExpertAdmin(admin.ModelAdmin):
             )
         return format_html('<span class="text-muted">No rating</span>')
 
-    average_rating_stars.short_description = 'Rating'
+    average_rating_stars.short_description = 'میانگین امتیاز'
     average_rating_stars.admin_order_field = 'average_rating'
 
     # Admin Actions
@@ -101,14 +101,14 @@ class ServiceExpertAdmin(admin.ModelAdmin):
         updated = queryset.update(is_active=True)
         self.message_user(request, f'Activated {updated} experts.')
 
-    activate_experts.short_description = "✅ Activate experts"
+    activate_experts.short_description = "✅ فعال‌سازی متخصصان"
 
     def deactivate_experts(self, request, queryset):
         """Deactivate selected experts"""
         updated = queryset.update(is_active=False)
         self.message_user(request, f'Deactivated {updated} experts.')
 
-    deactivate_experts.short_description = "🚫 Deactivate experts"
+    deactivate_experts.short_description = "🚫 غیرفعال‌سازی متخصصان"
 
     def view_expert_workload(self, request, queryset):
 
@@ -134,7 +134,7 @@ class ServiceExpertAdmin(admin.ModelAdmin):
         # Send the report as a message to the user
         self.message_user(request, report)
 
-    view_expert_workload.short_description = "📊 View workload"
+    view_expert_workload.short_description = "📊 مشاهده بار کاری"
 
     def force_complete_requests(self, request, queryset):
         """Force complete stuck requests"""
@@ -151,7 +151,7 @@ class ServiceExpertAdmin(admin.ModelAdmin):
 
         self.message_user(request, f'Force completed {completed_count} requests.')
 
-    force_complete_requests.short_description = "⚡ Force complete"
+    force_complete_requests.short_description = "⚡ تکمیل اجباری"
 
     def view_completed_requests(self, request, queryset):
         """View completed requests summary"""
@@ -167,7 +167,7 @@ class ServiceExpertAdmin(admin.ModelAdmin):
 
         self.message_user(request, report)
 
-    view_completed_requests.short_description = "✅ View completed"
+    view_completed_requests.short_description = "✅ مشاهده تکمیل شده‌ها"
 
     def reset_expert_passwords(self, request, queryset):
         """Reset passwords for selected service experts and send new passwords via email"""
@@ -200,4 +200,4 @@ class ServiceExpertAdmin(admin.ModelAdmin):
         if failed_count > 0:
             messages.warning(request, f'{failed_count} password resets failed.')
 
-    reset_expert_passwords.short_description = "🔐 Reset expert passwords"
+    reset_expert_passwords.short_description = "🔐 بازنشانی رمز عبور متخصصان"

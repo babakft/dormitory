@@ -1,29 +1,29 @@
-Dear {{ student.user.username }},
+{{ student.user.username }} عزیز،
 
-We regret to inform you that your maintenance request has been declined.
+متأسفانه درخواست تعمیراتی شما رد شد.
 
-REQUEST DETAILS:
-- Title: {{ request.title }}
-- Description: {{ request.description }}
-- Location: {{ request.full_location }}
-- Service Type: {{ request.get_service_type_display }}
-- Request ID: #{{ request.id }}
+جزئیات درخواست:
+- عنوان: {{ request.title }}
+- توضیحات: {{ request.description }}
+- مکان: {{ request.full_location }}
+- نوع سرویس: {{ request.get_service_type_display }}
+- شناسه درخواست: #{{ request.id }}
 
-REJECTION INFORMATION:
-- Processed by: {{ rejected_by }}
-- Date: {{ rejected_at|date:"F d, Y at H:i" }}
-- Reason: {{ rejection_reason }}
+اطلاعات رد:
+- بررسی شده توسط: {{ rejected_by }}
+- تاریخ: {{ rejected_at|date:"d F Y ساعت H:i" }}
+- دلیل: {{ rejection_reason }}
 
-NEXT STEPS:
-If you believe this decision was made in error or if you have additional information to support your request, please contact the dormitory administration.
+مراحل بعدی:
+اگر فکر می‌کنید این تصمیم اشتباه بوده یا اطلاعات تکمیلی برای پشتیبانی از درخواستتان دارید، لطفاً با مدیریت خوابگاه تماس بگیرید.
 
-You may also submit a new request with updated information if appropriate.
+در صورت مناسب بودن، می‌توانید درخواست جدیدی با اطلاعات به‌روز ثبت کنید.
 
-For assistance, please contact the dormitory administration office.
+برای کمک، لطفاً با دفتر مدیریت خوابگاه تماس بگیرید.
 
-Best regards,
-Dormitory Management Team
-Shahid Bahonar University
+با احترام،
+تیم مدیریت خوابگاه
+دانشگاه شهید باهنر
 
 ---
-This is an automated message. Please do not reply to this email.
+این پیام به صورت خودکار ارسال شده است. لطفاً به این ایمیل پاسخ ندهید.

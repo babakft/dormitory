@@ -1,32 +1,32 @@
-Dear {{ student.user.username }},
+{{ student.user.username }} عزیز،
 
-Welcome to the Dormitory Management System!
+به سامانه مدیریت خوابگاه خوش آمدید!
 
-Thank you for registering your dormitory account. To complete your registration, please verify your email address by clicking the link below:
+از ثبت‌نام شما در حساب خوابگاه متشکریم. برای تکمیل فرآیند ثبت‌نام، لطفاً آدرس ایمیل خود را با کلیک بر روی لینک زیر تأیید کنید:
 
 {{ verification_url }}
 
-IMPORTANT INFORMATION:
-- This verification link will expire in 24 hours
-- You must verify your email before your account can be reviewed
-- After email verification, your registration will be sent to our admin team for approval
-- You will receive another email once your account has been approved
+اطلاعات مهم:
+- این لینک تأیید پس از ۲۴ ساعت منقضی خواهد شد
+- قبل از بررسی حساب توسط مدیریت، باید ایمیل خود را تأیید کنید
+- پس از تأیید ایمیل، ثبت‌نام شما برای بررسی به تیم مدیریت ارسال می‌شود
+- پس از تأیید حساب، ایمیل دیگری دریافت خواهید کرد
 
-WHAT HAPPENS NEXT:
-1. Click the verification link above
-2. Your email will be confirmed
-3. Our admin team will review your registration
-4. You'll receive approval notification via email
-5. You can then log in and start using the system
+مراحل بعدی:
+۱. روی لینک تأیید بالا کلیک کنید
+۲. ایمیل شما تأیید خواهد شد
+۳. تیم مدیریت ثبت‌نام شما را بررسی می‌کند
+۴. اعلان تأیید حساب از طریق ایمیل دریافت خواهید کرد
+۵. سپس می‌توانید وارد سامانه شوید و از امکانات آن استفاده کنید
 
-If you did not create this account, please ignore this email.
+اگر این حساب را ایجاد نکرده‌اید، لطفاً این ایمیل را نادیده بگیرید.
 
-If you're having trouble clicking the link, copy and paste the following URL into your browser:
+اگر در کلیک روی لینک مشکل دارید، آدرس زیر را کپی کرده و در مرورگر خود قرار دهید:
 {{ verification_url }}
 
-Best regards,
-Dormitory Management Team
-Shahid Bahonar University Services
+با احترام،
+تیم مدیریت خوابگاه
+خدمات دانشگاه شهید باهنر
 
 ---
-This is an automated message. Please do not reply to this email.
+این پیام به صورت خودکار ارسال شده است. لطفاً به این ایمیل پاسخ ندهید.

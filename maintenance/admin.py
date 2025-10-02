@@ -90,7 +90,7 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
             )
         return obj.title
 
-    title_with_truncation.short_description = 'Title'
+    title_with_truncation.short_description = 'عنوان'
     title_with_truncation.admin_order_field = 'title'
 
     def student_info(self, obj):
@@ -101,7 +101,7 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
             obj.student.student_number
         )
 
-    student_info.short_description = 'Student'
+    student_info.short_description = 'دانشجو'
 
     def assigned_expert_info(self, obj):
         """Display assigned expert's information"""
@@ -113,7 +113,7 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
             )
         return "No expert assigned"
 
-    assigned_expert_info.short_description = 'Assigned Expert'
+    assigned_expert_info.short_description = ' اختصاص کارشناس خدمات خودکار'
 
     def student_rating_display(self, obj):
         """Display student rating with stars"""
@@ -125,14 +125,14 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
             )
         return format_html('<span class="text-muted">Not rated</span>')
 
-    student_rating_display.short_description = 'Student Rating'
+    student_rating_display.short_description = 'امتیاز دانشجو'
 
     def days_since_created(self, obj):
         """Display how many days ago the request was created"""
         days = obj.days_since_created
         return f"{days} days"
 
-    days_since_created.short_description = 'Days Since Created'
+    days_since_created.short_description = 'روز از ایجاد'
 
     def issue_image_preview(self, obj):
         """Display all issue image previews"""
@@ -198,7 +198,7 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
             level=messages.SUCCESS
         )
 
-    approve_requests.short_description = "✅ Approve selected requests"
+    approve_requests.short_description = "✅ تأیید درخواست‌های انتخاب شده"
 
     def reject_requests(self, request, queryset):
         """Reject selected maintenance requests"""
@@ -209,7 +209,7 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
             maintenance_request.rejection_reason = "Rejected by admin - contact administration for details"
             maintenance_request.save()  # Triggers signals
 
-    reject_requests.short_description = "❌ Reject selected requests"
+    reject_requests.short_description = "❌ رد درخواست‌های انتخاب شده"
 
     def assign_expert_action(self, request, queryset):
         """Auto-assign experts based on service type"""
@@ -230,39 +230,39 @@ class MaintenanceRequestAdmin(admin.ModelAdmin):
                     maintenance_request.approved_at = timezone.now()
                 maintenance_request.save()
 
-    assign_expert_action.short_description = "👨‍🔧 Auto-assign experts"
+    assign_expert_action.short_description = "👨‍🔧 تخصیص خودکار متخصصان"
 
     # Priority Actions
     def set_high_priority(self, request, queryset):
         """Set selected requests to high priority"""
         queryset.update(priority='high')
 
-    set_high_priority.short_description = "🔴 Set high priority"
+    set_high_priority.short_description = "🔴 تنظیم اولویت بالا"
 
     def set_medium_priority(self, request, queryset):
         """Set selected requests to medium priority"""
         queryset.update(priority='medium')
 
-    set_medium_priority.short_description = "🟡 Set medium priority"
+    set_medium_priority.short_description = "🟡 تنظیم اولویت متوسط"
 
     def set_low_priority(self, request, queryset):
         """Set selected requests to low priority"""
         queryset.update(priority='low')
 
-    set_low_priority.short_description = "🟢 Set low priority"
+    set_low_priority.short_description = "🟢 تنظیم اولویت پایین"
 
     # Status Actions
     def mark_in_progress(self, request, queryset):
         """Mark selected requests as in progress"""
         queryset.filter(status='approved').update(status='in_progress', work_started_at=timezone.now())
 
-    mark_in_progress.short_description = "🔄 Mark in progress"
+    mark_in_progress.short_description = "🔄 علامت‌گذاری در حال انجام"
 
     def mark_completed(self, request, queryset):
         """Mark selected requests as completed"""
         queryset.filter(status='in_progress').update(status='completed', completed_at=timezone.now())
 
-    mark_completed.short_description = "✅ Mark completed"
+    mark_completed.short_description = "✅ علامت‌گذاری تکمیل شده"
 
 
 @admin.register(MaintenanceImage)

@@ -1,32 +1,32 @@
-Dear {{ student.user.username }},
+{{ student.user.username }} عزیز،
 
-We are writing to inform you that your dormitory account has been deactivated.
+بدین‌وسیله به اطلاع می‌رساند که حساب خوابگاه شما غیرفعال شده است.
 
-ACCOUNT DETAILS:
-- Student Number: {{ student.student_number }}
-- Username: {{ student.user.username }}
-- Email: {{ student.user.email }}
+جزئیات حساب:
+- شماره دانشجویی: {{ student.student_number }}
+- نام کاربری: {{ student.user.username }}
+- ایمیل: {{ student.user.email }}
 {% if student.room %}
-- Room: {{ student.room }}
+- اتاق: {{ student.room }}
 {% endif %}
-- Date: {{ "now"|date:"F d, Y at H:i" }}
+- تاریخ: {{ "now"|date:"d F Y ساعت H:i" }}
 
-WHAT THIS MEANS:
-- You can no longer log in to the dormitory management system
-- Your maintenance requests will be archived
-- You will not receive system notifications
-- Your account data is preserved but inaccessible
+این به چه معناست:
+- دیگر نمی‌توانید وارد سامانه مدیریت خوابگاه شوید
+- درخواست‌های تعمیراتی شما بایگانی خواهند شد
+- دیگر اعلان‌های سامانه را دریافت نخواهید کرد
+- اطلاعات حساب شما حفظ شده اما غیرقابل دسترس است
 
-IMPORTANT INFORMATION:
-If you believe this deactivation was made in error, or if you have questions about this action, please contact the dormitory administration immediately.
+اطلاعات مهم:
+اگر فکر می‌کنید این غیرفعال‌سازی اشتباهی انجام شده یا درباره این اقدام سؤالی دارید، لطفاً فوراً با مدیریت خوابگاه تماس بگیرید.
 
-If you need to reactivate your account in the future, you will need to contact the administration and may need to go through the registration process again.
+اگر در آینده نیاز به فعال‌سازی مجدد حساب داشتید، باید با مدیریت تماس بگیرید و ممکن است لازم باشد فرآیند ثبت‌نام را مجدداً طی کنید.
 
-We appreciate your time as part of our dormitory community.
+از حضور شما در جامعه خوابگاهی قدردانی می‌کنیم.
 
-Best regards,
-Dormitory Management Team
-Shahid Bahonar University
+با احترام،
+تیم مدیریت خوابگاه
+دانشگاه شهید باهنر
 
 ---
-This is an automated message. Please do not reply to this email.
+این پیام به صورت خودکار ارسال شده است. لطفاً به این ایمیل پاسخ ندهید.

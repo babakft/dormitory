@@ -62,26 +62,26 @@ class StudentAdmin(AutoMarkViewedMixin, admin.ModelAdmin):
     def username(self, obj):
         return obj.user.username
 
-    username.short_description = 'Username'
+    username.short_description = 'نام کاربری'
     username.admin_order_field = 'user__username'
 
     def email(self, obj):
         return obj.user.email
 
-    email.short_description = 'Email'
+    email.short_description = 'ایمیل'
     email.admin_order_field = 'user__email'
 
     def is_active_status(self, obj):
         return obj.user.is_active
 
-    is_active_status.short_description = 'Active'
+    is_active_status.short_description = 'فعال'
     is_active_status.admin_order_field = 'user__is_active'
     is_active_status.boolean = True
 
     def room_info(self, obj):
         return str(obj.room) if obj.room else 'No room assigned'
 
-    room_info.short_description = 'Room'
+    room_info.short_description = 'اتاق'
     room_info.admin_order_field = 'room__number'
 
     # Admin Actions
@@ -94,7 +94,7 @@ class StudentAdmin(AutoMarkViewedMixin, admin.ModelAdmin):
             student.rejection_reason = ''  # Clear any previous rejection reason
             student.save()
 
-    approve_students.short_description = "✅ Approve selected students"
+    approve_students.short_description = "✅ تأیید دانشجویان انتخاب شده"
 
     def reject_students(self, request, queryset):
         """Reject selected student registrations"""
@@ -105,7 +105,7 @@ class StudentAdmin(AutoMarkViewedMixin, admin.ModelAdmin):
             student.rejection_reason = 'Rejected by admin'  # Default reason
             student.save()
 
-    reject_students.short_description = "❌ Reject selected students"
+    reject_students.short_description = "❌ رد دانشجویان انتخاب شده"
 
     def deactivate_students(self, request, queryset):
         """Deactivate selected student accounts"""
@@ -113,7 +113,7 @@ class StudentAdmin(AutoMarkViewedMixin, admin.ModelAdmin):
             student.user.is_active = False
             student.user.save()
 
-    deactivate_students.short_description = "🚫 Deactivate selected students"
+    deactivate_students.short_description = "🚫 غیرفعال‌سازی دانشجویان انتخاب شده"
 
     def reset_student_passwords(self, request, queryset):
         """Reset passwords for selected students and send new passwords via email"""
@@ -147,7 +147,7 @@ class StudentAdmin(AutoMarkViewedMixin, admin.ModelAdmin):
         if failed_count > 0:
             messages.warning(request, f'{failed_count} password resets failed.')
 
-    reset_student_passwords.short_description = "🔐 Reset student passwords (generate random)"
+    reset_student_passwords.short_description = "🔐 بازنشانی رمز عبور دانشجویان (تولید تصادفی)"
 
     def activate_students(self, request, queryset):
         """Activate selected student accounts"""
@@ -163,7 +163,7 @@ class StudentAdmin(AutoMarkViewedMixin, admin.ModelAdmin):
         else:
             messages.info(request, 'No inactive students were found in the selection.')
 
-    activate_students.short_description = "✅ Activate selected students"
+    activate_students.short_description = "✅ فعال‌سازی دانشجویان انتخاب شده"
 
 
 @admin.register(Building)
@@ -184,4 +184,4 @@ class RoomAdmin(admin.ModelAdmin):
     def student_count(self, obj):
         return obj.students.count()
 
-    student_count.short_description = 'Students'
+    student_count.short_description = 'دانشجویان'

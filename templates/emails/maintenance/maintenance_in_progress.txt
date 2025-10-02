@@ -1,32 +1,32 @@
-Dear {{ student.user.username }},
+{{ student.user.username }} عزیز،
 
-Work has started on your maintenance request!
+کار روی درخواست تعمیراتی شما شروع شد!
 
-REQUEST DETAILS:
-- Title: {{ request.title }}
-- Location: {{ request.full_location }}
-- Service Type: {{ request.get_service_type_display }}
-- Request ID: #{{ request.id }}
+جزئیات درخواست:
+- عنوان: {{ request.title }}
+- مکان: {{ request.full_location }}
+- نوع سرویس: {{ request.get_service_type_display }}
+- شناسه درخواست: #{{ request.id }}
 
-WORK INFORMATION:
-- Assigned Expert: {{ assigned_expert.user.username }}
-- Specialization: {{ assigned_expert.get_specialization_display }}
-- Work Started: {{ work_started_at|date:"F d, Y at H:i" }}
+اطلاعات کار:
+- متخصص اختصاص داده شده: {{ assigned_expert.user.username }}
+- تخصص: {{ assigned_expert.get_specialization_display }}
+- شروع کار: {{ work_started_at|date:"d F Y ساعت H:i" }}
 {% if request.expert_notes %}
-- Expert Notes: {{ request.expert_notes }}
+- یادداشت‌های متخصص: {{ request.expert_notes }}
 {% endif %}
 
-WHAT TO EXPECT:
-- The assigned expert is now working on resolving your maintenance issue
-- You may be contacted if additional information or access is needed
-- You'll receive another email when the work is completed
-- You can track the progress through your student dashboard
+چه انتظاری داشته باشید:
+- متخصص اختصاص داده شده در حال حل مشکل تعمیراتی شما است
+- در صورت نیاز به اطلاعات یا دسترسی بیشتر، با شما تماس گرفته می‌شود
+- پس از اتمام کار، ایمیل دیگری دریافت خواهید کرد
+- می‌توانید پیشرفت را از طریق داشبورد دانشجویی خود پیگیری کنید
 
-If you have any questions about the work being performed, please contact the dormitory administration.
+اگر درباره کاری که در حال انجام است سؤالی دارید، لطفاً با مدیریت خوابگاه تماس بگیرید.
 
-Best regards,
-Dormitory Management Team
-Shahid Bahonar University
+با احترام،
+تیم مدیریت خوابگاه
+دانشگاه شهید باهنر
 
 ---
-This is an automated message. Please do not reply to this email.
+این پیام به صورت خودکار ارسال شده است. لطفاً به این ایمیل پاسخ ندهید.
