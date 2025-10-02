@@ -2,6 +2,8 @@
 
 🏢 **website:** [www.dormitoryplus.ir](http://www.dormitoryplus.ir)
 
+**(The UI/UX is not optimized at all and its completely handled by ai becuase the real interface and UI/UX is in persian brach which is in persian)**
+
 A comprehensive dormitory management platform built with Django, featuring real-time communication, complex workflow automation, and multi-role authentication systems.
 
 ## What This System Does
