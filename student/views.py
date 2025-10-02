@@ -15,7 +15,7 @@ from django.views.decorators.http import require_http_methods
 
 from dormitory.utils.password_generator import PasswordGenerator
 from dormitory.utils.email_service import StudentEmailService
-import json
+
 
 
 class StudentRegisterView(FormView):

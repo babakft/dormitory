@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.utils import timezone
 
 
-
 class UserManager(BaseUserManager):
     """Custom user manager for our User model"""
 
@@ -36,24 +35,24 @@ class User(AbstractBaseUser, PermissionsMixin):
     """Custom user model with email and username for authentication"""
 
     USER_TYPE_CHOICES = [
-        ('student', 'Student'),
-        ('expert', 'Service Expert'),
+        ('student', 'دانشجو'),
+        ('expert', 'متخصص خدمات'),
     ]
 
-    email = models.EmailField(unique=True)
-    username = models.CharField(max_length=50, unique=True)
-    phone = models.CharField(max_length=11, blank=True)
-    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, null=True, blank=True)
+    email = models.EmailField(unique=True, verbose_name='ایمیل')
+    username = models.CharField(max_length=50, unique=True, verbose_name='نام کاربری')
+    phone = models.CharField(max_length=11, blank=True, verbose_name='تلفن')
+    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, null=True, blank=True,
+                                 verbose_name='نوع کاربر')
 
     # Django required fields
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    date_joined = models.DateTimeField(default=timezone.now)
+    is_active = models.BooleanField(default=True, verbose_name='فعال')
+    is_staff = models.BooleanField(default=False, verbose_name='کارمند')
+    date_joined = models.DateTimeField(default=timezone.now,verbose_name='تاریخ عضویت')
 
     class Meta:
         verbose_name = 'کاربر'
         verbose_name_plural = 'کاربران'
-
 
     groups = models.ManyToManyField(
         'auth.Group',
@@ -81,8 +80,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         user_type_display = self.get_user_type_display() if self.user_type else 'Superuser'
         return f"{self.username} ({self.email}) - {user_type_display}"
 
-
-
     @property
     def display_name(self):
         return self.usernameid
@@ -106,9 +103,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Building(models.Model):
     """Building information"""
-    name = models.CharField(max_length=50, unique=True)
-    total_floors = models.IntegerField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=50, unique=True, verbose_name='نام')
+    total_floors = models.IntegerField(verbose_name='تعداد طبقات')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
 
     def __str__(self):
         return self.name
@@ -118,12 +115,13 @@ class Building(models.Model):
         verbose_name_plural = 'ساختمان‌ها'
         ordering = ['name']
 
+
 class Room(models.Model):
     """Room information"""
-    number = models.IntegerField()
-    building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='rooms')
-    floor = models.IntegerField()
-    capacity = models.IntegerField(default=6)
+    number = models.IntegerField(verbose_name='شماره')
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='rooms',verbose_name='ساختمان')
+    floor = models.IntegerField(verbose_name='طبقه')
+    capacity = models.IntegerField(default=6,verbose_name='ظرفیت')
 
     class Meta:
         verbose_name = 'اتاق'
@@ -139,41 +137,52 @@ class Student(models.Model):
     """Student model linked to User"""
 
     REGISTRATION_STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
+        ('pending', 'در انتظار تایید'),
+        ('approved', 'تایید شده'),
+        ('rejected', 'رد شده'),
     ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile')
-    student_number = models.IntegerField(unique=True)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='student_profile',
+        verbose_name='کاربر'
+    )
+    student_number = models.IntegerField(unique=True, verbose_name='شماره دانشجویی')
 
+    room = models.ForeignKey(
+        Room,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='students',
+        verbose_name='اتاق'
+    )
 
-
-    @property
-    def display_name(self):
-        return self.user.display_name
-
-    # Room Information
-    room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
-
-    # Registration Status
     registration_status = models.CharField(
         max_length=10,
         choices=REGISTRATION_STATUS_CHOICES,
-        default='pending'
+        default='pending',
+        verbose_name='وضعیت ثبت‌نام'
     )
 
-    # Admin approval
-    processed_by_name = models.CharField(max_length=100, blank=True, null=True)
-    processed_at = models.DateTimeField(null=True, blank=True)
-    rejection_reason = models.TextField(blank=True)
+    processed_by_name = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name='پردازش شده توسط'
+    )
+    processed_at = models.DateTimeField(null=True, blank=True, verbose_name='تاریخ پردازش')
+    rejection_reason = models.TextField(blank=True, verbose_name='دلیل رد')
 
-    # email verification
-    verification_token = models.UUIDField(default=uuid.uuid4, editable=False)
+    verification_token = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        verbose_name='توکن تایید'
+    )
 
-    # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='تاریخ به‌روزرسانی')
 
     def __str__(self):
         return f"{self.user.username} - {self.student_number}"
@@ -248,10 +257,8 @@ class Student(models.Model):
 
         )
 
-
     def verify_email(self):
         """Mark email as verified by activating user"""
         self.user.is_active = True
         self.user.save()
         return True
-

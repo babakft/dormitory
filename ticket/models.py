@@ -6,20 +6,27 @@ from student.models import User
 
 class Ticket(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('answered', 'Answered'),
-        ('closed', 'Closed'),
+        ('pending', 'در انتظار پاسخ'),
+        ('answered', 'پاسخ داده شده'),
+        ('closed', 'بسته شده'),
     ]
 
-    title = models.CharField(max_length=200)
-    description = models.TextField()
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_tickets')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['-updated_at']
+    title = models.CharField(max_length=200, verbose_name='عنوان')
+    description = models.TextField(verbose_name='توضیحات')
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name='وضعیت'
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='created_tickets',
+        verbose_name='ایجاد شده توسط'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='تاریخ به‌روزرسانی')
 
     def __str__(self):
         return f"#{self.id} - {self.title}"
@@ -28,7 +35,6 @@ class Ticket(models.Model):
         verbose_name = 'تیکت'
         verbose_name_plural = 'تیکت‌ها'
         ordering = ['-created_at']
-
 
     @property
     def days_since_created(self):
@@ -83,21 +89,31 @@ class Ticket(models.Model):
 class TicketMessage(models.Model):
     """Messages for real-time chat with image support"""
 
-    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='messages')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ticket_messages')
-    content = models.TextField()
-    is_admin_message = models.BooleanField(default=False)
-    read_by_admin = models.BooleanField(default=False)
+    ticket = models.ForeignKey(
+        Ticket,
+        on_delete=models.CASCADE,
+        related_name='messages',
+        verbose_name='تیکت'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='ticket_messages',
+        verbose_name='نویسنده'
+    )
+    content = models.TextField(verbose_name='محتوا')
+    is_admin_message = models.BooleanField(default=False, verbose_name='پیام ادمین')
+    read_by_admin = models.BooleanField(default=False, verbose_name='خوانده شده توسط ادمین')
 
-    # Add image field
     image = models.ImageField(
         upload_to='ticket_images/%Y/%m/%d/',
         null=True,
         blank=True,
-        help_text='Optional image attachment'
+        help_text='تصویر پیوست اختیاری',
+        verbose_name='تصویر'
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
 
     class Meta:
         ordering = ['-created_at']

@@ -7,34 +7,42 @@ class ServiceExpert(models.Model):
     """Expert/technician who handles maintenance requests"""
 
     SPECIALIZATION_CHOICES = [
-        ('electrical', 'Electrical'),
-        ('plumbing', 'Plumbing'),
-        ('hvac', 'HVAC/Air Conditioning'),
-        ('carpentry', 'Carpentry'),
-        ('general', 'General Maintenance'),
-        ('cleaning', 'Cleaning'),
-        ('security', 'Security Systems'),
+        ('electrical', 'برق'),
+        ('plumbing', 'لوله‌کشی'),
+        ('hvac', 'تهویه مطبوع'),
+        ('carpentry', 'نجاری'),
+        ('general', 'تعمیرات عمومی'),
+        ('cleaning', 'نظافت'),
+        ('security', 'سیستم‌های امنیتی'),
     ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='expert_profile')
-    employee_id = models.CharField(max_length=50, unique=True)
-    specialization = models.CharField(max_length=20, choices=SPECIALIZATION_CHOICES)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='expert_profile',
+        verbose_name='کاربر'
+    )
+    employee_id = models.CharField(max_length=50, unique=True, verbose_name='شماره کارمندی')
+    specialization = models.CharField(
+        max_length=20,
+        choices=SPECIALIZATION_CHOICES,
+        verbose_name='تخصص'
+    )
+
+    is_active = models.BooleanField(default=True, verbose_name='فعال')
+
+    average_rating = models.DecimalField(
+        max_digits=3, decimal_places=2,
+        null=True, blank=True,
+        help_text="میانگین امتیاز از درخواست‌های تکمیل شده",
+        verbose_name='میانگین امتیاز'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
 
     @property
     def display_name(self):
         return self.user.display_name
-
-    # Status
-    is_active = models.BooleanField(default=True)
-
-    # rating
-    average_rating = models.DecimalField(
-        max_digits=3, decimal_places=2,
-        null=True, blank=True,
-        help_text="Average rating from completed requests"
-    )
-    # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.get_specialization_display()}"

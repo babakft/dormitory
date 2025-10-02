@@ -10,86 +10,103 @@ class MaintenanceRequest(models.Model):
     """Maintenance request from students"""
 
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
-        ('in_progress', 'In Progress'),
-        ('completed', 'Completed'),
+        ('pending', 'در انتظار بررسی'),
+        ('approved', 'تایید شده'),
+        ('rejected', 'رد شده'),
+        ('in_progress', 'در حال انجام'),
+        ('completed', 'تکمیل شده'),
     ]
 
     PRIORITY_CHOICES = [
-        ('not_decided', 'Not Decided'),
-        ('low', 'Low'),
-        ('medium', 'Medium'),
-        ('high', 'High'),
+        ('not_decided', 'تعیین نشده'),
+        ('low', 'کم'),
+        ('medium', 'متوسط'),
+        ('high', 'زیاد'),
     ]
 
-    # Service type choices matching expert specializations
     SERVICE_TYPE_CHOICES = [
-        ('electrical', 'Electrical'),
-        ('plumbing', 'Plumbing'),
-        ('hvac', 'HVAC/Air Conditioning'),
-        ('carpentry', 'Carpentry'),
-        ('general', 'General Maintenance'),
-        ('cleaning', 'Cleaning'),
-        ('security', 'Security Systems'),
+        ('electrical', 'برق'),
+        ('plumbing', 'لوله‌کشی'),
+        ('hvac', 'تهویه مطبوع'),
+        ('carpentry', 'نجاری'),
+        ('general', 'تعمیرات عمومی'),
+        ('cleaning', 'نظافت'),
+        ('security', 'سیستم‌های امنیتی'),
     ]
 
-    # Student who made the request
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='maintenance_requests')
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='maintenance_requests',
+        verbose_name='دانشجو'
+    )
 
-    # Request details
-    title = models.CharField(max_length=200)
-    description = models.TextField()
+    title = models.CharField(max_length=200, verbose_name='عنوان')
+    description = models.TextField(verbose_name='توضیحات')
     service_type = models.CharField(
         max_length=20,
         choices=SERVICE_TYPE_CHOICES,
-        help_text='Type of service required'
+        help_text='نوع خدمات مورد نیاز',
+        verbose_name='نوع سرویس'
     )
-    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='not_decided')
+    priority = models.CharField(
+        max_length=20,
+        choices=PRIORITY_CHOICES,
+        default='not_decided',
+        verbose_name='اولویت'
+    )
 
-    # Location details - Using FK to Room
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='maintenance_requests')
+    room = models.ForeignKey(
+        Room,
+        on_delete=models.CASCADE,
+        related_name='maintenance_requests',
+        verbose_name='اتاق'
+    )
 
-    # Status tracking
-    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(
+        max_length=15,
+        choices=STATUS_CHOICES,
+        default='pending',
+        verbose_name='وضعیت'
+    )
 
-    # Admin approval tracking - CharField approach
-    approved_by_name = models.CharField(max_length=100, blank=True, null=True)
-    approved_at = models.DateTimeField(null=True, blank=True)
-    rejection_reason = models.TextField(blank=True)
+    approved_by_name = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name='تایید شده توسط'
+    )
+    approved_at = models.DateTimeField(null=True, blank=True, verbose_name='تاریخ تایید')
+    rejection_reason = models.TextField(blank=True, verbose_name='دلیل رد')
 
-    # Assignment to expert
     assigned_expert = models.ForeignKey(
         ServiceExpert,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='assigned_requests'
+        related_name='assigned_requests',
+        verbose_name='متخصص تخصیص داده شده'
     )
-    assigned_at = models.DateTimeField(null=True, blank=True)
+    assigned_at = models.DateTimeField(null=True, blank=True, verbose_name='تاریخ تخصیص')
 
-    # Work progress
-    work_started_at = models.DateTimeField(null=True, blank=True)
-    expert_notes = models.TextField(blank=True)
+    work_started_at = models.DateTimeField(null=True, blank=True, verbose_name='شروع کار')
+    expert_notes = models.TextField(blank=True, verbose_name='یادداشت‌های متخصص')
 
-    # Completion details
-    completion_notes = models.TextField(blank=True)
-    completed_at = models.DateTimeField(null=True, blank=True)
+    completion_notes = models.TextField(blank=True, verbose_name='یادداشت‌های تکمیل')
+    completed_at = models.DateTimeField(null=True, blank=True, verbose_name='تاریخ تکمیل')
 
-    # Student feedback
     student_rating = models.IntegerField(
         null=True,
         blank=True,
         validators=[MinValueValidator(1), MaxValueValidator(5)],
-        help_text='Rating from 1 to 5'
+        help_text='امتیاز از ۱ تا ۵',
+        verbose_name='امتیاز دانشجو'
     )
-    student_feedback = models.TextField(blank=True)
-    feedback_at = models.DateTimeField(null=True, blank=True)
+    student_feedback = models.TextField(blank=True, verbose_name='نظر دانشجو')
+    feedback_at = models.DateTimeField(null=True, blank=True, verbose_name='تاریخ نظر')
 
-    # Timestamps - CRITICAL FIX: Remove auto_now and handle manually
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(default=timezone.now)  # Changed from auto_now=True
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
+    updated_at = models.DateTimeField(default=timezone.now, verbose_name='تاریخ به‌روزرسانی')
 
     class Meta:
         ordering = ['-created_at']
@@ -154,8 +171,8 @@ class MaintenanceImage(models.Model):
     """Images for maintenance requests"""
 
     IMAGE_TYPE_CHOICES = [
-        ('issue', 'Issue Image'),
-        ('completion', 'Completion Image'),
+        ('issue', 'تصویر مشکل'),
+        ('completion', 'تصویر تکمیل'),
     ]
 
     def get_upload_path(self, filename):
@@ -170,14 +187,13 @@ class MaintenanceImage(models.Model):
     maintenance_request = models.ForeignKey(
         MaintenanceRequest,
         on_delete=models.CASCADE,
-        related_name='images'
+        related_name='images',
+        verbose_name='درخواست تعمیرات'
     )
-    image = models.ImageField(upload_to=get_upload_path)
-    image_type = models.CharField(max_length=10, choices=IMAGE_TYPE_CHOICES)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    image = models.ImageField(upload_to=get_upload_path, verbose_name='تصویر')
+    image_type = models.CharField(max_length=10, choices=IMAGE_TYPE_CHOICES,verbose_name='نوع تصویر')
+    uploaded_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ بارگذاری')
 
-    class Meta:
-        ordering = ['uploaded_at']
 
     def __str__(self):
         return f"{self.get_image_type_display()} - {self.maintenance_request.title}"
