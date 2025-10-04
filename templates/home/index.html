@@ -3,48 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Shahid Bahonar University Dormitory Management System - Register, manage, and track maintenance requests">
     <title>Dormitory Management - Shahid Bahonar University</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/dormitory/css/home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top" role="navigation">
     <div class="container">
-        <a class="navbar-brand" href="/">
+        <a class="navbar-brand" href="/" aria-label="SBU Dormitory Home">
             <img src="/static/dormitory/images/sbu-logo.png" alt="SBU Logo" class="navbar-logo">
             <span>SBU Dormitory</span>
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="#home">Home</a>
+                    <a class="nav-link active" href="#home">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#services">Services</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#features">Features</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#about">About</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button"
-                       data-bs-toggle="dropdown">
+                       data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-sign-in-alt"></i> Login
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="/student/login/"><i class="fas fa-user-graduate"></i> Student
-                            Portal</a></li>
-                        <li><a class="dropdown-item" href="/service/login/"><i class="fas fa-tools"></i> Service Expert</a>
-                        </li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="/admin/"><i class="fas fa-user-shield"></i> Admin Panel</a>
-                        </li>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="loginDropdown">
+                        <li><a class="dropdown-item" href="/student/login/"><i class="fas fa-user-graduate"></i> Student Portal</a></li>
+                        <li><a class="dropdown-item" href="/service/login/"><i class="fas fa-tools"></i> Service Expert</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/admin/"><i class="fas fa-user-shield"></i> Admin Panel</a></li>
                     </ul>
                 </li>
             </ul>
@@ -54,67 +57,142 @@
 
 <!-- Hero Section -->
 <section id="home" class="hero-section">
+    <div class="hero-particles" id="particles"></div>
     <div class="hero-overlay"></div>
     <div class="container">
         <div class="row align-items-center min-vh-100">
-            <div class="col-lg-8 mx-auto text-center text-white">
+            <div class="col-lg-10 mx-auto text-center text-white">
                 <div class="hero-content">
-                    <h1 class="display-3 fw-bold mb-4">
-                        Welcome to <span class="text-primary">SBU</span> Dormitory
+                    <div class="hero-badge mb-4">
+                        <span class="badge-pulse"></span>
+                        <span class="badge-text">Trusted by 1200+ Students</span>
+                    </div>
+                    <h1 class="display-2 fw-bold mb-4 hero-title">
+                        Welcome to <span class="text-gradient">SBU</span> Dormitory
                     </h1>
-                    <p class="lead mb-5">
-                        Shahid Bahonar University's comprehensive dormitory management system.
-                        Register, submit maintenance requests, and communicate seamlessly with our support team.
+                    <p class="lead mb-5 hero-subtitle">
+                        Experience seamless dormitory management at Shahid Bahonar University.<br>
+                        Register instantly, track maintenance requests, and connect with support 24/7.
                     </p>
                     <div class="hero-buttons">
-                        <a href="/student/register/" class="btn btn-primary btn-lg me-3">
-                            <i class="fas fa-user-plus"></i> Register Now
+                        <a href="/student/register/" class="btn btn-primary btn-lg me-3 btn-hover-lift">
+                            <i class="fas fa-user-plus me-2"></i> Register Now
+                            <i class="fas fa-arrow-right ms-2"></i>
                         </a>
-                        <a href="#services" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-info-circle"></i> Learn More
+                        <a href="#services" class="btn btn-outline-light btn-lg btn-hover-lift">
+                            <i class="fas fa-info-circle me-2"></i> Learn More
                         </a>
+                    </div>
+                    <div class="hero-stats mt-5">
+                        <div class="row g-4">
+                            <div class="col-4">
+                                <div class="hero-stat-item">
+                                    <h3 class="mb-0">1200+</h3>
+                                    <p class="mb-0">Students</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="hero-stat-item">
+                                    <h3 class="mb-0">98%</h3>
+                                    <p class="mb-0">Satisfaction</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="hero-stat-item">
+                                    <h3 class="mb-0">24/7</h3>
+                                    <p class="mb-0">Support</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="scroll-indicator">
+    <div class="scroll-indicator" aria-label="Scroll down">
         <i class="fas fa-chevron-down"></i>
     </div>
 </section>
 
 <!-- Quick Access Cards -->
-<section class="py-5 bg-light">
+<section class="py-5 bg-light position-relative overflow-hidden">
+    <div class="section-decoration"></div>
     <div class="container">
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="access-card text-center">
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="0">
+                <div class="access-card">
+                    <div class="card-glow"></div>
                     <div class="card-icon">
                         <i class="fas fa-user-graduate"></i>
                     </div>
                     <h5>Student Portal</h5>
-                    <p>Register, manage your profile, and submit maintenance requests</p>
-                    <a href="/student/login/" class="btn btn-primary">Access Portal</a>
+                    <p>Register, manage your profile, and submit maintenance requests with ease</p>
+                    <a href="/student/login/" class="btn btn-primary">
+                        Access Portal <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="access-card text-center">
-                    <div class="card-icon">
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="access-card">
+                    <div class="card-glow"></div>
+                    <div class="card-icon bg-success">
                         <i class="fas fa-tools"></i>
                     </div>
                     <h5>Service Expert</h5>
-                    <p>Manage maintenance requests and provide quality service</p>
-                    <a href="/service/login/" class="btn btn-success">Expert Login</a>
+                    <p>Manage maintenance requests and provide quality service to students</p>
+                    <a href="/service/login/" class="btn btn-success">
+                        Expert Login <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="access-card text-center">
-                    <div class="card-icon">
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="access-card">
+                    <div class="card-glow"></div>
+                    <div class="card-icon bg-warning">
                         <i class="fas fa-user-shield"></i>
                     </div>
                     <h5>Administration</h5>
-                    <p>Manage student registrations and system oversight</p>
-                    <a href="/admin/" class="btn btn-warning">Admin Panel</a>
+                    <p>Comprehensive dashboard for student registrations and system oversight</p>
+                    <a href="/admin/" class="btn btn-warning">
+                        Admin Panel <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Highlight -->
+<section id="features" class="py-5 features-section">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <span class="section-tag">Why Choose Us</span>
+                <h2 class="display-4 fw-bold mb-3">Built for Modern Living</h2>
+                <p class="lead text-muted">Experience the future of dormitory management with our cutting-edge platform</p>
+            </div>
+        </div>
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6">
+                <div class="feature-highlight" data-aos="fade-right">
+                    <div class="feature-icon-large mb-4">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="mb-3">Lightning Fast Response</h3>
+                    <p class="text-muted mb-4">Our system ensures your maintenance requests are processed and assigned to experts within minutes, not hours.</p>
+                    <ul class="feature-list-check">
+                        <li><i class="fas fa-check-circle text-success"></i> Instant request submission</li>
+                        <li><i class="fas fa-check-circle text-success"></i> Real-time status updates</li>
+                        <li><i class="fas fa-check-circle text-success"></i> Direct communication channel</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="feature-image" data-aos="fade-left">
+                    <div class="floating-card">
+                        <i class="fas fa-rocket"></i>
+                        <span>Fast & Efficient</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -122,67 +200,68 @@
 </section>
 
 <!-- Services Section -->
-<section id="services" class="py-5">
+<section id="services" class="py-5 bg-light">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-8 mx-auto text-center mb-5">
-                <h2 class="display-5 fw-bold">Our Services</h2>
-                <p class="lead text-muted">Everything you need for comfortable dormitory living</p>
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <span class="section-tag">Our Services</span>
+                <h2 class="display-4 fw-bold mb-3">Everything You Need</h2>
+                <p class="lead text-muted">Comprehensive solutions for comfortable dormitory living</p>
             </div>
         </div>
         <div class="row g-4">
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="0">
                 <div class="service-card">
                     <div class="service-icon">
                         <i class="fas fa-home"></i>
                     </div>
                     <h5>Room Management</h5>
-                    <p>Easy room assignment and management system for all students</p>
+                    <p>Seamless room assignment system with digital key management and instant access</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="100">
                 <div class="service-card">
                     <div class="service-icon">
                         <i class="fas fa-wrench"></i>
                     </div>
                     <h5>Maintenance Requests</h5>
-                    <p>Submit and track maintenance requests with real-time updates</p>
+                    <p>Submit, track, and manage maintenance requests with photo uploads and priority handling</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="200">
                 <div class="service-card">
                     <div class="service-icon">
                         <i class="fas fa-comments"></i>
                     </div>
-                    <h5>Real-time Support</h5>
-                    <p>Instant communication with administration through our ticket system</p>
+                    <h5>Real-time Chat</h5>
+                    <p>Instant communication with administration through our advanced ticket system</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="0">
                 <div class="service-card">
                     <div class="service-icon">
                         <i class="fas fa-star"></i>
                     </div>
                     <h5>Quality Assurance</h5>
-                    <p>Rate and review services to ensure continuous improvement</p>
+                    <p>Rate and review services to ensure continuous improvement and accountability</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="100">
                 <div class="service-card">
                     <div class="service-icon">
                         <i class="fas fa-shield-alt"></i>
                     </div>
-                    <h5>Secure System</h5>
-                    <p>Your data is protected with enterprise-level security</p>
+                    <h5>Secure Platform</h5>
+                    <p>Enterprise-level security with email verification and encrypted data storage</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="200">
                 <div class="service-card">
                     <div class="service-icon">
                         <i class="fas fa-clock"></i>
                     </div>
                     <h5>24/7 Availability</h5>
-                    <p>Access the system anytime, anywhere for your convenience</p>
+                    <p>Access the system anytime, anywhere from any device with full mobile support</p>
                 </div>
             </div>
         </div>
@@ -190,29 +269,42 @@
 </section>
 
 <!-- Stats Section -->
-<section class="py-5 bg-primary text-white">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-lg-3 col-sm-6 mb-4">
-                <div class="stat-item">
+<section class="py-5 stats-section position-relative overflow-hidden">
+    <div class="stats-overlay"></div>
+    <div class="container position-relative">
+        <div class="row text-center g-4">
+            <div class="col-lg-3 col-sm-6">
+                <div class="stat-item" data-aos="fade-up" data-aos-delay="0">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-users"></i>
+                    </div>
                     <div class="stat-number" data-count="1200">0</div>
                     <div class="stat-label">Active Students</div>
                 </div>
             </div>
-            <div class="col-lg-3 col-sm-6 mb-4">
-                <div class="stat-item">
+            <div class="col-lg-3 col-sm-6">
+                <div class="stat-item" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
                     <div class="stat-number" data-count="45">0</div>
                     <div class="stat-label">Service Experts</div>
                 </div>
             </div>
-            <div class="col-lg-3 col-sm-6 mb-4">
-                <div class="stat-item">
+            <div class="col-lg-3 col-sm-6">
+                <div class="stat-item" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
                     <div class="stat-number" data-count="2800">0</div>
                     <div class="stat-label">Requests Completed</div>
                 </div>
             </div>
-            <div class="col-lg-3 col-sm-6 mb-4">
-                <div class="stat-item">
+            <div class="col-lg-3 col-sm-6">
+                <div class="stat-item" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-smile"></i>
+                    </div>
                     <div class="stat-number" data-count="98">0</div>
                     <div class="stat-label">Satisfaction Rate</div>
                 </div>
@@ -224,37 +316,126 @@
 <!-- About Section -->
 <section id="about" class="py-5">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h2 class="display-5 fw-bold mb-4">About SBU Dormitory System</h2>
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6" data-aos="fade-right">
+                <span class="section-tag">About Us</span>
+                <h2 class="display-4 fw-bold mb-4">Excellence in Student Living</h2>
                 <p class="lead mb-4">
-                    Shahid Bahonar University is committed to providing students with a comfortable
-                    and secure living environment through our modern dormitory management system.
+                    Shahid Bahonar University is committed to providing students with a comfortable,
+                    secure, and technologically advanced living environment.
                 </p>
-                <div class="feature-list">
-                    <div class="feature-item">
-                        <i class="fas fa-check text-success"></i>
-                        <span>Streamlined registration process</span>
+                <p class="text-muted mb-4">
+                    Our modern dormitory management system streamlines every aspect of student life,
+                    from registration to maintenance, ensuring a hassle-free experience throughout your academic journey.
+                </p>
+                <div class="feature-grid">
+                    <div class="feature-grid-item">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>Instant registration approval</span>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-check text-success"></i>
-                        <span>Professional maintenance services</span>
+                    <div class="feature-grid-item">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>Professional maintenance team</span>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-check text-success"></i>
-                        <span>Real-time communication system</span>
+                    <div class="feature-grid-item">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>Real-time communication</span>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-check text-success"></i>
-                        <span>Quality feedback and improvement</span>
+                    <div class="feature-grid-item">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span>Quality feedback system</span>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="about-image">
-                    <img src="/static/dormitory/images/sbu-dormitory.jpg"
-                         alt="Shahid Bahonar University Dormitory Complex"
-                         class="img-fluid rounded-4 shadow-lg">
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="about-image-wrapper">
+                    <div class="about-image">
+                        <img src="/static/dormitory/images/sbu-dormitory.jpg"
+                             alt="Shahid Bahonar University Dormitory Complex"
+                             class="img-fluid rounded-4 shadow-lg">
+                        <div class="about-badge">
+                            <i class="fas fa-award"></i>
+                            <span>Since 1973</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-5 bg-light testimonials-section">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <span class="section-tag">Student Voices</span>
+                <h2 class="display-4 fw-bold mb-3">What Students Say</h2>
+                <p class="lead text-muted">Real experiences from our dormitory community</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="0">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating mb-3">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"The maintenance request system is incredibly fast. My room issue was resolved within 2 hours!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Ali Rezaei</h6>
+                            <small class="text-muted">Computer Science Student</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating mb-3">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"Registration was so smooth! The email verification and dashboard make everything easy to manage."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Sara Ahmadi</h6>
+                            <small class="text-muted">Engineering Student</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating mb-3">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"The 24/7 support through the ticket system is amazing. I always get quick responses to my questions."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Mohammad Karimi</h6>
+                            <small class="text-muted">Medical Student</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -262,46 +443,81 @@
 </section>
 
 <!-- CTA Section -->
-<section class="py-5 bg-dark text-white">
-    <div class="container text-center">
-        <h2 class="display-5 fw-bold mb-4">Ready to Get Started?</h2>
-        <p class="lead mb-5">Join thousands of students who trust SBU's dormitory management system</p>
-        <a href="/student/register/" class="btn btn-primary btn-lg">
-            <i class="fas fa-user-plus"></i> Register Now
-        </a>
+<section class="py-5 cta-section position-relative overflow-hidden">
+    <div class="cta-overlay"></div>
+    <div class="container text-center position-relative">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-4 fw-bold mb-4 text-white">Ready to Get Started?</h2>
+                <p class="lead mb-5 text-white">Join thousands of students who trust SBU's dormitory management system</p>
+                <a href="/student/register/" class="btn btn-light btn-lg btn-hover-lift me-3">
+                    <i class="fas fa-user-plus me-2"></i> Register Now
+                </a>
+                <a href="#services" class="btn btn-outline-light btn-lg btn-hover-lift">
+                    <i class="fas fa-info-circle me-2"></i> Learn More
+                </a>
+            </div>
+        </div>
     </div>
 </section>
 
 <!-- Footer -->
-<footer class="py-5 bg-light">
+<footer class="py-5 bg-dark text-light">
     <div class="container">
-        <div class="row">
+        <div class="row g-4">
             <div class="col-lg-4 mb-4">
-                <h5><i class="fas fa-university"></i> Shahid Bahonar University</h5>
-                <p>Providing quality education and comfortable living since 1973</p>
+                <h5 class="mb-4"><i class="fas fa-university me-2"></i> Shahid Bahonar University</h5>
+                <p class="text-muted">Providing quality education and comfortable living since 1973</p>
+                <div class="social-links mt-4">
+                    <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                </div>
             </div>
-            <div class="col-lg-4 mb-4">
-                <h5>Quick Links</h5>
-                <ul class="list-unstyled">
+            <div class="col-lg-2 col-md-6 mb-4">
+                <h6 class="mb-4">Quick Links</h6>
+                <ul class="list-unstyled footer-links">
                     <li><a href="/student/register/">Student Registration</a></li>
                     <li><a href="/student/login/">Student Login</a></li>
-                    <li><a href="/service/login/">Service Expert Portal</a></li>
+                    <li><a href="/service/login/">Service Expert</a></li>
                     <li><a href="/admin/">Administration</a></li>
                 </ul>
             </div>
-            <div class="col-lg-4 mb-4">
-                <h5>Contact Information</h5>
-                <p><i class="fas fa-envelope"></i> babakfathi082@gmail.com</p>
-                <p><i class="fas fa-phone"></i> +98 9337715290</p>
-                <p><i class="fas fa-map-marker-alt"></i> Kerman, Iran</p>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h6 class="mb-4">Services</h6>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="#services">Room Management</a></li>
+                    <li><a href="#services">Maintenance Requests</a></li>
+                    <li><a href="#services">Real-time Support</a></li>
+                    <li><a href="#services">Quality Assurance</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 mb-4">
+                <h6 class="mb-4">Contact Us</h6>
+                <ul class="list-unstyled contact-info">
+                    <li><i class="fas fa-envelope me-2"></i> babakfathi082@gmail.com</li>
+                    <li><i class="fas fa-phone me-2"></i> +98 9337715290</li>
+                    <li><i class="fas fa-map-marker-alt me-2"></i> Kerman, Iran</li>
+                </ul>
             </div>
         </div>
-        <hr>
-        <div class="text-center">
-            <p>&copy; 2025 Shahid Bahonar University. All rights reserved.</p>
+        <hr class="mt-4 mb-4 border-secondary">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="mb-0 text-muted">&copy; 2025 Shahid Bahonar University. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <p class="mb-0 text-muted">Designed with <i class="fas fa-heart text-danger"></i> for Students</p>
+            </div>
         </div>
     </div>
 </footer>
+
+<!-- Back to Top Button -->
+<button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <i class="fas fa-arrow-up"></i>
+</button>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/static/dormitory/js/home.js"></script>
