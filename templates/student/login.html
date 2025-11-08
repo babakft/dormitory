@@ -4,130 +4,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Login - Dormitory System</title>
+    <title>Student Login - SBU Dormitory System</title>
     <link rel="stylesheet" href="{% static 'student/css/auth.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <div class="logo">
-                <i class="icon-home"></i>
-                <h1>Dormitory System</h1>
-            </div>
-            <h2>Student Login</h2>
-            <p>Access your dormitory dashboard</p>
-        </div>
-
-        <form method="post" class="auth-form" id="loginForm">
-            {% csrf_token %}
-
-            {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" id="djangoMessage">
-                    <span>{{ message }}</span>
+    <div class="auth-container">
+        <!-- Main Auth Card -->
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">
+                    <i class="icon-home"></i>
+                    <h1>SBU Dormitory</h1>
                 </div>
-                {% endfor %}
+                <h2>Student Login</h2>
+                <p>Access your dormitory dashboard</p>
             </div>
-            {% endif %}
 
-            <!-- Student Number Field -->
-            <div class="form-group">
-                <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
-                <div class="input-wrapper">
-                    <i class="icon-id"></i>
-                    {{ form.username }}
+            <form method="post" class="auth-form" id="loginForm">
+                {% csrf_token %}
+
+                <!-- Django Messages -->
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Student Number Field -->
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                    <div class="input-wrapper">
+                        <i class="icon-id"></i>
+                        {{ form.username }}
+                    </div>
                     {% if form.username.errors %}
                     <div class="error-message">{{ form.username.errors.0 }}</div>
                     {% endif %}
                 </div>
-            </div>
 
-            <!-- Password Field -->
-            <div class="form-group">
-                <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
-                <div class="input-wrapper password-input">
-                    <i class="icon-lock"></i>
-                    {{ form.password }}
-                    <button type="button" class="toggle-password"
-                            onclick="togglePassword('{{ form.password.id_for_label }}')">
-                        <i class="icon-eye" id="toggleIcon"></i>
-                    </button>
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                    <div class="input-wrapper password-input">
+                        <i class="icon-lock"></i>
+                        {{ form.password }}
+                        <button type="button" class="toggle-password" onclick="togglePassword('{{ form.password.id_for_label }}')">
+                            <i class="icon-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
                     {% if form.password.errors %}
                     <div class="error-message">{{ form.password.errors.0 }}</div>
                     {% endif %}
                 </div>
-            </div>
 
-            <!-- Non-field errors (from form.clean()) -->
-            {% if form.non_field_errors %}
-            <div class="form-group">
-                <div class="error-message">{{ form.non_field_errors.0 }}</div>
-            </div>
-            {% endif %}
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}
+                <div class="form-group">
+                    <div class="error-message">{{ form.non_field_errors.0 }}</div>
+                </div>
+                {% endif %}
 
-            <!-- Form Options -->
-            <div class="form-options">
-                <label class="checkbox-wrapper">
-                    {{ form.remember_me }}
-                    <span class="checkmark"></span>
-                    {{ form.remember_me.label }}
-                </label>
-                <a href="{% url 'student:forgot_password' %}" class="forgot-password">Forgot password?</a>
-            </div>
+                <!-- Form Options -->
+                <div class="form-options">
+                    <label class="checkbox-wrapper">
+                        {{ form.remember_me }}
+                        <span class="checkmark"></span>
+                        {{ form.remember_me.label }}
+                    </label>
+                    <a href="{% url 'student:forgot_password' %}" class="forgot-password">Forgot password?</a>
+                </div>
 
-
-            <!-- Submit Button -->
-            <div class="form-actions">
+                <!-- Submit Button -->
                 <button type="submit" class="btn btn-primary" id="loginBtn">
-                    <span class="btn-text">Login</span>
-                    <div class="btn-loader">
-                        <div class="spinner"></div>
-                    </div>
+                    <span class="btn-text">Login to Dashboard</span>
                 </button>
-            </div>
 
+                <!-- Register Link -->
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="{% url 'student:student_register' %}">Register here</a></p>
+                </div>
+            </form>
+        </div>
 
-            <!-- Register Link -->
-            <div class="auth-footer">
-                <p>Don't have an account? <a href="{% url 'student:student_register' %}">Register here</a></p>
-            </div>
-        </form>
-    </div>
+        <!-- Sidebar -->
+        <div class="auth-sidebar">
+            <div class="sidebar-content">
+                <h3>Welcome to SBU Dormitory</h3>
+                <div class="features">
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>Submit maintenance requests</span>
+                    </div>
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>Track request status in real-time</span>
+                    </div>
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>Rate service quality</span>
+                    </div>
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>24/7 instant notifications</span>
+                    </div>
+                </div>
 
-    <!-- Sidebar -->
-    <div class="auth-sidebar">
-        <div class="sidebar-content">
-            <h3>Welcome to Dormitory Management</h3>
-            <div class="features">
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Submit maintenance requests</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Track request status</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Rate service quality</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Receive notifications</span>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" data-count="1200">0</div>
+                        <div class="stat-label">Active Students</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" data-count="98">0</div>
+                        <div class="stat-label">Satisfaction Rate</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loadingOverlay">
-    <div class="loading-spinner"></div>
-</div>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
 
-<script src="{% static 'student/js/auth.js' %}"></script>
+    <script src="{% static 'student/js/auth.js' %}"></script>
 </body>
 </html>

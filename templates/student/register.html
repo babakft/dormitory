@@ -1,19 +1,21 @@
-{%  load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Registration - Dormitory System</title>
+    <title>Student Registration - SBU Dormitory System</title>
     <link rel="stylesheet" href="{% static 'student/css/auth.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="auth-container">
+        <!-- Main Auth Card -->
         <div class="auth-card register-card">
             <div class="auth-header">
                 <div class="logo">
                     <i class="icon-home"></i>
-                    <h1>Dormitory System</h1>
+                    <h1>SBU Dormitory</h1>
                 </div>
                 <h2>Student Registration</h2>
                 <p>Create your dormitory account</p>
@@ -21,6 +23,8 @@
 
             <form method="post" class="auth-form" id="registerForm">
                 {% csrf_token %}
+
+                <!-- Django Messages -->
                 {% if messages %}
                 <div class="messages">
                     {% for message in messages %}
@@ -31,6 +35,7 @@
                 </div>
                 {% endif %}
 
+                <!-- Row 1: Student ID & Email -->
                 <div class="form-row">
                     <div class="form-group">
                         <label for="{{ form.student_number.id_for_label }}">Student ID</label>
@@ -55,6 +60,7 @@
                     </div>
                 </div>
 
+                <!-- Row 2: Username & Phone -->
                 <div class="form-row">
                     <div class="form-group">
                         <label for="{{ form.username.id_for_label }}">Username</label>
@@ -79,6 +85,7 @@
                     </div>
                 </div>
 
+                <!-- Room Selection -->
                 <div class="form-group">
                     <label for="{{ form.room.id_for_label }}">Room Selection</label>
                     <div class="input-wrapper">
@@ -93,6 +100,7 @@
                     </small>
                 </div>
 
+                <!-- Row 3: Passwords -->
                 <div class="form-row">
                     <div class="form-group">
                         <label for="{{ form.password1.id_for_label }}">Password</label>
@@ -113,6 +121,9 @@
                         <div class="input-wrapper password-input">
                             <i class="icon-lock"></i>
                             {{ form.password2 }}
+                            <button type="button" class="toggle-password" onclick="togglePassword('id_password2')">
+                                <i id="toggleIcon2" class="icon-eye"></i>
+                            </button>
                         </div>
                         {% if form.password2.errors %}
                         <span class="error-message" id="password2Error">{{ form.password2.errors.0 }}</span>
@@ -120,6 +131,7 @@
                     </div>
                 </div>
 
+                <!-- Password Strength -->
                 <div class="password-strength">
                     <div class="strength-meter">
                         <div class="strength-bar">
@@ -129,6 +141,7 @@
                     <span class="strength-text" id="strengthText">Password strength</span>
                 </div>
 
+                <!-- Terms Checkbox -->
                 <div class="form-options">
                     <label class="checkbox-wrapper">
                         <input type="checkbox" required>
@@ -137,40 +150,46 @@
                     </label>
                 </div>
 
+                <!-- Submit Button -->
                 <button type="submit" class="btn btn-primary" id="registerBtn">
-                    Create Account
+                    <span class="btn-text">Create Account</span>
                 </button>
-            </form>
 
-            <div class="auth-footer">
-                <p>Already have an account? <a href="{% url 'student:student_login' %}">Login here</a></p>
-            </div>
+                <!-- Login Link -->
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="{% url 'student:student_login' %}">Login here</a></p>
+                </div>
+            </form>
         </div>
 
+        <!-- Sidebar -->
         <div class="auth-sidebar">
             <div class="sidebar-content">
                 <h3>Join Our Community</h3>
                 <ul class="feature-list">
                     <li><i class="icon-check"></i> Quick registration process</li>
-                    <li><i class="icon-check"></i> Instant access to services</li>
+                    <li><i class="icon-check"></i> Instant email verification</li>
                     <li><i class="icon-check"></i> 24/7 support available</li>
-                    <li><i class="icon-check"></i> Secure and reliable</li>
+                    <li><i class="icon-check"></i> Secure and reliable platform</li>
                 </ul>
 
                 <div class="stats">
                     <div class="stat-card">
-                        <div class="stat-number" data-count="500">500</div>
+                        <div class="stat-number" data-count="1200">0</div>
                         <div class="stat-label">Active Students</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-number" data-count="98">98</div>
+                        <div class="stat-number" data-count="98">0</div>
                         <div class="stat-label">Satisfaction Rate</div>
                     </div>
                 </div>
             </div>
-
-            <div id="particles"></div>
         </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
     </div>
 
     <script src="{% static 'student/js/auth.js' %}"></script>
