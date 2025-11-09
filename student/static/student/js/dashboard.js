@@ -1,10 +1,13 @@
 /**
- * Student Dashboard JavaScript
- * Handles interactive features and enhancements for the student dashboard
+ * Enhanced Student Dashboard System
+ * Matches the style and quality of homepage and auth systems
  */
 
-class StudentDashboard {
+class EnhancedStudentDashboard {
     constructor() {
+        this.lastActivity = Date.now();
+        this.refreshInterval = null;
+        this.isCounterAnimated = false;
         this.init();
     }
 
@@ -20,79 +23,75 @@ class StudentDashboard {
     setup() {
         this.setupEventListeners();
         this.setupAnimations();
-        this.setupTooltips();
         this.setupAutoRefresh();
         this.setupKeyboardShortcuts();
-        this.setupFormValidation();
+        this.setupAccessibility();
+        this.animateStatsOnScroll();
+
+        console.log('✨ Enhanced Student Dashboard Initialized');
     }
 
-    /**
-     * Setup event listeners for interactive elements
-     */
+    // ===== Event Listeners =====
     setupEventListeners() {
         // Stat cards click effects
         const statCards = document.querySelectorAll('.stat-card');
         statCards.forEach(card => {
             card.addEventListener('click', this.handleStatCardClick.bind(this));
+            card.addEventListener('mouseenter', this.handleStatCardHover.bind(this));
+            card.addEventListener('mouseleave', this.handleStatCardLeave.bind(this));
         });
 
-        // Table row click handlers
+        // Table row interactions
         const tableRows = document.querySelectorAll('.table-row');
         tableRows.forEach(row => {
             row.addEventListener('click', this.handleTableRowClick.bind(this));
+            row.addEventListener('mouseenter', this.handleTableRowHover.bind(this));
         });
 
-        // Navigation button enhancements
-        const navButtons = document.querySelectorAll('.nav-btn');
-        navButtons.forEach(btn => {
-            btn.addEventListener('mouseenter', this.handleNavButtonHover.bind(this));
+        // Navigation cards
+        const navCards = document.querySelectorAll('.nav-card');
+        navCards.forEach(card => {
+            card.addEventListener('mouseenter', this.handleNavCardHover.bind(this));
         });
 
         // Logout confirmation
-        const logoutForm = document.querySelector('.logout-form');
+        const logoutForm = document.querySelector('.nav-card-form');
         if (logoutForm) {
             logoutForm.addEventListener('submit', this.handleLogoutConfirmation.bind(this));
         }
 
-        // Search functionality (if search input exists)
-        const searchInput = document.querySelector('#requestSearch');
-        if (searchInput) {
-            searchInput.addEventListener('input', this.debounce(this.handleSearch.bind(this), 300));
-        }
+        // Track user activity for auto-refresh
+        this.trackUserActivity();
     }
 
-    /**
-     * Setup smooth animations and transitions
-     */
+    // ===== Animations =====
     setupAnimations() {
-        // Animate stat cards on load
-        this.animateStatCards();
+        // Animate elements on page load
+        this.animateOnLoad();
 
-        // Setup intersection observer for scroll animations
-        this.setupScrollAnimations();
+        // Setup scroll-based animations
+        this.setupScrollObserver();
+
+        // Animate numbers
+        this.animateCountersOnScroll();
     }
 
-    /**
-     * Animate stat cards with staggered effect
-     */
-    animateStatCards() {
-        const statCards = document.querySelectorAll('.stat-card');
-        statCards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
+    animateOnLoad() {
+        const elements = document.querySelectorAll('.dashboard-header, .stat-card, .requests-card, .nav-card');
+
+        elements.forEach((element, index) => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(30px)';
 
             setTimeout(() => {
-                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 150);
+                element.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }, index * 100);
         });
     }
 
-    /**
-     * Setup scroll-based animations
-     */
-    setupScrollAnimations() {
+    setupScrollObserver() {
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -102,125 +101,327 @@ class StudentDashboard {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('animate-in');
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
                 }
             });
         }, observerOptions);
 
-        // Observe sections for animation
-        const sections = document.querySelectorAll('.requests-section, .navigation-section');
-        sections.forEach(section => {
-            observer.observe(section);
-        });
+        const sections = document.querySelectorAll('.requests-section, .navigation-section, .quick-stats-bar');
+        sections.forEach(section => observer.observe(section));
     }
 
-    /**
-     * Setup tooltips for better UX
-     */
-    setupTooltips() {
-        // Add tooltips to badges and status indicators
-        const badges = document.querySelectorAll('.badge');
-        badges.forEach(badge => {
-            this.addTooltip(badge);
+    animateStatsOnScroll() {
+        const statsSection = document.querySelector('.stats-section');
+        if (!statsSection) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !this.isCounterAnimated) {
+                    this.animateStatNumbers();
+                    this.isCounterAnimated = true;
+                }
+            });
+        }, {
+            threshold: 0.3
         });
 
-        // Add tooltips to action buttons
-        const actionButtons = document.querySelectorAll('[title]');
-        actionButtons.forEach(btn => {
-            this.enhanceTooltip(btn);
-        });
+        observer.observe(statsSection);
     }
 
-    /**
-     * Add tooltip functionality
-     */
-    addTooltip(element) {
-        const tooltipText = this.getTooltipText(element);
-        if (tooltipText) {
-            element.setAttribute('title', tooltipText);
-            element.setAttribute('data-toggle', 'tooltip');
+    animateCountersOnScroll() {
+        // Alternative method if AOS is not available
+        if (typeof AOS === 'undefined') {
+            this.animateStatsOnScroll();
         }
     }
 
-    /**
-     * Get tooltip text based on element content
-     */
-    getTooltipText(element) {
-        const text = element.textContent.trim().toLowerCase();
-        const tooltips = {
-            'pending': 'Request is waiting for admin approval',
-            'approved': 'Request has been approved and assigned',
-            'in progress': 'Maintenance team is working on this request',
-            'completed': 'Request has been completed successfully',
-            'rejected': 'Request was rejected - check details for reason',
-            'high': 'High priority - will be addressed urgently',
-            'medium': 'Medium priority - normal processing time',
-            'low': 'Low priority - may take longer to process'
-        };
-        return tooltips[text] || null;
+    animateStatNumbers() {
+        const statNumbers = document.querySelectorAll('.stat-number[data-count]');
+
+        statNumbers.forEach(stat => {
+            const target = parseInt(stat.getAttribute('data-count')) || 0;
+            const duration = 2000;
+            const startTime = performance.now();
+
+            const updateNumber = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.floor(this.easeOutCubic(progress) * target);
+
+                stat.textContent = current;
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                } else {
+                    stat.textContent = target;
+                }
+            };
+
+            requestAnimationFrame(updateNumber);
+        });
     }
 
-    /**
-     * Setup auto-refresh for real-time updates
-     */
+    easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+    }
+
+    // ===== Event Handlers =====
+    handleStatCardClick(e) {
+        const card = e.currentTarget;
+
+        // Add ripple effect
+        this.createRippleEffect(card, e);
+
+        // Add click animation
+        card.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+            card.style.transform = '';
+        }, 150);
+
+        // Navigate based on card type
+        if (card.classList.contains('stat-card--info')) {
+            const ticketsLink = document.querySelector('a[href*="ticket:list"]');
+            if (ticketsLink) {
+                window.location.href = ticketsLink.href;
+            }
+        } else {
+            // Show notification
+            this.showNotification('Feature coming soon! 🚀', 'info');
+        }
+    }
+
+    handleStatCardHover(e) {
+        const card = e.currentTarget;
+        const icon = card.querySelector('.stat-icon');
+
+        if (icon) {
+            icon.style.transition = 'transform 0.3s ease';
+            icon.style.transform = 'scale(1.1) rotate(5deg)';
+        }
+    }
+
+    handleStatCardLeave(e) {
+        const card = e.currentTarget;
+        const icon = card.querySelector('.stat-icon');
+
+        if (icon) {
+            icon.style.transform = '';
+        }
+    }
+
+    handleTableRowClick(e) {
+        // Don't trigger if clicking on a button
+        if (e.target.closest('.btn')) return;
+
+        const row = e.currentTarget;
+        const viewBtn = row.querySelector('a[href*="detail"]');
+
+        if (viewBtn) {
+            // Add visual feedback
+            row.style.transform = 'scale(0.99)';
+            setTimeout(() => {
+                window.location.href = viewBtn.href;
+            }, 100);
+        }
+    }
+
+    handleTableRowHover(e) {
+        const row = e.currentTarget;
+        row.style.transition = 'transform 0.2s ease';
+        row.style.transform = 'translateX(4px)';
+    }
+
+    handleNavCardHover(e) {
+        const card = e.currentTarget;
+        const icon = card.querySelector('.nav-card-icon');
+
+        if (icon) {
+            icon.style.transform = 'scale(1.1) rotate(5deg)';
+        }
+    }
+
+    handleLogoutConfirmation(e) {
+        const confirmed = confirm('Are you sure you want to logout? 👋');
+        if (!confirmed) {
+            e.preventDefault();
+        }
+    }
+
+    // ===== Utility Functions =====
+    createRippleEffect(element, event) {
+        const rect = element.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        const ripple = document.createElement('div');
+        ripple.style.cssText = `
+            position: absolute;
+            left: ${x}px;
+            top: ${y}px;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: ripple 0.8s ease-out;
+            pointer-events: none;
+            z-index: 10;
+        `;
+
+        // Add ripple animation if not exists
+        if (!document.querySelector('#ripple-animation')) {
+            const style = document.createElement('style');
+            style.id = 'ripple-animation';
+            style.textContent = `
+                @keyframes ripple {
+                    to {
+                        width: 300px;
+                        height: 300px;
+                        opacity: 0;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        element.style.position = 'relative';
+        element.appendChild(ripple);
+
+        setTimeout(() => ripple.remove(), 800);
+    }
+
+    showNotification(message, type = 'info') {
+        // Remove existing notifications
+        const existing = document.querySelectorAll('.dashboard-notification');
+        existing.forEach(n => n.remove());
+
+        const notification = document.createElement('div');
+        notification.className = `dashboard-notification dashboard-notification--${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+            max-width: 400px;
+            border-left: 4px solid var(--primary-color);
+        `;
+
+        const icon = document.createElement('i');
+        icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-info-circle';
+        icon.style.cssText = 'font-size: 1.5rem; color: var(--primary-color);';
+
+        const text = document.createElement('span');
+        text.textContent = message;
+        text.style.cssText = 'color: #1a202c; font-weight: 500;';
+
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '×';
+        closeBtn.style.cssText = `
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #718096;
+            cursor: pointer;
+            margin-left: auto;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+        closeBtn.onclick = () => notification.remove();
+
+        notification.appendChild(icon);
+        notification.appendChild(text);
+        notification.appendChild(closeBtn);
+        document.body.appendChild(notification);
+
+        // Add animation
+        if (!document.querySelector('#notification-animation')) {
+            const style = document.createElement('style');
+            style.id = 'notification-animation';
+            style.textContent = `
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(400px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            notification.style.animation = 'slideInRight 0.3s ease reverse';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+
+    // ===== Auto Refresh =====
+    trackUserActivity() {
+        ['mousemove', 'keypress', 'click', 'scroll'].forEach(event => {
+            document.addEventListener(event, () => {
+                this.lastActivity = Date.now();
+            });
+        });
+    }
+
     setupAutoRefresh() {
-        // Only refresh if user is active (to save bandwidth)
-        let lastActivity = Date.now();
-        let refreshInterval;
-
-        // Track user activity
-        document.addEventListener('mousemove', () => {
-            lastActivity = Date.now();
-        });
-
-        document.addEventListener('keypress', () => {
-            lastActivity = Date.now();
-        });
-
         // Auto-refresh every 5 minutes if user is active
-        refreshInterval = setInterval(() => {
-            const now = Date.now();
-            const timeSinceActivity = now - lastActivity;
+        this.refreshInterval = setInterval(() => {
+            const timeSinceActivity = Date.now() - this.lastActivity;
 
             // Refresh if user was active in the last 10 minutes
             if (timeSinceActivity < 600000) {
-                this.refreshStatusCounts();
+                this.refreshDashboardData();
             }
         }, 300000); // 5 minutes
 
         // Clear interval when page unloads
         window.addEventListener('beforeunload', () => {
-            clearInterval(refreshInterval);
+            clearInterval(this.refreshInterval);
         });
     }
 
-    /**
-     * Refresh status counts via AJAX
-     */
-    async refreshStatusCounts() {
+    async refreshDashboardData() {
         try {
-            // You can uncomment and adjust this when you have the endpoint
+            // Placeholder for future implementation
+            console.log('🔄 Auto-refreshing dashboard data...');
+
+            // You can implement actual AJAX refresh here when backend is ready
             // const response = await fetch('/student/dashboard/status-counts/', {
             //     headers: {
             //         'X-Requested-With': 'XMLHttpRequest',
             //         'X-CSRFToken': this.getCSRFToken()
             //     }
             // });
-
+            //
             // if (response.ok) {
             //     const data = await response.json();
-            //     this.updateStatusCounts(data);
+            //     this.updateStatCounts(data);
             // }
 
-            console.log('Auto-refresh placeholder - implement with your status endpoint');
         } catch (error) {
-            console.log('Auto-refresh failed:', error);
+            console.log('Auto-refresh error:', error);
         }
     }
 
-    /**
-     * Update status counts in the UI
-     */
-    updateStatusCounts(data) {
+    updateStatCounts(data) {
         const counters = {
             'total_requests': '.stat-card--primary .stat-number',
             'pending_requests': '.stat-card--warning .stat-number',
@@ -231,56 +432,40 @@ class StudentDashboard {
         Object.entries(counters).forEach(([key, selector]) => {
             const element = document.querySelector(selector);
             if (element && data[key] !== undefined) {
-                this.animateCounterUpdate(element, data[key]);
+                this.animateNumberUpdate(element, parseInt(element.textContent), data[key]);
             }
         });
     }
 
-    /**
-     * Animate counter updates
-     */
-    animateCounterUpdate(element, newValue) {
-        const currentValue = parseInt(element.textContent);
-        if (currentValue !== newValue) {
-            element.style.color = '#28a745'; // Flash green
+    animateNumberUpdate(element, fromValue, toValue) {
+        if (fromValue !== toValue) {
+            // Flash effect
+            element.style.color = 'var(--success-color)';
             setTimeout(() => {
                 element.style.color = '';
             }, 1000);
 
-            // Animate the number change
-            this.animateNumber(element, currentValue, newValue, 500);
+            // Animate number
+            const duration = 500;
+            const startTime = performance.now();
+
+            const updateNumber = (currentTime) => {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.round(fromValue + (toValue - fromValue) * this.easeOutCubic(progress));
+
+                element.textContent = current;
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                }
+            };
+
+            requestAnimationFrame(updateNumber);
         }
     }
 
-    /**
-     * Animate number changes
-     */
-    animateNumber(element, start, end, duration) {
-        const startTime = performance.now();
-        const updateNumber = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            const current = Math.round(start + (end - start) * this.easeOutCubic(progress));
-
-            element.textContent = current;
-
-            if (progress < 1) {
-                requestAnimationFrame(updateNumber);
-            }
-        };
-        requestAnimationFrame(updateNumber);
-    }
-
-    /**
-     * Easing function for smooth animations
-     */
-    easeOutCubic(t) {
-        return 1 - Math.pow(1 - t, 3);
-    }
-
-    /**
-     * Setup keyboard shortcuts
-     */
+    // ===== Keyboard Shortcuts =====
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
             // Ctrl/Cmd + N = New Request
@@ -301,183 +486,67 @@ class StudentDashboard {
                 }
             }
 
-            // Escape = Close any open modals/dropdowns
+            // Escape = Close notifications
             if (e.key === 'Escape') {
-                this.closeOpenElements();
+                const notifications = document.querySelectorAll('.dashboard-notification');
+                notifications.forEach(n => n.remove());
             }
         });
     }
 
-    /**
-     * Setup form validation enhancements
-     */
-    setupFormValidation() {
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            form.addEventListener('submit', this.handleFormSubmit.bind(this));
-        });
-    }
-
-    /**
-     * Handle stat card clicks
-     */
-    handleStatCardClick(e) {
-        const card = e.currentTarget;
-
-        // Add click effect
-        card.style.transform = 'scale(0.98)';
-        setTimeout(() => {
-            card.style.transform = '';
-        }, 150);
-
-        // Navigate based on card type
-        if (card.classList.contains('stat-card--primary')) {
-            // Navigate to all requests (placeholder - adjust URL as needed)
-            alert('All requests view coming soon!');
-        } else if (card.classList.contains('stat-card--warning')) {
-            // Navigate to pending requests (placeholder - adjust URL as needed)
-            alert('Pending requests view coming soon!');
-        } else if (card.classList.contains('stat-card--success')) {
-            // Navigate to completed requests (placeholder - adjust URL as needed)
-            alert('Completed requests view coming soon!');
-        } else if (card.classList.contains('stat-card--info')) {
-            // Navigate to tickets
-            const ticketsBtn = document.querySelector('a[href*="ticket:list"]');
-            if (ticketsBtn) {
-                window.location.href = ticketsBtn.href;
+    // ===== Accessibility =====
+    setupAccessibility() {
+        // Add ARIA labels to interactive elements
+        document.querySelectorAll('.stat-card, .nav-card').forEach(el => {
+            if (!el.getAttribute('role')) {
+                el.setAttribute('role', 'button');
             }
-        }
-    }
-
-    /**
-     * Handle table row clicks
-     */
-    handleTableRowClick(e) {
-        // Don't trigger if clicking on a button
-        if (e.target.closest('.btn')) return;
-
-        const row = e.currentTarget;
-        const viewBtn = row.querySelector('a[href*="detail"]');
-        if (viewBtn) {
-            window.location.href = viewBtn.href;
-        }
-    }
-
-    /**
-     * Handle navigation button hover effects
-     */
-    handleNavButtonHover(e) {
-        const btn = e.currentTarget;
-        const icon = btn.querySelector('i');
-
-        if (icon) {
-            icon.style.transform = 'scale(1.1)';
-            setTimeout(() => {
-                icon.style.transform = '';
-            }, 200);
-        }
-    }
-
-    /**
-     * Handle logout confirmation
-     */
-    handleLogoutConfirmation(e) {
-        if (!confirm('Are you sure you want to logout?')) {
-            e.preventDefault();
-        }
-    }
-
-    /**
-     * Handle search functionality
-     */
-    handleSearch(e) {
-        const query = e.target.value.toLowerCase();
-        const tableRows = document.querySelectorAll('.table-row');
-
-        tableRows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            const shouldShow = text.includes(query);
-            row.style.display = shouldShow ? '' : 'none';
-        });
-
-        // Update results count
-        const visibleRows = document.querySelectorAll('.table-row:not([style*="display: none"])');
-        this.updateSearchResults(visibleRows.length, tableRows.length);
-    }
-
-    /**
-     * Update search results display
-     */
-    updateSearchResults(visible, total) {
-        let resultsEl = document.querySelector('.search-results');
-        if (!resultsEl) {
-            resultsEl = document.createElement('div');
-            resultsEl.className = 'search-results text-muted mt-2';
-            const searchInput = document.querySelector('#requestSearch');
-            if (searchInput) {
-                searchInput.parentNode.insertBefore(resultsEl, searchInput.nextSibling);
-            }
-        }
-
-        if (visible !== total) {
-            resultsEl.textContent = `Showing ${visible} of ${total} requests`;
-            resultsEl.style.display = 'block';
-        } else {
-            resultsEl.style.display = 'none';
-        }
-    }
-
-    /**
-     * Handle form submissions
-     */
-    handleFormSubmit(e) {
-        const form = e.currentTarget;
-        const submitBtn = form.querySelector('button[type="submit"]');
-
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Processing...';
-
-            // Re-enable after 3 seconds if form hasn't been submitted
-            setTimeout(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            }, 3000);
-        }
-    }
-
-    /**
-     * Close any open elements (modals, dropdowns, etc.)
-     */
-    closeOpenElements() {
-        // Close any Bootstrap modals
-        const modals = document.querySelectorAll('.modal.show');
-        modals.forEach(modal => {
-            const modalInstance = bootstrap.Modal.getInstance(modal);
-            if (modalInstance) {
-                modalInstance.hide();
+            if (!el.getAttribute('tabindex')) {
+                el.setAttribute('tabindex', '0');
             }
         });
 
-        // Close any dropdowns
-        const dropdowns = document.querySelectorAll('.dropdown-menu.show');
-        dropdowns.forEach(dropdown => {
-            dropdown.classList.remove('show');
+        // Keyboard navigation for cards
+        document.querySelectorAll('[role="button"]').forEach(el => {
+            el.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    el.click();
+                }
+            });
         });
+
+        // Focus indicators
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                document.body.classList.add('keyboard-navigation');
+            }
+        });
+
+        document.addEventListener('mousedown', () => {
+            document.body.classList.remove('keyboard-navigation');
+        });
+
+        // Add focus styles
+        if (!document.querySelector('#keyboard-nav-styles')) {
+            const style = document.createElement('style');
+            style.id = 'keyboard-nav-styles';
+            style.textContent = `
+                .keyboard-navigation *:focus {
+                    outline: 3px solid var(--sbu-gold) !important;
+                    outline-offset: 3px !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }
     }
 
-    /**
-     * Get CSRF token for AJAX requests
-     */
+    // ===== Utilities =====
     getCSRFToken() {
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
         return csrfToken ? csrfToken.value : '';
     }
 
-    /**
-     * Debounce function to limit API calls
-     */
     debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -489,42 +558,48 @@ class StudentDashboard {
             timeout = setTimeout(later, wait);
         };
     }
+}
 
-    /**
-     * Enhance existing tooltips
-     */
-    enhanceTooltip(element) {
-        element.addEventListener('mouseenter', () => {
-            element.style.position = 'relative';
-        });
-    }
-
-    /**
-     * Utility method to show notifications
-     */
-    showNotification(message, type = 'info') {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        notification.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-
-        document.body.appendChild(notification);
-
-        // Auto-remove after 5 seconds
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 5000);
+// ===== Performance Monitoring =====
+class DashboardPerformanceMonitor {
+    static init() {
+        if ('performance' in window) {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    const perfData = performance.getEntriesByType('navigation')[0];
+                    if (perfData) {
+                        console.log('📊 Dashboard Performance:', {
+                            'Load Time': `${Math.round(perfData.loadEventEnd - perfData.loadEventStart)}ms`,
+                            'DOM Ready': `${Math.round(perfData.domContentLoadedEventEnd - perfData.fetchStart)}ms`,
+                            'Total Load': `${Math.round(perfData.loadEventEnd - perfData.fetchStart)}ms`
+                        });
+                    }
+                }, 0);
+            });
+        }
     }
 }
 
-// Initialize dashboard when DOM is ready
-const dashboard = new StudentDashboard();
+// ===== Initialize Everything =====
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize main dashboard
+    window.studentDashboard = new EnhancedStudentDashboard();
 
-// Export for potential external use
-window.StudentDashboard = StudentDashboard;
+    // Initialize performance monitoring
+    DashboardPerformanceMonitor.init();
+
+    console.log('🎓 Welcome to Enhanced Student Dashboard');
+});
+
+// Handle page unload
+window.addEventListener('beforeunload', () => {
+    console.log('👋 Thanks for using the Dashboard');
+});
+
+// Export for module usage
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        EnhancedStudentDashboard,
+        DashboardPerformanceMonitor
+    };
+}

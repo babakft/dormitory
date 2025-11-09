@@ -5,215 +5,379 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'student/css/dashboard.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <!-- Header Section -->
-    <header class="dashboard-header">
-        <div class="student-info">
-            <h2 class="welcome-title">Welcome, {{ student.user.username }}!</h2>
-            <p class="student-id">Student ID: {{ student.student_number }}</p>
-        </div>
-        <div class="contact-info">
-            <p class="room-info"><strong>Room:</strong> {{ student.full_room_address }}</p>
-            <small class="email-info">{{ student.user.email }}</small>
-        </div>
-    </header>
+<div class="dashboard-wrapper">
+    <!-- Animated Background -->
+    <div class="dashboard-bg-overlay"></div>
 
-    <!-- Statistics Cards -->
-    <section class="stats-section">
-        <div class="stats-grid">
-            <div class="stat-card stat-card--primary">
-                <div class="stat-content">
-                    <div class="stat-text">
-                        <h5 class="stat-title">Total Requests</h5>
-                        <h3 class="stat-number">{{ total_requests }}</h3>
+    <div class="dashboard-container">
+        <!-- Enhanced Header Section -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="student-info">
+                    <div class="welcome-badge">
+                        <span class="badge-pulse"></span>
+                        <span class="badge-text">Active Student</span>
                     </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-tools"></i>
+                    <h1 class="welcome-title">
+                        Welcome back, <span class="gradient-text">{{ student.user.username }}</span>! 👋
+                    </h1>
+                    <p class="student-details">
+                        <span class="detail-item">
+                            <i class="fas fa-id-card"></i>
+                            <strong>ID:</strong> {{ student.student_number }}
+                        </span>
+                        <span class="detail-divider">•</span>
+                        <span class="detail-item">
+                            <i class="fas fa-door-open"></i>
+                            <strong>Room:</strong> {{ student.full_room_address }}
+                        </span>
+                    </p>
+                </div>
+                <div class="header-actions">
+                    <div class="user-profile">
+                        <div class="profile-avatar">
+                            <span>{{ student.user.username|first|upper }}</span>
+                        </div>
+                        <div class="profile-info">
+                            <p class="profile-name">{{ student.user.username }}</p>
+                            <p class="profile-email">{{ student.user.email }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
+        </header>
 
-            <div class="stat-card stat-card--warning">
-                <div class="stat-content">
-                    <div class="stat-text">
-                        <h5 class="stat-title">Pending</h5>
-                        <h3 class="stat-number">{{ pending_requests }}</h3>
+        <!-- Enhanced Statistics Cards -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card stat-card--primary" data-aos="fade-up" data-aos-delay="0">
+                    <div class="stat-card-bg"></div>
+                    <div class="stat-content">
+                        <div class="stat-text">
+                            <p class="stat-title">Total Requests</p>
+                            <h3 class="stat-number" data-count="{{ total_requests }}">{{ total_requests }}</h3>
+                            <span class="stat-subtitle">All maintenance requests</span>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
                     </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-clock"></i>
+                    <div class="stat-footer">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>View all requests</span>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-card--warning" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-card-bg"></div>
+                    <div class="stat-content">
+                        <div class="stat-text">
+                            <p class="stat-title">Pending</p>
+                            <h3 class="stat-number" data-count="{{ pending_requests }}">{{ pending_requests }}</h3>
+                            <span class="stat-subtitle">Awaiting approval</span>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span>In queue</span>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-card--success" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-card-bg"></div>
+                    <div class="stat-content">
+                        <div class="stat-text">
+                            <p class="stat-title">Completed</p>
+                            <h3 class="stat-number" data-count="{{ completed_requests }}">{{ completed_requests }}</h3>
+                            <span class="stat-subtitle">Successfully resolved</span>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <i class="fas fa-check"></i>
+                        <span>Well done!</span>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-card--info" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-card-bg"></div>
+                    <div class="stat-content">
+                        <div class="stat-text">
+                            <p class="stat-title">My Tickets</p>
+                            <h3 class="stat-number" data-count="{{ total_tickets|default:0 }}">{{ total_tickets|default:0 }}</h3>
+                            <span class="stat-subtitle">
+                                {% if pending_tickets %}
+                                    {{ pending_tickets }} pending
+                                {% else %}
+                                    All up to date
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <i class="fas fa-comments"></i>
+                        <span>Communication hub</span>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div class="stat-card stat-card--success">
-                <div class="stat-content">
-                    <div class="stat-text">
-                        <h5 class="stat-title">Completed</h5>
-                        <h3 class="stat-number">{{ completed_requests }}</h3>
+        <!-- Enhanced Maintenance Requests Section -->
+        <section class="requests-section" data-aos="fade-up">
+            <div class="requests-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <h5 class="card-title">
+                            <i class="fas fa-wrench"></i>
+                            Recent Maintenance Requests
+                        </h5>
+                        <p class="card-subtitle">Track and manage your maintenance requests</p>
                     </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card stat-card--info">
-                <div class="stat-content">
-                    <div class="stat-text">
-                        <h5 class="stat-title">My Tickets</h5>
-                        <h3 class="stat-number">{{ total_tickets|default:0 }}</h3>
-                        <small class="stat-subtitle">
-                            {% if pending_tickets %}
-                                {{ pending_tickets }} pending
-                            {% else %}
-                                All up to date
-                            {% endif %}
-                        </small>
-                    </div>
-                    <div class="stat-icon">
-                        <i class="fas fa-ticket-alt"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Maintenance Requests Section -->
-    <section class="requests-section">
-        <div class="requests-card">
-            <div class="card-header">
-                <h5 class="card-title">Recent Maintenance Requests</h5>
-                <a href="{% url 'maintenance:create' %}" class="btn btn-primary btn-create">
-                    <i class="fas fa-plus"></i> New Request
-                </a>
-            </div>
-
-            <div class="card-body">
-                {% if maintenance_requests %}
-                    <div class="table-container">
-                        <table class="requests-table">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Service Type</th>
-                                    <th>Priority</th>
-                                    <th>Status</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for request in maintenance_requests %}
-                                <tr class="table-row">
-                                    <td class="request-title">
-                                        <strong>{{ request.title }}</strong>
-                                        <br>
-                                        <small class="request-description">{{ request.description|truncatechars:50 }}</small>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-secondary">{{ request.get_service_type_display }}</span>
-                                    </td>
-                                    <td>
-                                        {% if request.priority == 'high' %}
-                                            <span class="badge badge-danger">High</span>
-                                        {% elif request.priority == 'medium' %}
-                                            <span class="badge badge-warning">Medium</span>
-                                        {% elif request.priority == 'low' %}
-                                            <span class="badge badge-success">Low</span>
-                                        {% elif request.priority == 'not_decided' %}
-                                            <span class="badge badge-secondary">Not Decided</span>
-                                        {% else %}
-                                            <span class="badge badge-light">{{ request.get_priority_display }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if request.status == 'pending' %}
-                                            <span class="badge badge-warning">Pending</span>
-                                        {% elif request.status == 'approved' %}
-                                            <span class="badge badge-info">Approved</span>
-                                        {% elif request.status == 'in_progress' %}
-                                            <span class="badge badge-primary">In Progress</span>
-                                        {% elif request.status == 'completed' %}
-                                            <span class="badge badge-success">Completed</span>
-                                        {% elif request.status == 'rejected' %}
-                                            <span class="badge badge-danger">Rejected</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="date-info">
-                                        <small>
-                                            {{ request.created_at|date:"M d, Y" }}<br>
-                                            <span class="days-ago">{{ request.days_since_created }} days ago</span>
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <a href="{% url 'maintenance:detail' request.pk %}" class="btn btn-outline-primary btn-sm">
-                                            View
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {% if total_requests > 5 %}
-                    <div class="more-info">
-                        <small class="text-muted">
-                            Showing 5 most recent requests. Total requests: {{ total_requests }}
-                        </small>
-                    </div>
-                    {% endif %}
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-tools empty-icon"></i>
-                        <h5 class="empty-title">No maintenance requests yet</h5>
-                        <p class="empty-description">Submit your first maintenance request to get started.</p>
-                        <a href="{% url 'maintenance:create' %}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Create Request
+                    <div class="header-right">
+                        <a href="{% url 'maintenance:create' %}" class="btn btn-primary btn-create">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>New Request</span>
                         </a>
                     </div>
-                {% endif %}
-            </div>
-        </div>
-    </section>
+                </div>
 
-    <!-- Quick Navigation -->
-    <section class="navigation-section">
-        <div class="nav-card">
-            <div class="card-header">
-                <h5 class="card-title">Quick Navigation</h5>
-            </div>
-            <div class="card-body">
-                <div class="nav-grid">
-                    <a href="{% url 'maintenance:create' %}" class="nav-btn nav-btn--primary">
-                        <i class="fas fa-plus"></i>
-                        <span>New Request</span>
-                    </a>
-                    <a href="{% url 'ticket:list' %}" class="nav-btn nav-btn--info">
-                        <i class="fas fa-ticket-alt"></i>
-                        <span>My Tickets</span>
-                    </a>
-                    <button type="button" class="nav-btn nav-btn--success" onclick="alert('Profile functionality coming soon!')">
-                        <i class="fas fa-user"></i>
-                        <span>Profile</span>
-                    </button>
-                    <form method="post" action="{% url 'student:student_logout' %}" class="logout-form">
-                        {% csrf_token %}
-                        <button type="submit" class="nav-btn nav-btn--danger">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </button>
-                    </form>
+                <div class="card-body">
+                    {% if maintenance_requests %}
+                        <div class="table-container">
+                            <table class="requests-table">
+                                <thead>
+                                    <tr>
+                                        <th>Request Details</th>
+                                        <th>Service Type</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Submitted</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for request in maintenance_requests %}
+                                    <tr class="table-row" data-aos="fade-up">
+                                        <td class="request-title">
+                                            <div class="request-info">
+                                                <strong>{{ request.title }}</strong>
+                                                <small class="request-description">{{ request.description|truncatechars:60 }}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-secondary">
+                                                <i class="fas fa-cog"></i>
+                                                {{ request.get_service_type_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if request.priority == 'high' %}
+                                                <span class="badge badge-danger badge-priority">
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                    High
+                                                </span>
+                                            {% elif request.priority == 'medium' %}
+                                                <span class="badge badge-warning badge-priority">
+                                                    <i class="fas fa-minus-circle"></i>
+                                                    Medium
+                                                </span>
+                                            {% elif request.priority == 'low' %}
+                                                <span class="badge badge-success badge-priority">
+                                                    <i class="fas fa-arrow-down"></i>
+                                                    Low
+                                                </span>
+                                            {% elif request.priority == 'not_decided' %}
+                                                <span class="badge badge-light badge-priority">
+                                                    <i class="fas fa-question-circle"></i>
+                                                    Not Decided
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if request.status == 'pending' %}
+                                                <span class="badge badge-status badge-warning">
+                                                    <span class="status-dot"></span>
+                                                    Pending
+                                                </span>
+                                            {% elif request.status == 'approved' %}
+                                                <span class="badge badge-status badge-info">
+                                                    <span class="status-dot"></span>
+                                                    Approved
+                                                </span>
+                                            {% elif request.status == 'in_progress' %}
+                                                <span class="badge badge-status badge-primary">
+                                                    <span class="status-dot"></span>
+                                                    In Progress
+                                                </span>
+                                            {% elif request.status == 'completed' %}
+                                                <span class="badge badge-status badge-success">
+                                                    <span class="status-dot"></span>
+                                                    Completed
+                                                </span>
+                                            {% elif request.status == 'rejected' %}
+                                                <span class="badge badge-status badge-danger">
+                                                    <span class="status-dot"></span>
+                                                    Rejected
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="date-info">
+                                            <div class="date-display">
+                                                <span class="date-main">{{ request.created_at|date:"M d, Y" }}</span>
+                                                <span class="date-sub">{{ request.days_since_created }} days ago</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'maintenance:detail' request.pk %}" class="btn btn-view">
+                                                <i class="fas fa-eye"></i>
+                                                <span>View</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {% if total_requests > 5 %}
+                        <div class="more-info">
+                            <div class="info-content">
+                                <i class="fas fa-info-circle"></i>
+                                <small>Showing 5 most recent requests. Total: <strong>{{ total_requests }}</strong> requests</small>
+                            </div>
+                            <button class="btn-text-link">View all requests →</button>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon-wrapper">
+                                <i class="fas fa-tools empty-icon"></i>
+                            </div>
+                            <h5 class="empty-title">No maintenance requests yet</h5>
+                            <p class="empty-description">Get started by submitting your first maintenance request. Our team is ready to help!</p>
+                            <a href="{% url 'maintenance:create' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus-circle"></i>
+                                Create First Request
+                            </a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
+        </section>
+
+        <!-- Enhanced Quick Navigation -->
+        <section class="navigation-section" data-aos="fade-up">
+            <div class="section-header">
+                <h5 class="section-title">
+                    <i class="fas fa-compass"></i>
+                    Quick Navigation
+                </h5>
+                <p class="section-subtitle">Access key features with one click</p>
+            </div>
+
+            <div class="nav-grid">
+                <a href="{% url 'maintenance:create' %}" class="nav-card nav-card--primary">
+                    <div class="nav-card-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <div class="nav-card-content">
+                        <h6>New Request</h6>
+                        <p>Submit maintenance request</p>
+                    </div>
+                    <div class="nav-card-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <a href="{% url 'ticket:list' %}" class="nav-card nav-card--info">
+                    <div class="nav-card-icon">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <div class="nav-card-content">
+                        <h6>My Tickets</h6>
+                        <p>View and manage tickets</p>
+                    </div>
+                    {% if pending_tickets %}
+                    <span class="nav-badge">{{ pending_tickets }}</span>
+                    {% endif %}
+                    <div class="nav-card-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
+
+                <button type="button" class="nav-card nav-card--success" onclick="alert('Profile functionality coming soon!')">
+                    <div class="nav-card-icon">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="nav-card-content">
+                        <h6>My Profile</h6>
+                        <p>Update your information</p>
+                    </div>
+                    <div class="nav-card-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </button>
+
+                <form method="post" action="{% url 'student:student_logout' %}" class="nav-card-form">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-card nav-card--danger">
+                        <div class="nav-card-icon">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <div class="nav-card-content">
+                            <h6>Logout</h6>
+                            <p>Sign out securely</p>
+                        </div>
+                        <div class="nav-card-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Quick Stats Bar -->
+        <div class="quick-stats-bar" data-aos="fade-up">
+            <div class="quick-stat">
+                <i class="fas fa-clock"></i>
+                <span>Response time: <strong>< 2 hours</strong></span>
+            </div>
+            <div class="quick-stat">
+                <i class="fas fa-star"></i>
+                <span>Satisfaction: <strong>98%</strong></span>
+            </div>
+            <div class="quick-stat">
+                <i class="fas fa-headset"></i>
+                <span>Support: <strong>24/7</strong></span>
+            </div>
         </div>
-    </section>
+    </div>
 </div>
 
 {% block extra_js %}
 <script src="{% static 'student/js/dashboard.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+<script>
+    // Initialize AOS (Animate On Scroll)
+    AOS.init({
+        duration: 800,
+        easing: 'ease-out-cubic',
+        once: true,
+        offset: 50
+    });
+</script>
 {% endblock %}
 {% endblock %}
