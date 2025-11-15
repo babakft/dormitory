@@ -1,11 +1,5 @@
-// service/static/service/js/login.js
-
-/**
- * Service Expert Login System
- * Enhanced login functionality for service experts
- */
-
-class ServiceExpertLogin {
+// ===== Enhanced Service Expert Authentication System =====
+class ServiceExpertAuth {
     constructor() {
         this.validationRules = {
             id_username: {
@@ -26,18 +20,16 @@ class ServiceExpertLogin {
     init() {
         this.setupEventListeners();
         this.setupFormValidation();
-        this.setupPasswordToggle();
         this.addFormClasses();
-        this.setupKeyboardShortcuts();
         this.setupAccessibility();
         this.animateElements();
+        this.setupStatAnimations();
+        this.createParticles();
 
-        // Auto-close Django messages after 5 seconds
-        setTimeout(() => {
-            this.closeDjangoMessages();
-        }, 5000);
+        // Auto-hide Django messages
+        setTimeout(() => this.closeDjangoMessages(), 5000);
 
-        console.log('🔧 Service Expert Login System initialized');
+        console.log('🔧 Service Expert Authentication System Initialized');
     }
 
     setupEventListeners() {
@@ -50,91 +42,39 @@ class ServiceExpertLogin {
         // Input field events
         const formControls = document.querySelectorAll('.form-control');
         formControls.forEach(control => {
-            control.addEventListener('blur', (e) => {
-                this.validateField(e.target);
-            });
-
+            control.addEventListener('blur', (e) => this.validateField(e.target));
             control.addEventListener('input', (e) => {
                 this.clearFieldError(e.target);
                 if (e.target.value.length > 0) {
                     this.validateField(e.target, false);
                 }
             });
-
-            control.addEventListener('focus', (e) => {
-                this.addFocusEffect(e.target);
-            });
+            control.addEventListener('focus', (e) => this.addFocusEffect(e.target));
         });
 
         // Close alert buttons
         document.querySelectorAll('.close-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.closeAlert(e.target.closest('.alert'));
-            });
+            btn.addEventListener('click', (e) => this.closeAlert(e.target.closest('.alert')));
         });
 
-        // Portal link hover effects
-        document.querySelectorAll('.portal-link').forEach(link => {
-            link.addEventListener('mouseenter', this.handlePortalLinkHover.bind(this));
-        });
-
-        // Sidebar stat animations
-        this.setupStatAnimations();
+        // Keyboard shortcuts
+        this.setupKeyboardShortcuts();
     }
 
     setupFormValidation() {
-        // Real-time validation for employee ID
-        const employeeIdField = document.getElementById('id_username');
-        if (employeeIdField) {
-            employeeIdField.addEventListener('input', (e) => {
-                this.validateEmployeeId(e.target.value);
-            });
-        }
-
-        // Password strength indicator (basic)
-        const passwordField = document.getElementById('id_password');
-        if (passwordField) {
-            passwordField.addEventListener('input', (e) => {
-                this.validatePassword(e.target.value);
-            });
-        }
-    }
-
-    setupPasswordToggle() {
-        // Password toggle is handled via global function
-        window.togglePassword = (fieldId) => {
-            const field = document.getElementById(fieldId);
-            const icon = document.getElementById('toggleIcon');
-
-            if (field && icon) {
-                if (field.type === 'password') {
-                    field.type = 'text';
-                    icon.className = 'icon-eye-off';
-                } else {
-                    field.type = 'password';
-                    icon.className = 'icon-eye';
-                }
-
-                // Add visual feedback
-                const toggleBtn = icon.closest('.toggle-password');
-                if (toggleBtn) {
-                    toggleBtn.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        toggleBtn.style.transform = '';
-                    }, 150);
-                }
-            }
-        };
+        const formControls = document.querySelectorAll('.form-control');
+        formControls.forEach(control => {
+            control.addEventListener('blur', (e) => this.validateField(e.target));
+        });
     }
 
     addFormClasses() {
-        // Add CSS classes to Django form fields
         const employeeIdField = document.getElementById('id_username');
         const passwordField = document.getElementById('id_password');
 
         if (employeeIdField) {
             employeeIdField.classList.add('form-control');
-            employeeIdField.placeholder = 'Enter your employee id';
+            employeeIdField.placeholder = 'Enter your employee ID';
         }
 
         if (passwordField) {
@@ -145,7 +85,6 @@ class ServiceExpertLogin {
 
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
-            // Enter to submit form
             if (e.key === 'Enter' && e.target.matches('.form-control')) {
                 e.preventDefault();
                 const form = document.getElementById('expertLoginForm');
@@ -154,45 +93,37 @@ class ServiceExpertLogin {
                 }
             }
 
-            // Escape to clear fields
             if (e.key === 'Escape') {
                 this.clearForm();
             }
 
-            // Alt + P for password toggle
             if (e.altKey && e.key === 'p') {
                 e.preventDefault();
-                const passwordField = document.getElementById('id_password');
-                if (passwordField) {
-                    window.togglePassword('id_password');
-                }
+                window.togglePassword('id_password');
             }
         });
     }
 
     setupAccessibility() {
-        // Add ARIA labels and descriptions
         const employeeIdField = document.getElementById('id_username');
         const passwordField = document.getElementById('id_password');
 
         if (employeeIdField) {
-            employeeIdField.setAttribute('aria-describedby', 'employee-id-hint');
-            employeeIdField.setAttribute('aria-label', 'Employee ID or identifier');
+            employeeIdField.setAttribute('aria-label', 'Employee ID');
         }
 
         if (passwordField) {
-            passwordField.setAttribute('aria-label', 'Password for your account');
+            passwordField.setAttribute('aria-label', 'Password');
         }
 
-        // Improve button accessibility
-        const submitBtn = document.getElementById('loginBtn');
-        if (submitBtn) {
-            submitBtn.setAttribute('aria-describedby', 'login-btn-desc');
-        }
+        document.querySelectorAll('button:not([aria-label])').forEach(btn => {
+            if (!btn.textContent.trim()) {
+                btn.setAttribute('aria-label', 'Interactive button');
+            }
+        });
     }
 
     animateElements() {
-        // Stagger animation for form elements
         const formGroups = document.querySelectorAll('.form-group');
         formGroups.forEach((group, index) => {
             group.style.opacity = '0';
@@ -203,19 +134,6 @@ class ServiceExpertLogin {
                 group.style.opacity = '1';
                 group.style.transform = 'translateY(0)';
             }, 100 + (index * 100));
-        });
-
-        // Animate sidebar elements
-        const features = document.querySelectorAll('.feature');
-        features.forEach((feature, index) => {
-            feature.style.opacity = '0';
-            feature.style.transform = 'translateX(-20px)';
-
-            setTimeout(() => {
-                feature.style.transition = 'all 0.4s ease';
-                feature.style.opacity = '1';
-                feature.style.transform = 'translateX(0)';
-            }, 500 + (index * 150));
         });
     }
 
@@ -229,45 +147,83 @@ class ServiceExpertLogin {
                     observer.unobserve(entry.target);
                 }
             });
-        });
+        }, { threshold: 0.5 });
 
-        statNumbers.forEach(stat => {
-            observer.observe(stat);
-        });
+        statNumbers.forEach(stat => observer.observe(stat));
     }
 
     animateStatNumber(element) {
         const text = element.textContent;
-        const hasNumber = /\d+/.test(text);
+        const match = text.match(/(\d+)/);
 
-        if (hasNumber) {
-            const match = text.match(/(\d+)/);
-            if (match) {
-                const number = parseInt(match[1]);
-                const prefix = text.substring(0, match.index);
-                const suffix = text.substring(match.index + match[1].length);
+        if (match) {
+            const number = parseInt(match[1]);
+            const prefix = text.substring(0, match.index);
+            const suffix = text.substring(match.index + match[1].length);
 
-                let current = 0;
-                const increment = number / 30;
+            let current = 0;
+            const increment = number / 30;
 
-                const timer = setInterval(() => {
-                    current += increment;
-                    if (current >= number) {
-                        element.textContent = prefix + number + suffix;
-                        clearInterval(timer);
-                    } else {
-                        element.textContent = prefix + Math.floor(current) + suffix;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= number) {
+                    element.textContent = prefix + number + suffix;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = prefix + Math.floor(current) + suffix;
+                }
+            }, 50);
+        }
+    }
+
+    createParticles() {
+        const sidebar = document.querySelector('.auth-sidebar');
+        if (!sidebar) return;
+
+        const particleCount = 20;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.style.cssText = `
+                position: absolute;
+                width: ${Math.random() * 3 + 2}px;
+                height: ${Math.random() * 3 + 2}px;
+                background: rgba(255, 255, 255, 0.4);
+                border-radius: 50%;
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                animation: particleFloat ${3 + Math.random() * 4}s ease-in-out infinite;
+                animation-delay: ${Math.random() * 2}s;
+                pointer-events: none;
+                z-index: 0;
+            `;
+            sidebar.appendChild(particle);
+        }
+
+        if (!document.querySelector('#particle-animation')) {
+            const style = document.createElement('style');
+            style.id = 'particle-animation';
+            style.textContent = `
+                @keyframes particleFloat {
+                    0%, 100% {
+                        transform: translateY(0px) translateX(0px);
+                        opacity: 0.4;
                     }
-                }, 50);
-            }
+                    50% {
+                        transform: translateY(-20px) translateX(10px);
+                        opacity: 0.8;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
         }
     }
 
     // Validation Methods
     validateForm() {
+        let isValid = true;
         const employeeIdField = document.getElementById('id_username');
         const passwordField = document.getElementById('id_password');
-        let isValid = true;
 
         if (employeeIdField && !this.validateField(employeeIdField)) {
             isValid = false;
@@ -287,10 +243,8 @@ class ServiceExpertLogin {
 
         if (!rules) return true;
 
-        // Clear previous validation state
         this.clearFieldError(field);
 
-        // Required field validation
         if (rules.required && !value) {
             if (showError) {
                 this.showFieldError(field, `${this.getFieldLabel(fieldId)} is required`);
@@ -298,13 +252,11 @@ class ServiceExpertLogin {
             return false;
         }
 
-        // Skip other validations if field is empty and not required
         if (!value && !rules.required) {
             field.classList.add('valid');
             return true;
         }
 
-        // Minimum length validation
         if (rules.minLength && value.length < rules.minLength) {
             if (showError) {
                 this.showFieldError(field, rules.message);
@@ -312,65 +264,26 @@ class ServiceExpertLogin {
             return false;
         }
 
-        // Field is valid
         field.classList.add('valid');
         field.classList.remove('invalid');
         return true;
     }
 
-    validateEmployeeId(employeeId) {
-        const field = document.getElementById('id_username');
-        if (!field) return;
-
-        // Clean the employee ID
-        const cleanId = employeeId.replace(/[\s\-]/g, '');
-
-        if (cleanId.length >= 3) {
-            // Basic format validation
-            if (/^[A-Za-z0-9]+$/.test(cleanId)) {
-                field.classList.add('valid');
-                field.classList.remove('invalid');
-            } else {
-                field.classList.add('invalid');
-                field.classList.remove('valid');
-            }
-        }
-    }
-
-    validatePassword(password) {
-        const field = document.getElementById('id_password');
-        if (!field) return;
-
-        if (password.length >= 4) {
-            field.classList.add('valid');
-            field.classList.remove('invalid');
-        } else if (password.length > 0) {
-            field.classList.add('invalid');
-            field.classList.remove('valid');
-        }
-    }
-
-    // Error Handling Methods
     showFieldError(field, message) {
-        // Remove existing error
         this.clearFieldError(field);
 
-        // Create error element
         const errorElement = document.createElement('div');
         errorElement.className = 'error-message';
         errorElement.textContent = message;
 
-        // Insert after input wrapper
         const inputWrapper = field.closest('.input-wrapper');
         if (inputWrapper) {
             inputWrapper.insertAdjacentElement('afterend', errorElement);
         }
 
-        // Add invalid class
         field.classList.add('invalid');
         field.classList.remove('valid');
 
-        // Auto-hide error after 5 seconds
         setTimeout(() => {
             if (errorElement.parentNode) {
                 errorElement.remove();
@@ -407,20 +320,14 @@ class ServiceExpertLogin {
         return labelMap[fieldId] || fieldId;
     }
 
-    // Form Submission
-    async handleFormSubmit(e) {
-        // Validate before submission
+    handleFormSubmit(e) {
         if (!this.validateForm()) {
             e.preventDefault();
             this.showMessage('Please fix the errors before submitting', 'error');
             return false;
         }
 
-        // Show loading state
         this.showLoadingState();
-
-        // Let Django handle the actual submission
-        // The form will be submitted naturally after this function
     }
 
     showLoadingState() {
@@ -451,25 +358,10 @@ class ServiceExpertLogin {
         }
     }
 
-    // UI Enhancement Methods
-    handlePortalLinkHover(e) {
-        const link = e.currentTarget;
-        const icon = link.querySelector('i');
-
-        if (icon) {
-            icon.style.transform = 'scale(1.2) rotate(5deg)';
-            setTimeout(() => {
-                icon.style.transform = '';
-            }, 300);
-        }
-    }
-
     clearForm() {
         const form = document.getElementById('expertLoginForm');
         if (form) {
             form.reset();
-
-            // Clear validation states
             const formControls = form.querySelectorAll('.form-control');
             formControls.forEach(control => {
                 control.classList.remove('valid', 'invalid');
@@ -478,7 +370,6 @@ class ServiceExpertLogin {
         }
     }
 
-    // Message System
     showMessage(message, type = 'info') {
         const messagesContainer = document.querySelector('.messages') || this.createMessagesContainer();
 
@@ -491,10 +382,7 @@ class ServiceExpertLogin {
 
         messagesContainer.appendChild(alert);
 
-        // Auto-close after 5 seconds
-        setTimeout(() => {
-            this.closeAlert(alert);
-        }, 5000);
+        setTimeout(() => this.closeAlert(alert), 5000);
     }
 
     createMessagesContainer() {
@@ -528,39 +416,18 @@ class ServiceExpertLogin {
         }
     }
 
-    // Utility Methods
     debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
             clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
+            timeout = setTimeout(() => func(...args), wait);
         };
-    }
-
-    // Public API for external access
-    focus() {
-        const firstInput = document.querySelector('.form-control');
-        if (firstInput) {
-            firstInput.focus();
-        }
-    }
-
-    getFormData() {
-        const form = document.getElementById('expertLoginForm');
-        if (form) {
-            return new FormData(form);
-        }
-        return null;
     }
 }
 
-// Initialize the service expert login system when DOM is loaded
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.serviceExpertLogin = new ServiceExpertLogin();
+    window.serviceExpertAuth = new ServiceExpertAuth();
 
     // Focus on first input
     setTimeout(() => {
@@ -569,35 +436,48 @@ document.addEventListener('DOMContentLoaded', () => {
             firstInput.focus();
         }
     }, 500);
+
+    console.log('🔧 Welcome to Service Expert Portal');
 });
 
 // Global functions for HTML onclick handlers
+window.togglePassword = function(fieldId) {
+    const field = document.getElementById(fieldId);
+    const icon = document.getElementById('toggleIcon');
+
+    if (field && icon) {
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.className = 'icon-eye-off';
+        } else {
+            field.type = 'password';
+            icon.className = 'icon-eye';
+        }
+
+        const toggleBtn = icon.closest('.toggle-password');
+        if (toggleBtn) {
+            toggleBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                toggleBtn.style.transform = '';
+            }, 150);
+        }
+    }
+};
+
 window.closeAlert = function(element) {
-    if (window.serviceExpertLogin) {
-        window.serviceExpertLogin.closeAlert(element);
+    if (window.serviceExpertAuth) {
+        window.serviceExpertAuth.closeAlert(element);
     }
 };
 
 // Handle page visibility changes
 document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        // Page is hidden - pause any ongoing animations
-        console.log('🔧 Service login page hidden');
-    } else {
-        // Page is visible - resume animations
-        console.log('🔧 Service login page visible');
-        if (window.serviceExpertLogin) {
-            window.serviceExpertLogin.hideLoadingState();
-        }
+    if (!document.hidden && window.serviceExpertAuth) {
+        window.serviceExpertAuth.hideLoadingState();
     }
-});
-
-// Handle page unload
-window.addEventListener('beforeunload', () => {
-    console.log('🔧 Service expert login page unloading');
 });
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ServiceExpertLogin;
+    module.exports = ServiceExpertAuth;
 }

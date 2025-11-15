@@ -1,159 +1,156 @@
-<!-- templates/service/login.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Service Expert Login - Dormitory System</title>
+    <title>Service Expert Login - SBU Dormitory System</title>
     <link rel="stylesheet" href="{% static 'service/css/login.css' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="auth-header">
-            <div class="logo">
-                <i class="icon-tools"></i>
-                <h1>Service Portal</h1>
-            </div>
-            <h2>Expert Login</h2>
-            <p>Access your service dashboard</p>
-        </div>
-
-        <form method="post" class="auth-form" id="expertLoginForm">
-            {% csrf_token %}
-
-            {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" id="djangoMessage">
-                    <span>{{ message }}</span>
-                    <button type="button" class="close-btn" onclick="closeAlert(this.parentElement)">×</button>
+    <div class="auth-container">
+        <!-- Main Auth Card -->
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">
+                    <i class="icon-tools"></i>
+                    <h1>Service Portal</h1>
                 </div>
-                {% endfor %}
+                <h2>Expert Login</h2>
+                <p>Access your service dashboard</p>
             </div>
-            {% endif %}
 
-            <!-- Employee ID Field -->
-            <div class="form-group">
-                <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
-                <div class="input-wrapper">
-                    <i class="icon-badge"></i>
-                    {{ form.username }}
+            <form method="post" class="auth-form" id="expertLoginForm">
+                {% csrf_token %}
+
+                <!-- Django Messages -->
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" id="djangoMessage">
+                        <span>{{ message }}</span>
+                        <button type="button" class="close-btn" onclick="closeAlert(this.parentElement)">×</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Employee ID Field -->
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                    <div class="input-wrapper">
+                        <i class="icon-badge"></i>
+                        {{ form.username }}
+                    </div>
                     {% if form.username.errors %}
                     <div class="error-message">{{ form.username.errors.0 }}</div>
                     {% endif %}
+                    <small class="field-hint">Enter your employee identification number</small>
                 </div>
-                <small class="field-hint">Enter your employee identification number</small>
-            </div>
 
-            <!-- Password Field -->
-            <div class="form-group">
-                <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
-                <div class="input-wrapper password-input">
-                    <i class="icon-lock"></i>
-                    {{ form.password }}
-                    <button type="button" class="toggle-password"
-                            onclick="togglePassword('{{ form.password.id_for_label }}')">
-                        <i class="icon-eye" id="toggleIcon"></i>
-                    </button>
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                    <div class="input-wrapper password-input">
+                        <i class="icon-lock"></i>
+                        {{ form.password }}
+                        <button type="button" class="toggle-password" onclick="togglePassword('{{ form.password.id_for_label }}')">
+                            <i class="icon-eye" id="toggleIcon"></i>
+                        </button>
+                    </div>
                     {% if form.password.errors %}
                     <div class="error-message">{{ form.password.errors.0 }}</div>
                     {% endif %}
                 </div>
-            </div>
 
-            <!-- Non-field errors (from form.clean()) -->
-            {% if form.non_field_errors %}
-            <div class="form-group">
-                <div class="error-message global-error">
-                    <i class="icon-warning"></i>
-                    {{ form.non_field_errors.0 }}
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}
+                <div class="form-group">
+                    <div class="error-message global-error">
+                        <i class="icon-warning"></i>
+                        {{ form.non_field_errors.0 }}
+                    </div>
                 </div>
-            </div>
-            {% endif %}
+                {% endif %}
 
-            <!-- Form Options -->
-            <div class="form-options">
-                <label class="checkbox-wrapper">
-                    {{ form.remember_me }}
-                    <span class="checkmark"></span>
-                    {{ form.remember_me.label }}
-                </label>
-                <a href="{% url 'service:forgot_password' %}" class="forgot-password">Reset password?</a>
-            </div>
+                <!-- Form Options -->
+                <div class="form-options">
+                    <label class="checkbox-wrapper">
+                        {{ form.remember_me }}
+                        <span class="checkmark"></span>
+                        {{ form.remember_me.label }}
+                    </label>
+                    <a href="{% url 'service:forgot_password' %}" class="forgot-password">Reset password?</a>
+                </div>
 
-            <!-- Submit Button -->
-            <div class="form-actions">
+                <!-- Submit Button -->
                 <button type="submit" class="btn btn-primary" id="loginBtn">
-                        <span class="btn-text">
-                            <i class="icon-login"></i>
-                            Access Dashboard
-                        </span>
+                    <span class="btn-text">
+                        <i class="icon-login"></i>
+                        Access Dashboard
+                    </span>
                     <div class="btn-loader">
                         <div class="spinner"></div>
                     </div>
                 </button>
-            </div>
+            </form>
+        </div>
 
-        </form>
-    </div>
+        <!-- Expert Features Sidebar -->
+        <div class="auth-sidebar">
+            <div class="sidebar-content">
+                <h3>Expert Dashboard</h3>
+                <div class="features">
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>Manage maintenance requests</span>
+                    </div>
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>Track work progress</span>
+                    </div>
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>Upload completion photos</span>
+                    </div>
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>Receive service ratings</span>
+                    </div>
+                    <div class="feature">
+                        <i class="icon-check"></i>
+                        <span>Real-time notifications</span>
+                    </div>
+                </div>
 
-    <!-- Expert Features Sidebar -->
-    <div class="auth-sidebar">
-        <div class="sidebar-content">
-            <h3>Expert Dashboard</h3>
-            <div class="features">
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Manage maintenance requests</span>
+                <div class="expert-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">250+</div>
+                        <div class="stat-label">Completed Tasks</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">4.8★</div>
+                        <div class="stat-label">Average Rating</div>
+                    </div>
                 </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Track work progress</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Upload completion photos</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Receive service ratings</span>
-                </div>
-                <div class="feature">
-                    <i class="icon-check"></i>
-                    <span>Real-time notifications</span>
-                </div>
-            </div>
 
-            <div class="expert-stats">
-                <div class="stat-item">
-                    <div class="stat-number">250+</div>
-                    <div class="stat-label">Completed Tasks</div>
+                <div class="specialist-badge">
+                    <i class="icon-award"></i>
+                    <span>Certified Service Specialist</span>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number">4.8★</div>
-                    <div class="stat-label">Average Rating</div>
-                </div>
-            </div>
-
-            <div class="specialist-badge">
-                <i class="icon-award"></i>
-                <span>Certified Service Specialist</span>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Loading Overlay -->
-<div class="loading-overlay" id="loadingOverlay">
-    <div class="loading-spinner">
-        <div class="spinner-ring"></div>
-        <div class="loading-text">Authenticating...</div>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <div class="loading-text">Authenticating...</div>
+        </div>
     </div>
-</div>
 
-<script src="{% static 'service/js/login.js' %}"></script>
+    <script src="{% static 'service/js/login.js' %}"></script>
 </body>
 </html>
