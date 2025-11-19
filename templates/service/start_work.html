@@ -1,136 +1,296 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Start Work - Service Expert{% endblock %}
+
+{% block title %}Start Work - Service Expert Dashboard{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'service/css/start_work.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="start-work-container">
-    <!-- Header Section -->
-    <div class="start-work-header">
+    <!-- Enhanced Header Section -->
+    <header class="start-work-header">
         <div class="header-content">
             <div class="header-info">
-                <div class="breadcrumb">
+                <nav class="breadcrumb" aria-label="Breadcrumb">
                     <a href="{% url 'service:service_dashboard' %}" class="breadcrumb-link">
                         <i class="fas fa-arrow-left"></i>
-                        Dashboard
+                        <span>Dashboard</span>
                     </a>
                     <span class="breadcrumb-separator">/</span>
                     <span class="breadcrumb-current">Start Work</span>
-                </div>
+                </nav>
                 <h1 class="page-title">
                     <i class="fas fa-play-circle"></i>
-                    Start Work on Request
+                    <span>Start Work on Request</span>
                 </h1>
             </div>
             <div class="header-status">
                 <div class="status-badge status-ready">
                     <i class="fas fa-clock"></i>
-                    Ready to Start
+                    <span>Ready to Start</span>
                 </div>
             </div>
         </div>
-    </div>
+    </header>
 
     <!-- Request Details Card -->
     <div class="request-details-card">
         <div class="card-header">
             <h2 class="card-title">
                 <i class="fas fa-info-circle"></i>
-                Request Details
+                <span>Request Details</span>
             </h2>
         </div>
         <div class="card-body">
+            <!-- Request Information Grid -->
             <div class="request-info-grid">
                 <div class="info-item">
                     <label class="info-label">
                         <i class="fas fa-tools"></i>
-                        Request Title
+                        <span>Request Title</span>
                     </label>
-                    <div class="info-value request-title">{{ maintenance_request.title }}</div>
+                    <div class="info-value request-title">
+                        {{ maintenance_request.title }}
+                    </div>
                 </div>
 
                 <div class="info-item">
                     <label class="info-label">
                         <i class="fas fa-user-graduate"></i>
-                        Student
+                        <span>Student</span>
                     </label>
-                    <div class="info-value">{{ maintenance_request.student.user.username }}</div>
+                    <div class="info-value">
+                        {{ maintenance_request.student.user.username }}
+                        <div style="font-size: 0.875rem; color: #6c757d; margin-top: 0.25rem;">
+                            #{{ maintenance_request.student.student_number }}
+                        </div>
+                    </div>
                 </div>
 
                 <div class="info-item">
                     <label class="info-label">
                         <i class="fas fa-map-marker-alt"></i>
-                        Location
+                        <span>Location</span>
                     </label>
-                    <div class="info-value">{{ maintenance_request.full_location }}</div>
+                    <div class="info-value">
+                        {{ maintenance_request.full_location }}
+                    </div>
                 </div>
 
                 <div class="info-item">
                     <label class="info-label">
                         <i class="fas fa-cog"></i>
-                        Service Type
+                        <span>Service Type</span>
                     </label>
-                    <div class="info-value">{{ maintenance_request.get_service_type_display }}</div>
+                    <div class="info-value">
+                        {{ maintenance_request.get_service_type_display }}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <label class="info-label">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Priority</span>
+                    </label>
+                    <div class="info-value">
+                        {% if maintenance_request.priority == 'high' %}
+                            <span style="color: #dc3545; font-weight: 600;">
+                                <i class="fas fa-exclamation-triangle"></i> High Priority
+                            </span>
+                        {% elif maintenance_request.priority == 'medium' %}
+                            <span style="color: #ffc107; font-weight: 600;">
+                                <i class="fas fa-exclamation-circle"></i> Medium Priority
+                            </span>
+                        {% else %}
+                            <span style="color: #17a2b8; font-weight: 600;">
+                                <i class="fas fa-info-circle"></i> Low Priority
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <label class="info-label">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>Created</span>
+                    </label>
+                    <div class="info-value">
+                        {{ maintenance_request.created_at|date:"F d, Y" }}
+                        <div style="font-size: 0.875rem; color: #6c757d; margin-top: 0.25rem;">
+                            {{ maintenance_request.created_at|date:"H:i" }}
+                        </div>
+                    </div>
                 </div>
             </div>
 
+            <!-- Description Section -->
             <div class="description-section">
                 <label class="info-label">
                     <i class="fas fa-file-alt"></i>
-                    Description
+                    <span>Problem Description</span>
                 </label>
                 <div class="description-content">{{ maintenance_request.description }}</div>
             </div>
+
+            <!-- Additional Information if available -->
+            {% if maintenance_request.image %}
+            <div class="description-section">
+                <label class="info-label">
+                    <i class="fas fa-image"></i>
+                    <span>Attached Image</span>
+                </label>
+                <div style="margin-top: 0.75rem;">
+                    <img src="{{ maintenance_request.image.url }}"
+                         alt="Request Image"
+                         style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Start Work Form -->
+    <!-- Start Work Form Card -->
     <div class="start-work-form-card">
         <div class="card-header">
             <h2 class="card-title">
                 <i class="fas fa-edit"></i>
-                Work Notes
+                <span>Work Initiation Notes</span>
             </h2>
         </div>
         <div class="card-body">
+            <!-- Form Errors -->
             {% if form.errors %}
-            <div class="alert alert-danger">
+            <div class="alert alert-danger" role="alert">
                 <i class="fas fa-exclamation-triangle"></i>
                 <div class="alert-content">
                     <strong>Please correct the following errors:</strong>
-                    {{ form.errors }}
+                    <ul style="margin: 0.5rem 0 0 0; padding-left: 1.25rem;">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
             {% endif %}
 
+            <!-- Django Messages -->
+            {% if messages %}
+            <div style="margin-bottom: 1.5rem;">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert">
+                    <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+                    <div class="alert-content">
+                        {{ message }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Start Work Form -->
             <form method="post" class="start-work-form" id="startWorkForm" action="">
                 {% csrf_token %}
 
                 <div class="form-group">
-                    {{ form.expert_notes.label_tag }}
+                    <label for="{{ form.expert_notes.id_for_label }}" class="form-label">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>{{ form.expert_notes.label }}</span>
+                        <span style="color: #dc3545; margin-left: 0.25rem;">*</span>
+                    </label>
+
                     {{ form.expert_notes }}
+
                     {% if form.expert_notes.help_text %}
-                    <div class="form-help">
+                    <div class="form-help" id="notes-help">
                         <i class="fas fa-info-circle"></i>
-                        {{ form.expert_notes.help_text }}
+                        <span>{{ form.expert_notes.help_text }}</span>
+                    </div>
+                    {% else %}
+                    <div class="form-help" id="notes-help">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Provide detailed notes about your initial assessment, tools needed, and estimated work plan. Minimum 10 characters required.</span>
+                    </div>
+                    {% endif %}
+
+                    {% if form.expert_notes.errors %}
+                    <div class="error-message" style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem;">
+                        {{ form.expert_notes.errors.0 }}
                     </div>
                     {% endif %}
                 </div>
 
+                <!-- Info Box -->
+                <div style="background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(23, 162, 184, 0.05));
+                            border-left: 4px solid #17a2b8;
+                            padding: 1rem 1.25rem;
+                            border-radius: 8px;
+                            margin-bottom: 1.5rem;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: #17a2b8; font-size: 0.9375rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>What Happens Next?</span>
+                    </h4>
+                    <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.875rem; color: #495057; line-height: 1.6;">
+                        <li>Request status changes to <strong>"In Progress"</strong></li>
+                        <li>Work timer starts automatically</li>
+                        <li>Student receives instant notification</li>
+                        <li>You can complete the work when finished</li>
+                    </ul>
+                </div>
+
+                <!-- Form Actions -->
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary btn-start-work" id="startWorkBtn">
                         <i class="fas fa-play"></i>
                         <span class="btn-text">Start Work</span>
                     </button>
+
                     <a href="{% url 'service:service_dashboard' %}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i>
-                        Back to Dashboard
+                        <span class="btn-text">Back to Dashboard</span>
                     </a>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Quick Tips Section -->
+    <div style="background: white;
+                border-radius: 16px;
+                padding: 1.5rem 2rem;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                border: 1px solid #e9ecef;
+                margin-top: 1.5rem;">
+        <h3 style="margin: 0 0 1rem 0; color: #059669; font-size: 1.125rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-star"></i>
+            <span>Best Practices</span>
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div style="display: flex; gap: 0.75rem; align-items: start;">
+                <i class="fas fa-check-circle" style="color: #059669; font-size: 1.25rem; margin-top: 0.125rem;"></i>
+                <div>
+                    <strong style="display: block; margin-bottom: 0.25rem; color: #1a202c;">Be Specific</strong>
+                    <span style="font-size: 0.875rem; color: #64748b;">Detail your assessment and planned approach</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 0.75rem; align-items: start;">
+                <i class="fas fa-check-circle" style="color: #059669; font-size: 1.25rem; margin-top: 0.125rem;"></i>
+                <div>
+                    <strong style="display: block; margin-bottom: 0.25rem; color: #1a202c;">List Tools</strong>
+                    <span style="font-size: 0.875rem; color: #64748b;">Mention equipment and parts needed</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 0.75rem; align-items: start;">
+                <i class="fas fa-check-circle" style="color: #059669; font-size: 1.25rem; margin-top: 0.125rem;"></i>
+                <div>
+                    <strong style="display: block; margin-bottom: 0.25rem; color: #1a202c;">Time Estimate</strong>
+                    <span style="font-size: 0.875rem; color: #64748b;">Provide approximate completion timeline</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
