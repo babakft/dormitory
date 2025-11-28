@@ -4,51 +4,68 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'service/css/complete_work.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="complete-work-container">
-    <!-- Header Section -->
-    <div class="page-header">
+    <!-- Enhanced Header Section -->
+    <header class="complete-work-header">
         <div class="header-content">
             <div class="header-info">
+                <nav class="breadcrumb" aria-label="Breadcrumb">
+                    <a href="{% url 'service:service_dashboard' %}" class="breadcrumb-link">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <span class="breadcrumb-separator">/</span>
+                    <span class="breadcrumb-current">Complete Work</span>
+                </nav>
                 <h1 class="page-title">
                     <i class="fas fa-check-circle"></i>
-                    Complete Work
+                    <span>Complete Maintenance Request</span>
                 </h1>
-                <div class="breadcrumb">
-                    <span class="breadcrumb-item">Dashboard</span>
-                    <i class="fas fa-chevron-right"></i>
-                    <span class="breadcrumb-item active">Complete Work</span>
+            </div>
+            <div class="header-status">
+                <div class="status-badge status-completing">
+                    <i class="fas fa-flag-checkered"></i>
+                    <span>Finalizing Work</span>
                 </div>
             </div>
-            <div class="header-actions">
-                <a href="{% url 'service:service_dashboard' %}" class="btn btn-outline">
-                    <i class="fas fa-arrow-left"></i>
-                    Back to Dashboard
-                </a>
-            </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Work Details Card -->
-    <div class="work-details-card">
+    <!-- Work Summary Card -->
+    <div class="work-summary-card">
         <div class="card-header">
             <h2 class="card-title">
                 <i class="fas fa-info-circle"></i>
-                Work Details
+                <span>Work Summary</span>
             </h2>
+            <div class="work-duration">
+                <i class="fas fa-clock"></i>
+                <span>Started: {{ maintenance_request.work_started_at|date:"M d, Y H:i" }}</span>
+            </div>
         </div>
         <div class="card-body">
-            <div class="details-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Request Title</div>
-                    <div class="detail-value">{{ maintenance_request.title }}</div>
+            <!-- Work Information Grid -->
+            <div class="work-info-grid">
+                <div class="info-item">
+                    <label class="info-label">
+                        <i class="fas fa-tools"></i>
+                        <span>Request Title</span>
+                    </label>
+                    <div class="info-value work-title">
+                        {{ maintenance_request.title }}
+                    </div>
                 </div>
 
-                <div class="detail-item">
-                    <div class="detail-label">Student</div>
-                    <div class="detail-value">
+                <div class="info-item">
+                    <label class="info-label">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Student</span>
+                    </label>
+                    <div class="info-value">
                         <div class="student-info">
                             <span class="student-name">{{ maintenance_request.student.user.username }}</span>
                             <span class="student-number">#{{ maintenance_request.student.student_number }}</span>
@@ -56,31 +73,48 @@
                     </div>
                 </div>
 
-                <div class="detail-item">
-                    <div class="detail-label">Location</div>
-                    <div class="detail-value">
+                <div class="info-item">
+                    <label class="info-label">
                         <i class="fas fa-map-marker-alt"></i>
+                        <span>Location</span>
+                    </label>
+                    <div class="info-value">
                         {{ maintenance_request.full_location }}
                     </div>
                 </div>
 
-                <div class="detail-item">
-                    <div class="detail-label">Work Started</div>
-                    <div class="detail-value">
-                        <i class="fas fa-clock"></i>
-                        {{ maintenance_request.work_started_at|date:"M d, Y H:i" }}
+                <div class="info-item">
+                    <label class="info-label">
+                        <i class="fas fa-cog"></i>
+                        <span>Service Type</span>
+                    </label>
+                    <div class="info-value">
+                        {{ maintenance_request.get_service_type_display }}
                     </div>
                 </div>
-
-                {% if maintenance_request.expert_notes %}
-                <div class="detail-item detail-item--full">
-                    <div class="detail-label">Your Initial Notes</div>
-                    <div class="detail-value">
-                        <div class="notes-display">{{ maintenance_request.expert_notes }}</div>
-                    </div>
-                </div>
-                {% endif %}
             </div>
+
+            <!-- Original Description -->
+            {% if maintenance_request.description %}
+            <div class="description-section">
+                <label class="info-label">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Original Problem Description</span>
+                </label>
+                <div class="description-content">{{ maintenance_request.description }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Expert's Initial Notes -->
+            {% if maintenance_request.expert_notes %}
+            <div class="description-section">
+                <label class="info-label">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Your Initial Assessment</span>
+                </label>
+                <div class="description-content initial-notes">{{ maintenance_request.expert_notes }}</div>
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -89,96 +123,195 @@
         <div class="card-header">
             <h2 class="card-title">
                 <i class="fas fa-edit"></i>
-                Complete Work Report
+                <span>Completion Report</span>
             </h2>
-            <div class="required-notice">
+            <div class="required-badge">
                 <i class="fas fa-exclamation-circle"></i>
-                All fields are required
+                <span>All fields required</span>
             </div>
         </div>
         <div class="card-body">
+            <!-- Form Errors -->
+            {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="alert-content">
+                    <strong>Please correct the following errors:</strong>
+                    <ul class="error-list">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Django Messages -->
+            {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert">
+                    <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+                    <div class="alert-content">{{ message }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Completion Form -->
             <form method="post" enctype="multipart/form-data" class="completion-form" id="completeWorkForm">
                 {% csrf_token %}
-
-                <!-- Form Errors -->
-                {% if form.errors %}
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <div class="alert-content">
-                        <h4>Please correct the following errors:</h4>
-                        <ul class="error-list">
-                            {% for field, errors in form.errors.items %}
-                                {% for error in errors %}
-                                    <li>{{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-                {% endif %}
 
                 <!-- Completion Notes Field -->
                 <div class="form-group">
                     <label for="{{ form.completion_notes.id_for_label }}" class="form-label">
                         <i class="fas fa-file-alt"></i>
-                        {{ form.completion_notes.label }}
-                        <span class="required">*</span>
+                        <span>{{ form.completion_notes.label }}</span>
+                        <span class="required-mark">*</span>
                     </label>
+
                     {{ form.completion_notes }}
-                    {% if form.completion_notes.help_text %}
+
                     <div class="form-help">
                         <i class="fas fa-info-circle"></i>
-                        {{ form.completion_notes.help_text }}
+                        <span>Describe the work completed, parts used, and any recommendations. Minimum 10 characters.</span>
                     </div>
+
+                    <div class="character-counter">
+                        <span id="charCount">0</span> / 1000 characters
+                    </div>
+
+                    {% if form.completion_notes.errors %}
+                    <div class="field-error">{{ form.completion_notes.errors.0 }}</div>
                     {% endif %}
-                    <div class="char-counter">
-                        <span id="charCount">0</span> characters (minimum 10 required)
-                    </div>
                 </div>
 
                 <!-- Completion Image Field -->
                 <div class="form-group">
                     <label for="{{ form.completion_image.id_for_label }}" class="form-label">
                         <i class="fas fa-camera"></i>
-                        {{ form.completion_image.label }}
-                        <span class="required">*</span>
+                        <span>{{ form.completion_image.label }}</span>
+                        <span class="required-mark">*</span>
                     </label>
 
-                    <div class="file-upload-wrapper">
+                    <div class="file-upload-area">
                         {{ form.completion_image }}
-                        <div class="file-upload-display" id="fileUploadDisplay">
-                            <div class="upload-placeholder">
+
+                        <div class="upload-placeholder" id="uploadPlaceholder">
+                            <div class="upload-icon">
                                 <i class="fas fa-cloud-upload-alt"></i>
-                                <span class="upload-text">Click to select image or drag and drop</span>
-                                <span class="upload-formats">PNG, JPG, JPEG up to 10MB</span>
+                            </div>
+                            <div class="upload-text">
+                                <span class="upload-title">Click to upload or drag and drop</span>
+                                <span class="upload-subtitle">PNG, JPG, JPEG up to 10MB</span>
+                            </div>
+                        </div>
+
+                        <div class="image-preview-container" id="imagePreviewContainer" style="display: none;">
+                            <div class="image-preview-wrapper">
+                                <img id="imagePreview" src="" alt="Completion photo preview">
+                                <button type="button" class="remove-image-btn" id="removeImageBtn">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="image-info" id="imageInfo">
+                                <div class="image-name" id="imageName"></div>
+                                <div class="image-size" id="imageSize"></div>
                             </div>
                         </div>
                     </div>
 
-                    {% if form.completion_image.help_text %}
                     <div class="form-help">
                         <i class="fas fa-info-circle"></i>
-                        {{ form.completion_image.help_text }}
+                        <span>Upload a clear photo showing the completed work. This will be visible to the student.</span>
                     </div>
+
+                    {% if form.completion_image.errors %}
+                    <div class="field-error">{{ form.completion_image.errors.0 }}</div>
                     {% endif %}
+                </div>
+
+                <!-- Important Notice -->
+                <div class="completion-notice">
+                    <div class="notice-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="notice-content">
+                        <h4 class="notice-title">What Happens After Completion?</h4>
+                        <ul class="notice-list">
+                            <li><i class="fas fa-check"></i> Request status changes to "Completed"</li>
+                            <li><i class="fas fa-check"></i> Student receives instant notification with your report</li>
+                            <li><i class="fas fa-check"></i> Student can view completion photo and notes</li>
+                            <li><i class="fas fa-check"></i> Student can rate your service</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="form-actions">
-                    <button type="button" class="btn btn-outline" onclick="history.back()">
-                        <i class="fas fa-times"></i>
-                        Cancel
-                    </button>
                     <button type="submit" class="btn btn-primary" id="submitBtn">
-                        <i class="fas fa-check"></i>
+                        <i class="fas fa-check-double"></i>
                         <span class="btn-text">Complete Work</span>
-                        <div class="btn-loading">
+                        <div class="btn-loader">
                             <i class="fas fa-spinner fa-spin"></i>
-                            Processing...
+                            <span>Processing...</span>
                         </div>
                     </button>
+
+                    <a href="{% url 'service:service_dashboard' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        <span>Cancel</span>
+                    </a>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Best Practices Section -->
+    <div class="best-practices-card">
+        <h3 class="practices-title">
+            <i class="fas fa-star"></i>
+            <span>Completion Best Practices</span>
+        </h3>
+        <div class="practices-grid">
+            <div class="practice-item">
+                <div class="practice-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <div class="practice-content">
+                    <strong>Clear Photo</strong>
+                    <span>Take a well-lit, focused photo of the completed work</span>
+                </div>
+            </div>
+            <div class="practice-item">
+                <div class="practice-icon">
+                    <i class="fas fa-list-ul"></i>
+                </div>
+                <div class="practice-content">
+                    <strong>Detailed Notes</strong>
+                    <span>Document all work done and parts replaced</span>
+                </div>
+            </div>
+            <div class="practice-item">
+                <div class="practice-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="practice-content">
+                    <strong>Recommendations</strong>
+                    <span>Include preventive maintenance tips if applicable</span>
+                </div>
+            </div>
+            <div class="practice-item">
+                <div class="practice-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="practice-content">
+                    <strong>Quality Check</strong>
+                    <span>Verify all issues are resolved before submitting</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
