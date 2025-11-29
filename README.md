@@ -2,9 +2,26 @@
 
 🏢 **website:** [www.dormitoryplus.ir](http://www.dormitoryplus.ir)
 
-**(The UI/UX is not optimized at all and its completely handled by ai becuase the real interface and UI/UX is in persian brach which is in persian)**
+## 📌 Important Note
 
-A comprehensive dormitory management platform built with Django, featuring real-time communication, complex workflow automation, and multi-role authentication systems.
+**The UI/UX shown in the link above is a basic English prototype** that has not been fully optimized. Since GitHub is an English-based platform, this initial version was developed in English for demonstration purposes.
+
+**The final version of the system**, which was presented at my university, features:
+- ✅ Fully optimized and polished user interface
+- ✅ Complete Persian (Farsi) localization for all menus and content
+- ✅ Enhanced design meeting international standards
+- ✅ Optimized user experience for Persian-speaking users
+
+### 🎥 Demo Videos of Final Persian Version
+
+For a complete view of the final implemented system with Persian interface, please see the following demonstration videos:
+
+- [🎬 Student](https://s5.uupload.ir/files/babakft82/student.mp4)
+- [🎬 Service](https://s5.uupload.ir/files/babakft82/serv.mp4)
+- [🎬 Admin](https://s5.uupload.ir/files/babakft82/admin.mp4)
+- [🎬 responsive](https://s5.uupload.ir/files/babakft82/responsiveness.mp4)
+
+---
 
 ## What This System Does
 
