@@ -2,6 +2,8 @@
 
 🏢 **website:** [www.dormitoryplus.ir](http://www.dormitoryplus.ir)
 
+
+!!!!!!! duo to [international balckout](https://en.wikipedia.org/wiki/2026_Internet_blackout_in_Iran) in iran the server,picture,and clips might not work!
 ## 📌 Important Note
 
 **The UI/UX shown in the link above is a basic English prototype** that has not been fully optimized. Since GitHub is an English-based platform, this initial version was developed in English for demonstration purposes.
